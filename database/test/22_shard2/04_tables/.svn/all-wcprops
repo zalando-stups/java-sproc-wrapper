@@ -1,0 +1,11 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/reboot-libs/!svn/ver/1165/zalando-sprocwrapper/database/test/22_shard2/04_tables
+END
+10_address.sql
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/reboot-libs/!svn/ver/1165/zalando-sprocwrapper/database/test/22_shard2/04_tables/10_address.sql
+END

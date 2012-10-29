@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.org/config/1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+    http://activemq.org/config/1.0 http://activemq.apache.org/schema/core/activemq-core-5.0-SNAPSHOT.xsd
+    http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
+    http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
+    "
+    default-lazy-init="true">
+
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesMode" value="2" />
+
+    </bean>
+
+    <bean id="SProcWrapperNamingStrategy" class="de.zalando.sprocwrapper.proxy.NameIdentityStrategy">
+    </bean>
+
+    <context:component-scan base-package="de.zalando" />
+    <context:annotation-config />
+
+    <bean id="testDataSource1" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="org.postgresql.Driver" />
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
+        <property name="username" value="${frontend.sproc.datasource.username}" />
+        <property name="password" value="${frontend.sproc.datasource.password}" />
+        <property name="initSQL" value="SET search_path to ztest_shard1, public;" />
+        <property name="minConnectionsPerPartition" value="1" />
+        <property name="maxConnectionsPerPartition" value="1" />
+    </bean>
+
+    <bean id="testDataSource2" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="org.postgresql.Driver" />
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
+        <property name="username" value="${frontend.sproc.datasource.username}" />
+        <property name="password" value="${frontend.sproc.datasource.password}" />
+        <property name="initSQL" value="SET search_path to ztest_shard2, public;" />
+        <property name="minConnectionsPerPartition" value="1" />
+        <property name="maxConnectionsPerPartition" value="1" />
+    </bean>
+
+    <bean id="testDataSource3" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="org.postgresql.Driver" />
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
+        <property name="username" value="${frontend.sproc.datasource.username}" />
+        <property name="password" value="${frontend.sproc.datasource.password}" />
+        <property name="initSQL" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_shard1, public;" />
+        <property name="minConnectionsPerPartition" value="1" />
+        <property name="maxConnectionsPerPartition" value="1" />
+    </bean>
+
+    <bean id="testDataCustomerExample" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
+        <property name="driverClass" value="org.postgresql.Driver" />
+        <property name="jdbcUrl" value="${frontend.sproc.datasource.url}" />
+        <property name="username" value="${frontend.sproc.datasource.username}" />
+        <property name="password" value="${frontend.sproc.datasource.password}" />
+        <property name="initSQL" value="SET search_path to customerexample, public;" />
+        <property name="minConnectionsPerPartition" value="1" />
+        <property name="maxConnectionsPerPartition" value="1" />
+    </bean>
+
+    <bean id="testDataCustomerExampleProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">
+        <constructor-arg>
+                <ref bean="testDataCustomerExample"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="testDataSourceProviderOtherTimeZone" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
+        <constructor-arg>
+            <list>
+                <ref bean="testDataSource3"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="testDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
+        <constructor-arg>
+            <list>
+                <ref bean="testDataSource1"/>
+                <ref bean="testDataSource2"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="testShardDataSourceFromMap" class="de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
+        <constructor-arg>
+            <map>
+                <entry key="0" value-ref="testDataSource1" />
+                <entry key="1" value-ref="testDataSource2" />
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="testBitmapShardDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
+        <constructor-arg>
+            <value>com.jolbox.bonecp.BoneCPDataSource</value>
+        </constructor-arg>
+        <constructor-arg>
+            <map>
+                <entry><key><value>driverClass</value></key><value>org.postgresql.Driver</value></entry>
+                <entry><key><value>username</value></key><value>${frontend.sproc.datasource.username}</value></entry>
+                <entry><key><value>password</value></key><value>${frontend.sproc.datasource.password}</value></entry>
+            </map>
+        </constructor-arg>
+        <constructor-arg>
+            <map>
+                <entry>
+                    <key><value>00</value></key>
+                    <value>${frontend.sproc.datasource.url}|SET search_path to ztest_shard1, public; CREATE TEMPORARY TABLE shard_name (shard_name text); INSERT INTO shard_name (shard_name) VALUES ('00')</value>
+                </entry>
+                <entry>
+                    <key><value>10</value></key>
+                    <value>${frontend.sproc.datasource.url}|SET search_path to ztest_shard1, public; CREATE TEMPORARY TABLE shard_name (shard_name text); INSERT INTO shard_name (shard_name) VALUES ('10')</value>
+                </entry>
+                <entry>
+                    <key><value>1</value></key>
+                    <value>${frontend.sproc.datasource.url}|SET search_path to ztest_shard2, public; CREATE TEMPORARY TABLE shard_name (shard_name text); INSERT INTO shard_name (shard_name) VALUES ('1')</value>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+</beans>
