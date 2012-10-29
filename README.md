@@ -1,4 +1,4 @@
-zalando-sproc-wrapper-beta
+java-sproc-wrapper
 ==========================
 
 Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types such as enums and hstore.
