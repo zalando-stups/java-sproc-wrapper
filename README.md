@@ -1,7 +1,14 @@
 java-sproc-wrapper
 ==========================
 
-Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types such as enums and hstore.
+Library to make PostgreSQL stored procedures(SProcs) available through simple Java "SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration).
+
+Supports horizontal database sharding, advisory locking for guaranteed single node execution, configurable statement timeouts and PostgreSQL type support for enums and hstore.
+
+Dependencies:
+-------------
+
+ * Spring compatible type mapper for deserialize/serialize: https://github.com/danielnowak/sproc-spring-mapper
 
 How to run integration tests
 ----------------------------
@@ -11,6 +18,11 @@ How to run integration tests
 * run integration tests (JUnit tests with database access):
 
     mvn clean test -Pintegration-test
+	
+Known issues:
+-------------
+
+* PostgreSQL JDBC driver does not honor identical type names in different schemas, this may lead to issues if typemapper is used where types are present with equal name in more than one schema.
 
 License
 -------
