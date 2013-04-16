@@ -659,6 +659,8 @@ class StoredProcedure {
         return ret;
     }
 
+    // TODO rename transactionIds Map, it is not a map of transaction ids
+    // TODO get rid of transactionIdMap, now use one global transaction id accross all shards
     private void commitTransaction(final Map<Integer, SameConnectionDatasource> transactionIds) {
         if (readOnly == false && writeTransaction != WriteTransaction.NONE) {
             if (writeTransaction == WriteTransaction.ONE_PHASE) {
@@ -684,15 +686,17 @@ class StoredProcedure {
             } else if (writeTransaction == WriteTransaction.TWO_PHASE) {
                 final Map<Integer, String> transactionIdMap = Maps.newHashMap();
                 boolean commitFailed = false;
+                
+                final String transactionId = "sprocwrapper_" + UUID.randomUUID();                
+                
                 for (final Entry<Integer, SameConnectionDatasource> shardEntry : transactionIds.entrySet()) {
                     try {
                         LOG.trace("prepare transaction on shard [{}]", shardEntry.getKey());
 
                         final DataSource shardDs = shardEntry.getValue();
                         final Statement st = shardDs.getConnection().createStatement();
-                        final String transactionId = "'" + UUID.randomUUID() + "'";
 
-                        transactionIdMap.put(shardEntry.getKey(), transactionId);
+                        transactionIdMap.put(shardEntry.getKey(), transactionId); 
 
                         st.execute("PREPARE TRANSACTION " + transactionId);
                         st.close();
