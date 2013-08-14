@@ -7,10 +7,11 @@ import java.sql.Connection;
 
 import java.util.Collection;
 
-import com.typemapper.annotations.DatabaseType;
+import de.zalando.sprocwrapper.util.NameUtils;
 
-import com.typemapper.postgres.PgArray;
-import com.typemapper.postgres.PgTypeHelper;
+import de.zalando.typemapper.annotations.DatabaseType;
+import de.zalando.typemapper.postgres.PgArray;
+import de.zalando.typemapper.postgres.PgTypeHelper;
 
 /**
  * @author  jmussler
@@ -43,8 +44,7 @@ class ArrayStoredProcedureParameter extends StoredProcedureParameter {
 
                     final DatabaseType dbType = paramsClass.getAnnotation(DatabaseType.class);
                     if (dbType == null) {
-                        innerTypeName = SProcProxyBuilder.getNamingStrategy().getPGTypeNameFromJavaName(
-                                paramsClass.getSimpleName());
+                        innerTypeName = NameUtils.camelCaseToUnderscore(paramsClass.getSimpleName());
                     } else {
                         innerTypeName = dbType.name();
                     }

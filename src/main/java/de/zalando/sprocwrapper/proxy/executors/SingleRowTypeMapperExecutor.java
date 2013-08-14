@@ -6,7 +6,7 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.typemapper.core.TypeMapperFactory;
+import de.zalando.typemapper.core.TypeMapperFactory;
 
 /**
  * @author  jmussler

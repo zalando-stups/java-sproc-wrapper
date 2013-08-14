@@ -7,12 +7,16 @@ import java.sql.SQLException;
 
 import org.postgresql.util.PGobject;
 
-import com.typemapper.postgres.PgTypeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.zalando.typemapper.postgres.PgTypeHelper;
 
 /**
  * @author  jmussler
  */
 class OtherStoredProcedureParameter extends StoredProcedureParameter {
+    private static final Logger LOG = LoggerFactory.getLogger(OtherStoredProcedureParameter.class);
 
     public OtherStoredProcedureParameter(final Class<?> clazz, final Method m, final String typeName, final int sqlType,
             final int javaPosition, final boolean sensitive) {

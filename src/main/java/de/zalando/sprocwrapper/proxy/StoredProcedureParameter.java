@@ -11,18 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
-import com.typemapper.core.ValueTransformer;
-
 import de.zalando.sprocwrapper.globalvaluetransformer.GlobalValueTransformerLoader;
+import de.zalando.sprocwrapper.util.NameUtils;
+
+import de.zalando.typemapper.core.ValueTransformer;
 
 /**
  * @author  jmussler
  */
 class StoredProcedureParameter {
-
-    protected static final Logger LOG = Logger.getLogger(StoredProcedureParameter.class);
 
     protected static final Map<Class<?>, Integer> SQL_MAPPING = new HashMap<Class<?>, Integer>();
 
@@ -110,7 +107,7 @@ class StoredProcedureParameter {
         type = typeId;
 
         if (typeName == null || typeName.isEmpty()) {
-            this.typeName = SProcProxyBuilder.getNamingStrategy().getPGTypeNameFromJavaName(clazz.getSimpleName());
+            this.typeName = NameUtils.camelCaseToUnderscore(clazz.getSimpleName());
         } else {
             this.typeName = typeName;
         }

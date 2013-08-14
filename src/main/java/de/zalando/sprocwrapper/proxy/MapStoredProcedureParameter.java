@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 import java.util.Map;
 
-import com.typemapper.postgres.HStore;
+import de.zalando.typemapper.postgres.HStore;
 
 public class MapStoredProcedureParameter extends StoredProcedureParameter {
 

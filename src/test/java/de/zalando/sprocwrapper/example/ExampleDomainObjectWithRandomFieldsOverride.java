@@ -2,8 +2,8 @@ package de.zalando.sprocwrapper.example;
 
 import java.util.List;
 
-import com.typemapper.annotations.DatabaseField;
-import com.typemapper.annotations.DatabaseType;
+import de.zalando.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseType;
 
 @DatabaseType(name = "example_domain_object_with_random_fields")
 public class ExampleDomainObjectWithRandomFieldsOverride {

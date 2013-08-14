@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import com.typemapper.core.ValueTransformer;
-import com.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
+import de.zalando.typemapper.core.ValueTransformer;
+import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
 /**
  * This Executor wraps stored procedure calls that use advisory locks and / or need different statement timeouts set.

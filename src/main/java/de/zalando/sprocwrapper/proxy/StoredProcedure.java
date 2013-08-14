@@ -23,13 +23,13 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.typemapper.core.ValueTransformer;
 
 import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.SProcService.WriteTransaction;
@@ -45,8 +45,11 @@ import de.zalando.sprocwrapper.proxy.executors.SingleRowCustomMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowSimpleTypeExecutor;
 import de.zalando.sprocwrapper.proxy.executors.SingleRowTypeMapperExecutor;
 import de.zalando.sprocwrapper.proxy.executors.ValidationExecutorWrapper;
+import de.zalando.sprocwrapper.sharding.ShardedDataAccessException;
 import de.zalando.sprocwrapper.sharding.ShardedObject;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
+
+import de.zalando.typemapper.core.ValueTransformer;
 
 /**
  * @author  jmussler
@@ -430,8 +433,8 @@ class StoredProcedure {
             connection = firstDs.getConnection();
 
         } catch (final SQLException e) {
-            throw new IllegalStateException("Failed to acquire connection for virtual shard " + shardIds.get(0)
-                    + " for " + name, e);
+            throw new CannotGetJdbcConnectionException("Failed to acquire connection for virtual shard "
+                    + shardIds.get(0) + " for " + name, e);
         }
 
         final List<Object[]> paramValues = Lists.newArrayList();
@@ -531,6 +534,7 @@ class StoredProcedure {
         DataSource shardDs;
         int i = 0;
         final List<String> exceptions = Lists.newArrayList();
+        final ImmutableMap.Builder<Integer, Throwable> causes = ImmutableMap.builder();
         for (final int shardId : shardIds) {
             shardDs = getShardDs(dp, transactionalDatasources, shardId);
             if (LOG.isDebugEnabled()) {
@@ -545,26 +549,19 @@ class StoredProcedure {
 
                 // remember all exceptions and go on
                 exceptions.add("shardId: " + shardId + ", message: " + e.getMessage() + ", query: " + getQuery());
+                causes.put(shardId, e);
             }
 
-            if (searchShards && sprocResult != null) {
-                if (collectionResult) {
-                    results.addAll((Collection) sprocResult);
-                }
-
+            if (addResultsBreakWhenSharded(results, sprocResult)) {
                 break;
-            }
-
-            if (collectionResult && sprocResult != null) {
-                results.addAll((Collection) sprocResult);
             }
 
             i++;
         }
 
         if (!exceptions.isEmpty()) {
-            throw new IllegalStateException("Got exception(s) while executing sproc on shards: "
-                    + Joiner.on(", ").join(exceptions));
+            throw new ShardedDataAccessException("Got exception(s) while executing sproc on shards: "
+                    + Joiner.on(", ").join(exceptions), causes.build());
         }
 
         return sprocResult;
@@ -575,7 +572,7 @@ class StoredProcedure {
             final List<Object[]> paramValues, final Map<Integer, SameConnectionDatasource> transactionalDatasources,
             final List<?> results, Object sprocResult) {
         DataSource shardDs;
-        final List<FutureTask<Object>> taskList = Lists.newArrayList();
+        final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
         FutureTask<Object> task;
         int i = 0;
 
@@ -586,45 +583,62 @@ class StoredProcedure {
             }
 
             task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), args));
-            taskList.add(task);
+            tasks.put(shardId, task);
             parallelThreadPool.execute(task);
             i++;
         }
 
         final List<String> exceptions = Lists.newArrayList();
-        for (final FutureTask<Object> taskToFinish : taskList) {
+        final ImmutableMap.Builder<Integer, Throwable> causes = ImmutableMap.builder();
+
+        for (final Entry<Integer, FutureTask<Object>> taskToFinish : tasks.entrySet()) {
             try {
-                sprocResult = taskToFinish.get();
+                sprocResult = taskToFinish.getValue().get();
             } catch (final InterruptedException ex) {
 
                 // remember all exceptions and go on
                 exceptions.add("got sharding execution exception: " + ex.getMessage() + ", query: " + getQuery());
+                causes.put(taskToFinish.getKey(), ex);
             } catch (final ExecutionException ex) {
 
                 // remember all exceptions and go on
                 exceptions.add("got sharding execution exception: " + ex.getCause().getMessage() + ", query: "
                         + getQuery());
+                causes.put(taskToFinish.getKey(), ex.getCause());
             }
 
-            if (searchShards && sprocResult != null) {
-                if (collectionResult) {
-                    results.addAll((Collection) sprocResult);
-                }
-
+            if (addResultsBreakWhenSharded(results, sprocResult)) {
                 break;
-            }
-
-            if (collectionResult) {
-                results.addAll((Collection) sprocResult);
             }
         }
 
         if (!exceptions.isEmpty()) {
-            throw new IllegalStateException("Got exception(s) while executing sproc on shards: "
-                    + Joiner.on(", ").join(exceptions));
+            throw new ShardedDataAccessException("Got exception(s) while executing sproc on shards: "
+                    + Joiner.on(", ").join(exceptions), causes.build());
         }
 
         return sprocResult;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private boolean addResultsBreakWhenSharded(final Collection results, final Object sprocResult) {
+        boolean breakSearch = false;
+
+        if (collectionResult && sprocResult != null && !((Collection) sprocResult).isEmpty()) {
+
+            // Result is a non-empty collection
+            results.addAll((Collection) sprocResult);
+
+            // Break if shardedSearch
+            breakSearch = searchShards;
+        } else if (!collectionResult && sprocResult != null && searchShards) {
+
+            // Result is non-null, but not a collection
+            // Break if shardedSearch
+            breakSearch = true;
+        }
+
+        return breakSearch;
     }
 
     private DataSource getShardDs(final DataSourceProvider dp,
@@ -659,7 +673,6 @@ class StoredProcedure {
         return ret;
     }
 
-    // TODO get rid of transactionIdMap, now use one global transaction id accross all shards
     private void commitTransaction(final Map<Integer, SameConnectionDatasource> datasources) {
         if (readOnly == false && writeTransaction != WriteTransaction.NONE) {
             if (writeTransaction == WriteTransaction.ONE_PHASE) {
@@ -685,9 +698,10 @@ class StoredProcedure {
             } else if (writeTransaction == WriteTransaction.TWO_PHASE) {
 
                 boolean commitFailed = false;
-                
-                final String transactionId = "sprocwrapper_" + UUID.randomUUID();                
-                
+
+                final String transactionId = "sprocwrapper_" + UUID.randomUUID();
+                final String prepareTransactionStatement = "PREPARE TRANSACTION '" + transactionId + "'";
+
                 for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                     try {
                         LOG.trace("prepare transaction on shard [{}]", shardEntry.getKey());
@@ -695,7 +709,7 @@ class StoredProcedure {
                         final DataSource shardDs = shardEntry.getValue();
                         final Statement st = shardDs.getConnection().createStatement();
 
-                        st.execute("PREPARE TRANSACTION " + transactionId);
+                        st.execute(prepareTransactionStatement);
                         st.close();
 
                     } catch (final Exception e) {
@@ -703,20 +717,23 @@ class StoredProcedure {
 
                         // log, but go on, prepare other transactions - but they will be removed as well.
                         LOG.debug("prepare transaction [{}] on shard [{}] failed!",
-                            new Object[] { transactionId, shardEntry.getKey(), e});
+                            new Object[] {transactionId, shardEntry.getKey(), e});
                     }
                 }
 
                 if (commitFailed) {
                     rollbackPrepared(datasources, transactionId);
                 } else {
+                    final String commitStatement = "COMMIT PREPARED '" + transactionId + "'";
+
                     for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                         try {
-                            LOG.trace("commit prepared transaction [{}] on shard [{}]", transactionId, shardEntry.getKey());
+                            LOG.trace("commit prepared transaction [{}] on shard [{}]", transactionId,
+                                shardEntry.getKey());
 
                             final DataSource shardDs = shardEntry.getValue();
                             final Statement st = shardDs.getConnection().createStatement();
-                            st.execute("COMMIT PREPARED " + transactionId);
+                            st.execute(commitStatement);
                             st.close();
 
                             shardEntry.getValue().close();
@@ -730,7 +747,7 @@ class StoredProcedure {
                             // that may be produced at this point.
                             LOG.error(
                                 "FAILED: could not commit prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
-                                new Object[] { transactionId , shardEntry.getKey(), e});
+                                new Object[] {transactionId, shardEntry.getKey(), e});
                         }
                     }
 
@@ -747,21 +764,23 @@ class StoredProcedure {
 
     private void rollbackPrepared(final Map<Integer, SameConnectionDatasource> datasources,
             final String transactionId) {
+
+        final String rollbackQuery = "ROLLBACK PREPARED '" + transactionId + "'";
+
         for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
             try {
-                LOG.error("rollback prepared transaction [{}] on shard [{}]", transactionId,
-                    shardEntry.getKey());
+                LOG.error("rollback prepared transaction [{}] on shard [{}]", transactionId, shardEntry.getKey());
 
                 final DataSource shardDs = shardEntry.getValue();
                 final Statement st = shardDs.getConnection().createStatement();
-                st.execute("ROLLBACK PREPARED " + transactionId);
+                st.execute(rollbackQuery);
                 st.close();
 
                 shardEntry.getValue().close();
             } catch (final Exception e) {
                 LOG.error(
                     "FAILED: could not rollback prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
-                    new Object[] { transactionId, shardEntry.getKey(), e});
+                    new Object[] {transactionId, shardEntry.getKey(), e});
             }
         }
     }

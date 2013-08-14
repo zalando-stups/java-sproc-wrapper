@@ -3,6 +3,6 @@ CREATE OR REPLACE FUNCTION create_or_update_object_with_date(
     )
 RETURNS text AS
 $BODY$
-    SELECT ($1).x || ($1).my_date::text || coalesce(to_char(($1).my_timestamp, 'YYYY-MM-DD HH24:MI:SS'), '')
+    SELECT ($1).x || ($1).my_date::text || coalesce(to_char(($1).my_timestamp, 'YYYY-MM-DD HH24:MI:SS.US'), '')
 $BODY$
 LANGUAGE sql IMMUTABLE COST 100;

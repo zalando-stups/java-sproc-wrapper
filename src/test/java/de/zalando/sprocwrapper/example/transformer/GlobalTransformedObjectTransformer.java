@@ -1,9 +1,9 @@
 package de.zalando.sprocwrapper.example.transformer;
 
-import com.typemapper.core.ValueTransformer;
-
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 import de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer;
+
+import de.zalando.typemapper.core.ValueTransformer;
 
 @GlobalValueTransformer
 public class GlobalTransformedObjectTransformer extends ValueTransformer<String, GlobalTransformedObject> {

@@ -3,7 +3,7 @@ package de.zalando.sprocwrapper.example;
 import java.util.List;
 import java.util.Set;
 
-import com.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseField;
 
 /**
  * @author  jmussler

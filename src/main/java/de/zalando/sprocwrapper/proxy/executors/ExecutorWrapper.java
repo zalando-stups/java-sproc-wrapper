@@ -37,7 +37,7 @@ public class ExecutorWrapper implements Executor {
             return;
         }
 
-        LOG.debug("Setting statement timeout " + timeoutInMilliSeconds);
+        LOG.debug("Setting statement timeout {}", timeoutInMilliSeconds);
 
         final Statement st = conn.createStatement();
         st.execute("SET application_name TO 'timeout:" + timeoutInMilliSeconds + "'");

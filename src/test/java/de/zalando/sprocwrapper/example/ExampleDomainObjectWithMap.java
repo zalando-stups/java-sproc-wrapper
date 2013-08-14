@@ -2,7 +2,7 @@ package de.zalando.sprocwrapper.example;
 
 import java.util.Map;
 
-import com.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseField;
 
 public class ExampleDomainObjectWithMap {
     @DatabaseField(name = "a")

@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import java.text.SimpleDateFormat;
 
@@ -40,8 +41,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.zalando.sprocwrapper.example.AddressPojo;
+import de.zalando.sprocwrapper.example.Example1DomainObject1;
+import de.zalando.sprocwrapper.example.Example1DomainObject2;
+import de.zalando.sprocwrapper.example.Example2DomainObject1;
+import de.zalando.sprocwrapper.example.Example2DomainObject2;
 import de.zalando.sprocwrapper.example.ExampleDomainObject;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
+import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEmbed;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithGlobalTransformer;
 import de.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
@@ -57,6 +63,8 @@ import de.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
+
+import de.zalando.typemapper.parser.DateTimeUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
@@ -99,6 +107,13 @@ public class SimpleIT {
 
         assertEquals("123", transformed.getA());
         assertEquals("hallo", transformed.getB());
+    }
+
+    @Test
+    public void testMicroSecondTimestamp() throws SQLException {
+        java.sql.Timestamp t = exampleSProcService.getMicorsecondTimestamp();
+        assertEquals(t.getNanos(), 123456000);
+        System.out.println(t);
     }
 
     @Test
@@ -195,6 +210,42 @@ public class SimpleIT {
         final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
 
         // we cannot distinct on sql-level if the null is GlobalTransformedObject of GlobalTransformedObject.value
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer9() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 0);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer10() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 10);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer11() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 100);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
+        assertNotNull(transformed);
+        assertEquals(dateTime, transformed);
+    }
+
+    @Test
+    public void testGlobalTransformer12() throws SQLException {
+        final DateTime dateTime = new DateTime(2013, 2, 20, 18, 20, 0, 111);
+        final DateTime transformed = exampleSProcService.testGlobalTransformer6(dateTime);
+
         assertNotNull(transformed);
         assertEquals(dateTime, transformed);
     }
@@ -347,10 +398,11 @@ public class SimpleIT {
         result = exampleSProcService.createOrUpdateObjectWithDate(obj);
         assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)), result);
 
-        obj.setMyTimestamp(d);
+        final Timestamp t = new Timestamp(System.currentTimeMillis());
+        t.setNanos(123456789);
+        obj.setMyTimestamp(t);
         result = exampleSProcService.createOrUpdateObjectWithDate(obj);
-        assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d))
-                + (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d)), result);
+        assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)) + DateTimeUtil.format(t), result);
     }
 
     @Test
@@ -525,7 +577,7 @@ public class SimpleIT {
 
         final long startTime = System.currentTimeMillis();
         for (int i = 0; i < loops; i++) {
-            final int j = (new JdbcTemplate(dataSource1)).queryForInt("SELECT 1");
+            final int j = (new JdbcTemplate(dataSource1)).queryForInt(sql + i);
         }
 
         final long endTime = System.currentTimeMillis();
@@ -696,12 +748,87 @@ public class SimpleIT {
     }
 
     @Test
-    /**
-     * This does not work right now
-     */
-    public void testIntArray() {
-        List<Integer> a = exampleSProcService.getIntArray();
-        assertEquals(4, a.size());
+    public void testReturnDomainObjectWithEmbed() {
+        ExampleDomainObjectWithEmbed result = exampleSProcService.getEntityWithEmbed();
+        assertNotNull(result);
+        assertEquals("x", result.getX());
+
+        ExampleDomainObject y = result.getY();
+        assertNotNull(y);
+        assertEquals("a", y.getA());
+        assertEquals("b", y.getB());
+    }
+
+    @Test
+    public void testReturnDomainObjectWithEmbedEmptyString() {
+        ExampleDomainObjectWithEmbed result = exampleSProcService.getEntityWithEmbedEmptyString();
+        assertNotNull(result);
+        assertEquals("x", result.getX());
+
+        ExampleDomainObject y = result.getY();
+        assertNotNull(y);
+        assertNull(y.getA());
+        assertEquals("", y.getB());
+    }
+
+    @Test
+    public void testReturnDomainObjectWithEmbedNullFields() {
+        ExampleDomainObjectWithEmbed result = exampleSProcService.getEntityWithEmbedNullFields();
+        assertNotNull(result);
+        assertEquals("x", result.getX());
+
+        ExampleDomainObject y = result.getY();
+        assertNotNull(y);
+        assertNull(y.getA());
+        assertNull(y.getB());
+    }
+
+    @Test
+    public void testResourcesWithNumbers1() {
+        Example1DomainObject1 input = new Example1DomainObject1();
+        input.setExample1Field1("example1field1");
+
+        Example1DomainObject2 input2 = new Example1DomainObject2();
+        input2.setExample1Field1("example1complexfield1");
+        input2.setExample1Field2("example1complexfield2");
+        input.setExample1Field2(input2);
+
+        Example1DomainObject1 output = exampleSProcService.getExample1EntityWithNumbers1(input);
+        assertNotNull(output);
+        assertEquals("example1field1", output.getExample1Field1());
+
+        Example1DomainObject2 object2 = output.getExample1Field2();
+        assertNotNull(object2);
+        assertEquals("example1complexfield1", object2.getExample1Field1());
+        assertEquals("example1complexfield2", object2.getExample1Field2());
+    }
+
+    @Test
+    public void testResourcesWithNumbers2() {
+
+        Example2DomainObject1 output = exampleSProcService.getExample2EntityWithNumbers1();
+        assertNotNull(output);
+        assertEquals("example2field1", output.getExample2Field1());
+
+        Example2DomainObject2 object2 = output.getExample2Field2();
+        assertNotNull(object2);
+        assertEquals("example2complexfield1", object2.getExample2Field1());
+        assertEquals("example2complexfield2", object2.getExample2Field2());
+    }
+
+    @Test
+    public void testReturnDomainObjectWithNullInnerObject() {
+        ExampleDomainObjectWithInnerObject result = exampleSProcService.getEntityWithNullInnerObject();
+        assertNotNull(result);
+
+        assertEquals("a", result.getA());
+
+        ExampleDomainObject b = result.getB();
+        assertNotNull(b);
+        assertNull(b.getA());
+        assertNull(b.getB());
+
+        assertNull(result.getC());
     }
 
     @Test

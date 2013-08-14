@@ -1,8 +1,8 @@
 package de.zalando.sprocwrapper.example;
 
-import com.typemapper.annotations.DatabaseField;
-
 import de.zalando.sprocwrapper.sharding.ShardedObject;
+
+import de.zalando.typemapper.annotations.DatabaseField;
 
 /**
  * @author  hjacobs

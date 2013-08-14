@@ -92,6 +92,15 @@ public interface ExampleSProcService {
     @SProcCall(runOnAllShards = true, parallel = true, name = "collect_data_from_all_shards")
     List<String> collectDataFromAllShardsParallel(@SProcParam String someParameter);
 
+    @SProcCall(runOnAllShards = true, searchShards = true)
+    List<String> collectDataFromAllShardsSearchShardsOn(@SProcParam String someParameter);
+
+    @SProcCall(
+        runOnAllShards = true, parallel = true, searchShards = true,
+        name = "collect_data_from_all_shards_search_shards_on"
+    )
+    List<String> collectDataFromAllShardsParallelSearchShardsOn(@SProcParam String someParameter);
+
     @SProcCall(sql = "SELECT 1 UNION ALL SELECT 2")
     List<Integer> getInts();
 
@@ -162,6 +171,9 @@ public interface ExampleSProcService {
     @SProcCall(sql = "SELECT 'a','b',null")
     ExampleDomainObjectWithInnerObject getObjectWithNull();
 
+    @SProcCall(sql = "SELECT '2013-04-05 11:12:13.123456'::timestamp")
+    java.sql.Timestamp getMicorsecondTimestamp();
+
     @SProcCall
     ExampleDomainObjectWithSimpleTransformer testSimpleTransformer(
             @SProcParam ExampleDomainObjectWithSimpleTransformer exampleDomainObjectWithSimpleTransformer);
@@ -211,8 +223,26 @@ public interface ExampleSProcService {
     ExampleDomainObjectWithValidation testSprocCallWithValidationInvalidRet2(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
 
-    @SProcCall(sql = "SELECT '{1,2,3,4}'::int[]")
-    List<Integer> getIntArray();
+    @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbed();
+
+    @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbedEmptyString();
+
+    @SProcCall
+    ExampleDomainObjectWithEmbed getEntityWithEmbedNullFields();
+
+    @SProcCall
+    ExampleDomainObjectWithoutSetters getEntityWithoutSetters();
+
+    @SProcCall
+    ExampleDomainObjectWithInnerObject getEntityWithNullInnerObject();
+
+    @SProcCall
+    Example1DomainObject1 getExample1EntityWithNumbers1(@SProcParam Example1DomainObject1 domain);
+
+    @SProcCall
+    Example2DomainObject1 getExample2EntityWithNumbers1();
 
     @SProcCall(sql = "SELECT '{1,2,3,4}'::int[] a")
     ExampleIntCollection getExampleIntCollectionArray();

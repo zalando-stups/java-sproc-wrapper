@@ -4,7 +4,8 @@ import java.lang.reflect.Method;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 
@@ -16,7 +17,7 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
     private final HashMap<Method, StoredProcedure> sprocs = new HashMap<Method, StoredProcedure>();
     private final DataSourceProvider dataSourceProvider;
 
-    private static final Logger LOG = Logger.getLogger(SProcProxy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OtherStoredProcedureParameter.class);
 
     public boolean addStoredProcedure(final Method method, final StoredProcedure p) {
         if (sprocs.containsKey(method)) {
@@ -40,7 +41,7 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
         StoredProcedure p = sprocs.get(m);
 
         if (p == null) {
-            LOG.warn("no StoredProcedure found for method " + m);
+            LOG.warn("no StoredProcedure found for method {}", m);
             return null;
         }
 

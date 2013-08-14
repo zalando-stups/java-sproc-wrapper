@@ -1,6 +1,6 @@
 package de.zalando.sprocwrapper.example.transformer;
 
-import com.typemapper.core.ValueTransformer;
+import de.zalando.typemapper.core.ValueTransformer;
 
 public class StringTransformer extends ValueTransformer<String, String> {
     @Override

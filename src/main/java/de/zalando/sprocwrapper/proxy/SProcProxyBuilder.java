@@ -5,10 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import org.apache.log4j.Logger;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -20,6 +18,7 @@ import de.zalando.sprocwrapper.SProcService.WriteTransaction;
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
 import de.zalando.sprocwrapper.sharding.ShardKey;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
+import de.zalando.sprocwrapper.util.NameUtils;
 
 /**
  * @author  jmussler
@@ -28,31 +27,18 @@ public class SProcProxyBuilder {
 
     private static final VirtualShardKeyStrategy VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT = new VirtualShardKeyStrategy();
 
-    private static final Logger LOG = Logger.getLogger(SProcProxyBuilder.class);
-
-    @Autowired(required = false)
-    @Qualifier("SProcWrapperNamingStrategy")
-    private static NamingStrategy namingStrategy = new CamelCaseToUnderScoreStrategy();
+    private static final Logger LOG = LoggerFactory.getLogger(SProcProxyBuilder.class);
 
     private SProcProxyBuilder() {
         // utility class: private constructor
     }
 
-    public static NamingStrategy getNamingStrategy() {
-        return namingStrategy;
-    }
-
     private static String getSqlNameForMethod(final String methodName) {
-        return namingStrategy.getPGProcedureNameFromJavaName(methodName);
-    }
-
-    public <T> T buildProxy(final DataSourceProvider d, final Class<T> c) {
-        return SProcProxyBuilder.build(d, c);
+        return NameUtils.camelCaseToUnderscore(methodName);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T build(final DataSourceProvider d, final Class<T> c) {
-
         final Method[] methods = c.getMethods();
 
         final SProcProxy proxy = new SProcProxy(d);
@@ -63,11 +49,8 @@ public class SProcProxyBuilder {
         if (serviceAnnotation != null) {
             try {
                 keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();
-            } catch (final InstantiationException ex) {
-                LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
-                return null;
-            } catch (final IllegalAccessException ex) {
-                LOG.fatal("ShardKey strategy for service can not be instantiated", ex);
+            } catch (final InstantiationException | IllegalAccessException ex) {
+                LOG.error("ShardKey strategy for service can not be instantiated", ex);
                 return null;
             }
 
@@ -94,11 +77,8 @@ public class SProcProxyBuilder {
             if (scA.shardStrategy() != Void.class) {
                 try {
                     sprocStrategy = (VirtualShardKeyStrategy) scA.shardStrategy().newInstance();
-                } catch (final InstantiationException ex) {
-                    LOG.fatal("Shard strategy for sproc can not be instantiated", ex);
-                    return null;
-                } catch (final IllegalAccessException ex) {
-                    LOG.fatal("Shard strategy for sproc can not be instantiated", ex);
+                } catch (final InstantiationException | IllegalAccessException ex) {
+                    LOG.error("Shard strategy for sproc can not be instantiated", ex);
                     return null;
                 }
             }
@@ -108,14 +88,10 @@ public class SProcProxyBuilder {
             if (scA.resultMapper() != Void.class) {
                 try {
                     resultMapper = (RowMapper<?>) scA.resultMapper().newInstance();
-                } catch (final InstantiationException ex) {
-                    LOG.fatal("Result mapper for sproc can not be instantiated", ex);
-                    return null;
-                } catch (final IllegalAccessException ex) {
-                    LOG.fatal("Result mapper for sproc can not be instantiated", ex);
+                } catch (final InstantiationException | IllegalAccessException ex) {
+                    LOG.error("Result mapper for sproc can not be instantiated", ex);
                     return null;
                 }
-
             }
 
             boolean useValidation;
@@ -165,11 +141,8 @@ public class SProcProxyBuilder {
                 if (!"".equals(scA.sql())) {
                     storedProcedure.setQuery(scA.sql());
                 }
-            } catch (final InstantiationException e) {
-                LOG.fatal("Could not instantiate StoredProcedure. ABORTING.", e);
-                return null;
-            } catch (final IllegalAccessException e) {
-                LOG.fatal("Could not instantiate StoredProcedure. ABORTING.", e);
+            } catch (final InstantiationException | IllegalAccessException e) {
+                LOG.error("Could not instantiate StoredProcedure. ABORTING.", e);
                 return null;
             }
 
@@ -199,11 +172,8 @@ public class SProcProxyBuilder {
                         try {
                             storedProcedure.addParam(StoredProcedureParameter.createParameter(clazz, genericType,
                                     method, dbTypeName, sParam.sqlType(), pos, sParam.sensitive()));
-                        } catch (final InstantiationException e) {
-                            LOG.fatal("Could not instantiate StoredProcedureParameter. ABORTING.", e);
-                            return null;
-                        } catch (final IllegalAccessException e) {
-                            LOG.fatal("Could not instantiate StoredProcedureParameter. ABORTING.", e);
+                        } catch (final InstantiationException | IllegalAccessException e) {
+                            LOG.error("Could not instantiate StoredProcedureParameter. ABORTING.", e);
                             return null;
                         }
                     }
@@ -212,7 +182,7 @@ public class SProcProxyBuilder {
                 pos++;
             }
 
-            LOG.debug(c.getSimpleName() + " registering " + storedProcedure);
+            LOG.debug("{} registering {}", c.getSimpleName(), storedProcedure);
             proxy.addStoredProcedure(method, storedProcedure);
         }
 

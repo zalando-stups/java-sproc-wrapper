@@ -69,6 +69,26 @@ public class ShardingIT {
     }
 
     @Test
+    public void testRunOnAllShardsSearchShardsOn() {
+
+        // Search should stop on first shard with results.
+        final List<String> results = exampleSProcService.collectDataFromAllShardsSearchShardsOn("a");
+        Assert.assertEquals(2, results.size());
+        Assert.assertEquals("shard2row1", results.get(0));
+        Assert.assertEquals("shard2row2", results.get(1));
+    }
+
+    @Test
+    public void testRunOnAllShardsParallelSearchShardsOn() {
+
+        // Search should stop on first shard with results.
+        final List<String> results = exampleSProcService.collectDataFromAllShardsParallelSearchShardsOn("a");
+        Assert.assertEquals(2, results.size());
+        Assert.assertEquals("shard2row1", results.get(0));
+        Assert.assertEquals("shard2row2", results.get(1));
+    }
+
+    @Test
     public void testSearchShards() {
 
         Integer result = exampleBitmapShardSProcService.searchSomethingOnShards("X");

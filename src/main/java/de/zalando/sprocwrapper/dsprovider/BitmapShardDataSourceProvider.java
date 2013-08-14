@@ -12,14 +12,15 @@ import javax.sql.DataSource;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
-    private static final Logger LOG = Logger.getLogger(BitmapShardDataSourceProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BitmapShardDataSourceProvider.class);
 
     private final DataSource[] dataSources;
 
@@ -46,7 +47,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
             for (int i = 0; i < dataSources.length; i++) {
                 String binaryString = StringUtils.repeat("0", maskLength) + Integer.toBinaryString(i);
                 if (binaryString.endsWith(entry.getKey())) {
-                    LOG.debug("Configured " + entry.getValue() + " at index " + i);
+                    LOG.debug("Configured {} at index {}", entry.getValue(), i);
                     if (dataSources[i] != null) {
                         throw new IllegalArgumentException(
                             "Bitmask misconfigured for shards: two connections configured for index " + i);

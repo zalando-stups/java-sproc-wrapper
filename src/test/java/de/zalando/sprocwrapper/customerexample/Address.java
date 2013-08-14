@@ -4,8 +4,8 @@
  */
 package de.zalando.sprocwrapper.customerexample;
 
-import com.typemapper.annotations.DatabaseField;
-import com.typemapper.annotations.DatabaseType;
+import de.zalando.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseType;
 
 /**
  * @author  Jan

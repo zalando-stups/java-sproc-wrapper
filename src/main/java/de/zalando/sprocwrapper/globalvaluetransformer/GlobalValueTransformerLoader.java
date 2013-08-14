@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 
-import com.typemapper.core.ValueTransformer;
-import com.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
-
 import de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer;
+
+import de.zalando.typemapper.core.ValueTransformer;
+import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
 public class GlobalValueTransformerLoader {
 

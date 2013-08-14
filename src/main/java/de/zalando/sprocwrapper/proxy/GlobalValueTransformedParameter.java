@@ -10,11 +10,10 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import com.typemapper.core.ValueTransformer;
-
-import com.typemapper.postgres.PgTypeHelper;
-
 import de.zalando.sprocwrapper.globalvaluetransformer.ValueTransformerUtils;
+
+import de.zalando.typemapper.core.ValueTransformer;
+import de.zalando.typemapper.postgres.PgTypeHelper;
 
 public class GlobalValueTransformedParameter extends StoredProcedureParameter {
 

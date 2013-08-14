@@ -20,10 +20,6 @@
 
     <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="systemPropertiesMode" value="2" />
-
-    </bean>
-
-    <bean id="SProcWrapperNamingStrategy" class="de.zalando.sprocwrapper.proxy.NameIdentityStrategy">
     </bean>
 
     <context:component-scan base-package="de.zalando" />
@@ -35,8 +31,8 @@
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
         <property name="initSQL" value="SET search_path to ztest_shard1, public;" />
-        <property name="minConnectionsPerPartition" value="1" />
-        <property name="maxConnectionsPerPartition" value="1" />
+        <property name="minConnectionsPerPartition" value="5" />
+        <property name="maxConnectionsPerPartition" value="5" />
     </bean>
 
     <bean id="testDataSource2" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
@@ -45,8 +41,8 @@
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
         <property name="initSQL" value="SET search_path to ztest_shard2, public;" />
-        <property name="minConnectionsPerPartition" value="1" />
-        <property name="maxConnectionsPerPartition" value="1" />
+        <property name="minConnectionsPerPartition" value="5" />
+        <property name="maxConnectionsPerPartition" value="5" />
     </bean>
 
     <bean id="testDataSource3" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
@@ -55,8 +51,8 @@
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
         <property name="initSQL" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_shard1, public;" />
-        <property name="minConnectionsPerPartition" value="1" />
-        <property name="maxConnectionsPerPartition" value="1" />
+        <property name="minConnectionsPerPartition" value="5" />
+        <property name="maxConnectionsPerPartition" value="5" />
     </bean>
 
     <bean id="testDataCustomerExample" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
@@ -65,8 +61,8 @@
         <property name="username" value="${frontend.sproc.datasource.username}" />
         <property name="password" value="${frontend.sproc.datasource.password}" />
         <property name="initSQL" value="SET search_path to customerexample, public;" />
-        <property name="minConnectionsPerPartition" value="1" />
-        <property name="maxConnectionsPerPartition" value="1" />
+        <property name="minConnectionsPerPartition" value="5" />
+        <property name="maxConnectionsPerPartition" value="5" />
     </bean>
 
     <bean id="testDataCustomerExampleProvider" class="de.zalando.sprocwrapper.dsprovider.SingleDataSourceProvider">

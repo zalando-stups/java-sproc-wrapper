@@ -1,6 +1,8 @@
 
 package de.zalando.sprocwrapper.example;
 
+import java.sql.Timestamp;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -134,8 +136,18 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public List<String> collectDataFromAllShardsSearchShardsOn(final String someParameter) {
+        return sproc.collectDataFromAllShardsSearchShardsOn(someParameter);
+    }
+
+    @Override
     public List<String> collectDataFromAllShardsParallel(final String someParameter) {
         return sproc.collectDataFromAllShardsParallel(someParameter);
+    }
+
+    @Override
+    public List<String> collectDataFromAllShardsParallelSearchShardsOn(final String someParameter) {
+        return sproc.collectDataFromAllShardsParallelSearchShardsOn(someParameter);
     }
 
     @Override
@@ -332,8 +344,43 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
-    public List<Integer> getIntArray() {
-        return sproc.getIntArray();
+    public Timestamp getMicorsecondTimestamp() {
+        return sproc.getMicorsecondTimestamp();
+    }
+
+    @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbed() {
+        return sproc.getEntityWithEmbed();
+    }
+
+    @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbedEmptyString() {
+        return sproc.getEntityWithEmbedEmptyString();
+    }
+
+    @Override
+    public ExampleDomainObjectWithEmbed getEntityWithEmbedNullFields() {
+        return sproc.getEntityWithEmbedNullFields();
+    }
+
+    @Override
+    public ExampleDomainObjectWithoutSetters getEntityWithoutSetters() {
+        return sproc.getEntityWithoutSetters();
+    }
+
+    @Override
+    public ExampleDomainObjectWithInnerObject getEntityWithNullInnerObject() {
+        return sproc.getEntityWithNullInnerObject();
+    }
+
+    @Override
+    public Example1DomainObject1 getExample1EntityWithNumbers1(final Example1DomainObject1 domain) {
+        return sproc.getExample1EntityWithNumbers1(domain);
+    }
+
+    @Override
+    public Example2DomainObject1 getExample2EntityWithNumbers1() {
+        return sproc.getExample2EntityWithNumbers1();
     }
 
     @Override

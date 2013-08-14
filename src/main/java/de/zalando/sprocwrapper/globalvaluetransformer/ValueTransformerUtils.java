@@ -2,7 +2,7 @@ package de.zalando.sprocwrapper.globalvaluetransformer;
 
 import java.lang.reflect.Method;
 
-import com.typemapper.core.ValueTransformer;
+import de.zalando.typemapper.core.ValueTransformer;
 
 public final class ValueTransformerUtils {
     private ValueTransformerUtils() { }

@@ -4,7 +4,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseField;
 
 /**
  * @author  carsten.wolters

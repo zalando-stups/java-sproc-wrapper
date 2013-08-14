@@ -36,6 +36,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
         SIMPLE_TYPES.put(double.class, Double.class);
         SIMPLE_TYPES.put(boolean.class, Boolean.class);
         SIMPLE_TYPES.put(Date.class, Date.class);
+        SIMPLE_TYPES.put(java.sql.Timestamp.class, java.sql.Timestamp.class);
 
     }
 

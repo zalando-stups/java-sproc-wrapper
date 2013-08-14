@@ -1,9 +1,9 @@
 package de.zalando.sprocwrapper.example;
 
-import com.typemapper.annotations.DatabaseField;
-import com.typemapper.annotations.DatabaseType;
-
 import de.zalando.sprocwrapper.example.transformer.StringTransformer;
+
+import de.zalando.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseType;
 
 /**
  * @author  jmussler

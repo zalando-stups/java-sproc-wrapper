@@ -1,6 +1,6 @@
 package de.zalando.sprocwrapper.example;
 
-import com.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.annotations.DatabaseField;
 
 /**
  * @author  jmussler
