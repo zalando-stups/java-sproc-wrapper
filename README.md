@@ -8,7 +8,7 @@ Supports horizontal database sharding, advisory locking for guaranteed single no
 Dependencies:
 -------------
 
- * Spring compatible type mapper for deserialize/serialize: https://github.com/danielnowak/sproc-spring-mapper
+ * standard Maven dependences (Spring, Postgres, Guava, ..), see pom.xml for details
 
 How to run integration tests
 ----------------------------
@@ -18,7 +18,7 @@ How to run integration tests
 * run integration tests (JUnit tests with database access):
 
     mvn clean test -Pintegration-test
-	
+
 Known issues:
 -------------
 
@@ -29,7 +29,7 @@ Known issues:
 License
 -------
 
-Copyright 2012 Zalando GmbH
+Copyright 2012-2013 Zalando GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
