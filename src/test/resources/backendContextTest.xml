@@ -20,6 +20,11 @@
 
     <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="systemPropertiesMode" value="2" />
+        <property name="locations">
+            <list>
+                <value>classpath:application.test.properties</value>
+            </list>
+        </property>
     </bean>
 
     <context:component-scan base-package="de.zalando" />
