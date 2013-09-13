@@ -34,6 +34,7 @@ Known issues:
 * PostgreSQL `hstore` type is mapped from and to `Map<String,String>`, there is no way to use `Map` of different types for now
 * Two different datasources with the same jdbc URL and different search paths might not work properly when we have types with the identical name.
 * SprocWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SprocWrapper might end up using the wrong one, because it will use the search_path to resolve the conflict. For more info check test: SimpleIT.testTypeLookupBugWithSchema.
+* For integration with Spring's transaction management use the TransactionAwareDataSourceProxy as the data source injected into the data source provider.
 
 License
 -------
