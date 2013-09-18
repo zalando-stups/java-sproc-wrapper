@@ -8,6 +8,6 @@ package org.postgresql.jdbc2;
  */
 public class PostgresJDBCDriverReusedTimestampUtils extends TimestampUtils {
     public PostgresJDBCDriverReusedTimestampUtils() {
-        super(true, true);
+        super(true, true, false);
     }
 }

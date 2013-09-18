@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import de.zalando.typemapper.core.db.DbFunctionRegister;
-import de.zalando.typemapper.core.db.DbTypeRegister;
 import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
 public class TypeMapperFactory {
@@ -19,7 +18,6 @@ public class TypeMapperFactory {
 
     public static void initTypeAndFunctionCaches(final Connection connection, final String name) throws SQLException {
         DbFunctionRegister.initRegistry(connection, name);
-        DbTypeRegister.initRegistry(name, connection);
     }
 
     public static void registerGlobalValueTransformer(final Class<?> clazz,

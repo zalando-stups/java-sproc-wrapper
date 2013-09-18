@@ -244,7 +244,21 @@ public interface ExampleSProcService {
     @SProcCall
     Example2DomainObject1 getExample2EntityWithNumbers1();
 
-    @SProcCall(sql = "SELECT '{1,2,3,4}'::int[] a")
-    ExampleIntCollection getExampleIntCollectionArray();
+    @SProcCall(sql = "SELECT 'ENUM_CONST_2'::example_enum;")
+    ExampleEnum getExampleEnum();
 
+    @SProcCall(sql = "SELECT 1 as a, 2 as b")
+    LookupType getValueForTypeLookup();
+
+    @SProcCall(sql = "SELECT 1 as a, 2 as b")
+    List<LookupType> getValueForTypeLookupList();
+
+    @SProcCall(sql = "SELECT 1 AS count, ARRAY[(1,2)]::ztest_shard1.lookup_type[] AS bugs")
+    WrapperLookup getValueForTypeLookupInnerList();
+
+    @SProcCall(sql = "SELECT 1 AS count, ARRAY[(1,2)]::ztest_shard.lookup_type_schema[] AS bugs")
+    WrapperLookupSchema getValueForTypeLookupSchema();
+
+    @SProcCall
+    int testInheritanceFunction(@SProcParam TestInheritanceChild c);
 }

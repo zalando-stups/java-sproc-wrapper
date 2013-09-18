@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -128,6 +129,9 @@ public class ShardingTransactionIT {
     }
 
     @Test
+    @Ignore(
+        "This test only works if two phase commits are enabled in PostgreSQL server by setting max_prepared_transactions > 0 (default is 0!)"
+    )
     public void testWritingWithTwoPhaseTransaction() {
         final String street = "" + DateTime.now().getMillis();
         exampleBitmapShardSProcService.insertAddressTwoPhase(street, "none");

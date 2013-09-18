@@ -11,6 +11,10 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
+ * This class is supposed to wrap a single connection for a single thread.
+ * 
+ * It does not checking nor is it thread-safe for get and close.
+ * 
  * @author  jmussler
  */
 public class SameConnectionDatasource implements DataSource {
@@ -23,7 +27,7 @@ public class SameConnectionDatasource implements DataSource {
     }
 
     @Override
-    public synchronized Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
         if (closed) {
             throw new SQLException("Datasource is already closed!!");
         }
@@ -31,13 +35,13 @@ public class SameConnectionDatasource implements DataSource {
         return connection;
     }
 
-    public synchronized void close() throws SQLException {
+    public void close() throws SQLException {
         closed = true;
         connection.propagateClose();
     }
 
     @Override
-    public synchronized Connection getConnection(final String string, final String string1) throws SQLException {
+    public Connection getConnection(final String string, final String string1) throws SQLException {
         return getConnection();
     }
 
@@ -72,6 +76,6 @@ public class SameConnectionDatasource implements DataSource {
     }
 
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new SQLFeatureNotSupportedException("Not supported yet.");
     }
 }

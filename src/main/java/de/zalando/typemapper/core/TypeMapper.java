@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.List;
+import java.util.Map;
 
 import org.postgresql.jdbc4.Jdbc4Array;
 
@@ -22,6 +23,7 @@ import de.zalando.typemapper.core.fieldMapper.ObjectFieldMapper;
 import de.zalando.typemapper.core.result.ArrayResultNode;
 import de.zalando.typemapper.core.result.DbResultNode;
 import de.zalando.typemapper.core.result.DbResultNodeType;
+import de.zalando.typemapper.core.result.MapResultNode;
 import de.zalando.typemapper.core.result.ObjectResultNode;
 import de.zalando.typemapper.core.result.ResultTree;
 import de.zalando.typemapper.core.result.SimpleResultNode;
@@ -105,8 +107,8 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
 
                 i++;
                 continue;
-            } else if ((obj instanceof PGobject) && ((PGobject) obj).getType().equals("hstore")) {
-                node = new SimpleResultNode(obj, name);
+            } else if (obj instanceof Map) {
+                node = new MapResultNode((Map<String, String>) obj, name);
             } else if (obj instanceof PGobject) {
                 final PGobject pgObj = (PGobject) obj;
                 node = new ObjectResultNode(pgObj.getValue(), name, pgObj.getType(),
@@ -145,6 +147,18 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                 if (DbResultNodeType.SIMPLE == node.getNodeType()) {
                     final String fieldStringValue = node.getValue();
                     final Object value = mapping.getFieldMapper().mapField(fieldStringValue, mapping.getFieldClass());
+                    mapping.map(result, value);
+
+                } else if (DbResultNodeType.MAP == node.getNodeType()) {
+
+                    // TODO all fields are being converted to String and reverted later. The API forces this approach
+                    // (DbResultNode.getValue). This should be fixed because it's just causing overhead. The driver
+                    // can convert at least the basic types so we should reuse this logic. Result tree should be
+                    // improved.
+                    // Refactor away the if/else statements to a more
+                    // object-based or polymorphic solution.
+
+                    final Object value = ((MapResultNode) node).getMap();
                     mapping.map(result, value);
 
                 } else if (DbResultNodeType.OBJECT == node.getNodeType()) {
