@@ -141,9 +141,11 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
     }
 
-    /**
-     * Letzten 3 Bit bestimmen 8 Shards.
-     */
+    @Override
+    public int getDataSourceId(final int virtualShardId) {
+        return virtualShardId & mask;
+    }
+
     @Override
     public DataSource getDataSource(final int virtualShardId) {
         return dataSources[virtualShardId & mask];

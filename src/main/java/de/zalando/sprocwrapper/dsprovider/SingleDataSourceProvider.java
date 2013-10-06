@@ -16,6 +16,11 @@ public class SingleDataSourceProvider implements DataSourceProvider {
     }
 
     @Override
+    public int getDataSourceId(int virtualShardId) {
+        return 1;
+    }
+
+    @Override
     public DataSource getDataSource(final int id) {
         return dataSource;
     }

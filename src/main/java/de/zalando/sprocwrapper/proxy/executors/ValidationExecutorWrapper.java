@@ -31,7 +31,7 @@ public class ValidationExecutorWrapper implements Executor {
         try {
             factory = Validation.buildDefaultValidatorFactory();
         } catch (final Exception e) {
-            // ignore - we may not be able to initialize the factory.
+            LOG.error("",e);
         }
     }
 
