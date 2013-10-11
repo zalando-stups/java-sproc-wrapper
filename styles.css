@@ -9,13 +9,13 @@ body
 
 a
 {
-    color: rgb(90, 120, 160);
+    color: rgb(220, 100, 60);
     text-decoration: none;
 }
 
 a:hover
 {
-    color: rgb(120, 200, 240);
+    color: rgb(160, 40, 20);
 }
 
 a small
@@ -56,9 +56,9 @@ h1
 
 .bar
 {
-    background: -webkit-linear-gradient(top, #FFFFFF 0%, #F0F0F0 100%);
-    background: linear-gradient(to bottom, #FFFFFF 0%, #F0F0F0 100%);
-    border-bottom: 3px solid rgb(90, 120, 160);
+    background: -webkit-linear-gradient(top, #FFFFFF 0%, #F8F0F0 100%);
+    background: linear-gradient(to bottom, #FFFFFF 0%, #F8F0F0 100%);
+    border-bottom: 3px solid rgb(220, 100, 60);
     color: rgb(20, 30, 25);
     margin-bottom: 40px;
     padding: 20px 0 10px 0;
@@ -81,7 +81,7 @@ h1
 
 #menu .active
 {
-    color: rgb(120, 200, 240) !important;
+    color: rgb(160, 40, 20) !important;
 }
 
 
@@ -90,7 +90,7 @@ h1
 
 #topfacts
 {
-    color: rgb(130, 150, 170);
+    color: rgb(170, 150, 130);
     margin: auto;
     margin-top: 20px;
     text-align: center !important;
@@ -104,83 +104,6 @@ h1
 #topfacts > p
 {
     margin: 10px;
-}
-
-#topfacts .visualize
-{
-    background: url(images/ico_visualize.png) no-repeat top;
-}
-
-#topfacts .integrate
-{
-    background: url(images/ico_integrate.png) no-repeat top;
-}
-
-#topfacts .monitor
-{
-    background: url(images/ico_monitor.png) no-repeat top;
-}
-
-#demoframe
-{
-    border: 1px solid rgb(205, 205, 205);
-    height: 350px;
-    left: 0;
-    padding: 5px;
-    position: absolute;
-    top: 40px;
-    width: 100%;
-}
-
-#demoframe-overlay
-{
-    background-color: rgba(0, 0, 0, 0.5);
-    color: rgb(240, 240, 240);
-    font-size: 40px;
-    height: 350px;
-    left: 0;
-    opacity: 0;
-    padding-top: 80px;
-    position: absolute;
-    text-align: center;
-    top: 40px;
-    width: 100%;
-}
-
-#demoframe-overlay:hover
-{
-    opacity: 0.9;
-}
-
-#demoinfo
-{
-    margin-bottom: 50px;
-    margin-top: 410px;
-}
-
-#demoinfo h5
-{
-    margin: auto;
-    text-align: center;
-    font-size: 20px;
-}
-
-#demoinfo div
-{
-    display: block;
-    margin-top: 10px;
-}
-
-#demoinfo a
-{
-    font-weight: bold;
-}
-
-#demoinfo small
-{
-    display: block;
-    font-size: 12px;
-    margin-top: 10px;
 }
 
 /* CONTENTS
@@ -202,13 +125,6 @@ h2
     margin: 0;
     padding: 0;
     text-align: left;
-}
-
-ul.paas small
-{
-    color: rgb(130, 150, 170);
-    display: block;
-    font-size: 14px;
 }
 
 .screenshot

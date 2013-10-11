@@ -28,62 +28,62 @@
             </div>
 
             <div id="topfacts" class="inner">
-                <h3>Monitoring your PostgreSQL was never that easy!</h3>
+                <h3>The ultimate PostgreSQL stored procedure wrapper for Java!</h3>
             </div>
 
-            <div class="screenshot inner">
-                <img src="images/ss_inspect.jpg" />
-                <h3>Your infrastructure at a glance</h3>
+            <div class="inner">
                 <p>
-                    Click, inspect - as easy as that! The Java SProc Wrapper works with your current data, and details
-                    about your infrastructure is only a mouse click a way.
+                    This is a library to make PostgreSQL stored procedures(SProcs) available through simple
+                    Java "SProcService" interfaces including automatic object serialization and deserialization
+                    (using typemapper and convention-over-configuration).
                 </p>
                 <p>
-                    A combination of AJAX and web sockets (push) connections makes sure that your
-                    data is always up-to-date, no matter where they come from and no matter where
-                    it's hosted.
-                </p>
-            </div>
-
-            <div class="screenshot inner">
-                <img src="images/ss_auditdata.jpg" />
-                <h3>Work with your existing resources</h3>
-                <p>
-                    The Java SProc Wrapper works with your current data and it's schema-independent.
-                    You can bind any external JSON: be it Nagios monitoring, SNMP output,
-                    SQL debugging, if it's JSON then it's usable.
+                    Supports horizontal database sharding (partition/access logic lies within application),
+                    easy use of pg_advisory_lock through annotations to ensure single Java node
+                    execution, configurable statement timeouts per stored procedure, and PostgreSQL
+                    types including enums and hstore.
                 </p>
             </div>
 
-            <div class="screenshot inner">
-                <img src="images/ss_alert.jpg" />
-                <h3>Visual alerts, instant action</h3>
-                <p>
-                    Create events and alerts using "if this than that" rules. CPU is too high? Make the shape
-                    red. Problems on a connection between servers? Blink it. Firewall detected an intrusion?
-                    Show a tooltip alert.
-                </p>
-                <p>
-                    You define the rules and the Java SProc Wrapper alerts, so you can take the necessary actions
-                    in no time.
-                </p>
+            <div class="inner">
+                <h4>Dependencies</h4>
+                <ul>
+                    <li>PostgreSQL driver :-)</li>
+                    <li>Spring Framework</li>
+                    <li>Google Guava</li>
+                    <li>More, see pom.xml for details...</li>
+                </ul>
+            </div>
+
+            <div class="inner">
+                <h4>How to run integration tests</h4>
+                <ul>
+                    <li>Install local PostgreSQL cluster running on 5432.</li>
+                    <li>Allow connection with postgres/postgres...<br />
+                        or create a new user and set config values in pom.xml and application.test.properties.</li>
+                    <li>Create schema and database privileges required for test cases.</li>
+                    <li>Make sure you have hstore extension installed, preferably in template1.</li>
+                    <li>Create zalando_test database on your localhost PostgreSQL cluster...<br />
+                        and possibly add hstore extension to database.</li>
+                    <li>Run integration tests (JUnit tests with database access): mvn clean test -Pintegration-test.</li>
+                </ul>
             </div>
 
         </div>
 
-        <a id="fork" href="https://github.com/zalando/system/fork" title="Fork Java SProc Wrapper on GitHub"></a>
+        <a id="fork" href="https://github.com/zalando/java-sproc-wrapper/fork" title="Fork Java SProc Wrapper on GitHub"></a>
 
         <div id="footer-notes">
             <div class="inner">
                 <code class="right">
-                    $ git clone git@github.com:zalando/Java SProc Wrapper.git
+                    $ git clone git@github.com:zalando/java-sproc-wrapper
                 </code>
                 <h3>
                     Open Source
                 </h3>
                 <div>
-                    The Java SProc Wrapper is one of our python/postgres tools developed and used by Zalando's database team,
-                    and we want to share it with you. Go grab it, it's free: to use, to share, to hack.
+                    The Java SProc Wrapper is one of our java/postgres tools developed and used by Zalando's technology team.
+                    We want to share it with you. Go grab it, it's free to use, to share, and to hack!
                 </div>
             </div>
         </div>
