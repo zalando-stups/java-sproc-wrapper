@@ -4,7 +4,7 @@ $BODY$
 DECLARE
     t ztest_schema1.lookup_type;
 BEGIN
-	FOR i IN array_lower(r, 1) .. array_upper(r, 1)
+    FOR i IN array_lower(r, 1) .. array_upper(r, 1)
     LOOP
         t = r[i];
         RETURN NEXT t;

@@ -433,8 +433,8 @@ class StoredProcedure {
             connection = firstDs.getConnection();
 
         } catch (final SQLException e) {
-            throw new CannotGetJdbcConnectionException("Failed to acquire connection for virtual shard " + shardIds.get(0)
-                    + " translates to" + dp.getDataSourceId(shardIds.get(0)) + " for " + name, e);
+            throw new CannotGetJdbcConnectionException("Failed to acquire connection for virtual shard "
+                    + shardIds.get(0) + " translates to" + dp.getDataSourceId(shardIds.get(0)) + " for " + name, e);
         }
 
         final List<Object[]> paramValues = Lists.newArrayList();

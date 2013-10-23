@@ -11,10 +11,9 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
- * This class is supposed to wrap a single connection for a single thread.
- * 
- * It does not checking nor is it thread-safe for get and close.
- * 
+ * This class is supposed to wrap a single connection for a single thread. It does not checking nor is it thread-safe
+ * for get and close.
+ *
  * @author  jmussler
  */
 public class SameConnectionDatasource implements DataSource {

@@ -18,7 +18,7 @@ public class ArrayDataSourceProvider implements DataSourceProvider {
 
     @Override
     public int getDataSourceId(final int virtualShardId) {
-        return virtualShardId % dss.length;  //To change body of implemented methods use File | Settings | File Templates.
+        return virtualShardId % dss.length;
     }
 
     @Override
