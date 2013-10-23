@@ -1,12 +1,12 @@
-java-sproc-wrapper
-==========================
+SProcWrapper
+============
 
 Library to make PostgreSQL stored procedures(SProcs) available through simple Java "SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration).
 
 Supports horizontal database sharding (partition/access logic lies within application), easy use of pg_advisory_lock through annotations to ensure single Java node execution, configurable statement timeouts per stored procedure, and PostgreSQL types including enums and hstore.
 
-Dependencies:
--------------
+Dependencies
+------------
 
  * Spring Framework
  * PostgreSQL driver ;)
@@ -26,8 +26,8 @@ How to run integration tests
     mvn clean test -Pintegration-test
 
 
-Known issues:
--------------
+Known issues
+------------
 
 * PostgreSQL JDBC driver does not honor identical type names in different schemas, this may lead to issues if typemapper is used where types are present with equal name in more than one schema (this problem is solved now with the commit [3ca94e64d6322fa91c477200bfb3719deaeac153](https://github.com/pgjdbc/pgjdbc/commit/3ca94e64d6322fa91c477200bfb3719deaeac153) to [pgjdbc](https://github.com/pgjdbc/pgjdbc/) driver)
 * PostgreSQL domains are not supported as for now
@@ -36,8 +36,8 @@ Known issues:
 * SprocWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SprocWrapper might end up using the wrong one, because it will use the search_path to resolve the conflict. For more info check test: SimpleIT.testTypeLookupBugWithSchema.
 * For integration with Spring's transaction management use the TransactionAwareDataSourceProxy as the data source injected into the data source provider.
 
-Documentation:
---------------
+Documentation
+-------------
 
 You can find some more information about the SProcWrapper in our various Zalando Technology blog posts:
 
