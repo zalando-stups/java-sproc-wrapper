@@ -36,6 +36,16 @@ Known issues:
 * SprocWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SprocWrapper might end up using the wrong one, because it will use the search_path to resolve the conflict. For more info check test: SimpleIT.testTypeLookupBugWithSchema.
 * For integration with Spring's transaction management use the TransactionAwareDataSourceProxy as the data source injected into the data source provider.
 
+Documentation:
+--------------
+
+You can find some more information about the SProcWrapper in our various Zalando Technology blog posts:
+
+* http://tech.zalando.com/goto-2013-why-zalando-trusts-in-postgresql/
+* http://tech.zalando.com/zalando-stored-procedure-wrapper-part-i/
+* http://tech.zalando.com/files/2013/04/jug_dortmund_april_2013.pdf
+
+
 License
 -------
 
