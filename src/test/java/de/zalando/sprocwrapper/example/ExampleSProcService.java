@@ -11,7 +11,6 @@ import de.zalando.sprocwrapper.SProcCall.Validate;
 import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.sharding.ShardKey;
-import de.zalando.sprocwrapper.sharding.VirtualShardIdentityStrategy;
 
 /**
  * @author  jmussler
@@ -82,24 +81,6 @@ public interface ExampleSProcService {
 
     @SProcCall(sql = "SELECT '2012-02-03 12:00:21'::timestamp")
     Date getFixedTestDate();
-
-    @SProcCall(shardStrategy = VirtualShardIdentityStrategy.class)
-    int getShardIndex(@ShardKey int shard);
-
-    @SProcCall(runOnAllShards = true)
-    List<String> collectDataFromAllShards(@SProcParam String someParameter);
-
-    @SProcCall(runOnAllShards = true, parallel = true, name = "collect_data_from_all_shards")
-    List<String> collectDataFromAllShardsParallel(@SProcParam String someParameter);
-
-    @SProcCall(runOnAllShards = true, searchShards = true)
-    List<String> collectDataFromAllShardsSearchShardsOn(@SProcParam String someParameter);
-
-    @SProcCall(
-        runOnAllShards = true, parallel = true, searchShards = true,
-        name = "collect_data_from_all_shards_search_shards_on"
-    )
-    List<String> collectDataFromAllShardsParallelSearchShardsOn(@SProcParam String someParameter);
 
     @SProcCall(sql = "SELECT 1 UNION ALL SELECT 2")
     List<Integer> getInts();
@@ -244,8 +225,26 @@ public interface ExampleSProcService {
     @SProcCall
     Example2DomainObject1 getExample2EntityWithNumbers1();
 
+    @SProcCall
+    List<ExampleDomainObject> getListComplexObjects();
+
+    @SProcCall
+    Order getOrders(@SProcParam int id);
+
+    @SProcCall
+    int createOrder(@SProcParam String orderNumber, @SProcParam OrderMonetaryAmount amount);
+
+    @SProcCall
+    int createOrder(@SProcParam String orderNumber, @SProcParam OrderMonetaryAmount amount, @SProcParam AddressPojo address);
+
+    @SProcCall
+    int createOrder(@SProcParam Order order);
+
     @SProcCall(sql = "SELECT 'ENUM_CONST_2'::example_enum;")
     ExampleEnum getExampleEnum();
+
+    @SProcCall(sql = "SELECT NULL::example_enum;")
+    ExampleEnum getNullExampleEnum();
 
     @SProcCall(sql = "SELECT 1 as a, 2 as b")
     LookupType getValueForTypeLookup();
@@ -253,12 +252,18 @@ public interface ExampleSProcService {
     @SProcCall(sql = "SELECT 1 as a, 2 as b")
     List<LookupType> getValueForTypeLookupList();
 
-    @SProcCall(sql = "SELECT 1 AS count, ARRAY[(1,2)]::ztest_shard1.lookup_type[] AS bugs")
-    WrapperLookup getValueForTypeLookupInnerList();
-
-    @SProcCall(sql = "SELECT 1 AS count, ARRAY[(1,2)]::ztest_shard.lookup_type_schema[] AS bugs")
+    @SProcCall(
+        sql =
+            "SELECT 3 AS count, ARRAY[ROW(4)]::ztest_schema1.lookup_type_schema[] AS schema_1, ARRAY[(1,2)]::ztest_schema2.lookup_type_schema[] AS schema_2"
+    )
     WrapperLookupSchema getValueForTypeLookupSchema();
+
+    @SProcCall(sql = "SELECT 4 AS count, ARRAY[ROW(5)]::ztest_schema1.lookup_type_schema[] AS list")
+    WrapperOptionalLookupType getOptionalLookupTypeWithoutMapping();
 
     @SProcCall
     int testInheritanceFunction(@SProcParam TestInheritanceChild c);
+
+    @SProcCall
+    List<LookupType> testDatabaseTypeWithoutName(@SProcParam List<LookupType> lookupType);
 }

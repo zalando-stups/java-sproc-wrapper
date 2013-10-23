@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.test.context.ContextConfiguration;
 
+import de.zalando.typemapper.core.db.DbFunctionRegister;
 import de.zalando.typemapper.core.db.DbTypeRegister;
 
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
@@ -22,7 +23,7 @@ public abstract class AbstractTest {
     private String username;
     @Value("${frontend.sproc.datasource.password}")
     private String password;
-    @Value("${frontend.sproc.datasource.url}")
+    @Value("${frontend.sproc.datasource.url1}")
     private String url;
 
     protected Connection connection;
@@ -142,6 +143,7 @@ public abstract class AbstractTest {
 
         // reload the register for this test
         DbTypeRegister.reInitRegister(connection);
+        DbFunctionRegister.reInitRegistry(connection);
     }
 
     protected void prepareContext() throws Exception { }

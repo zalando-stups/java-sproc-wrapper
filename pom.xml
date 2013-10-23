@@ -1,17 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version='1.0' encoding='UTF-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types such as enums and hstore.</description>
     <url>https://github.com/zalando/java-sproc-wrapper</url>
 
     <organization>
-        <name>Zalando/Technology/DB</name>
+        <name>Zalando/Technology/Platform</name>
         <url>http://tech.zalando.com/</url>
     </organization>
 
@@ -125,6 +125,7 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>4.3.0.Final</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>
@@ -132,14 +133,14 @@
             <version>0.9.8</version>
         </dependency>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>persistence-api</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>14.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -153,9 +154,10 @@
             <properties>
                 <test.db.username>postgres</test.db.username>
                 <test.db.password>postgres</test.db.password>
-                <test.db.host>127.0.0.1</test.db.host>
+                <test.db.name1>local_test_db1</test.db.name1>
+                <test.db.name2>local_test_db2</test.db.name2>
+                <test.db.host>localhost</test.db.host>
                 <test.db.port>5432</test.db.port>
-                <test.db.name>zalando_test</test.db.name>
                 <unit.test.skip>false</unit.test.skip>
             </properties>
             <build>
@@ -173,11 +175,14 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.12</version>
                         <configuration>
+                            <reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>
                             <systemPropertyVariables>
-                                <frontend.sproc.datasource.username>postgres</frontend.sproc.datasource.username>
-                                <frontend.sproc.datasource.password>postgres</frontend.sproc.datasource.password>
-                                <frontend.sproc.datasource.url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name}</frontend.sproc.datasource.url>
+                                <frontend.sproc.datasource.username>${test.db.username}</frontend.sproc.datasource.username>
+                                <frontend.sproc.datasource.password>${test.db.password}</frontend.sproc.datasource.password>
+                                <frontend.sproc.datasource.url1>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name1}</frontend.sproc.datasource.url1>
+                                <frontend.sproc.datasource.url2>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name2}</frontend.sproc.datasource.url2>
                             </systemPropertyVariables>
+                            <argLine>${failsafe.argLine}</argLine>
                         </configuration>
                         <executions>
                             <execution>
@@ -206,10 +211,8 @@
                             </dependency>
                         </dependencies>
                         <configuration>
-                            <driver>org.postgresql.Driver</driver>
-                            <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name}</url>
-                            <username>postgres</username>
-                            <password>postgres</password>
+                            <username>${test.db.username}</username>
+                            <password>${test.db.password}</password>
                             <skip>${maven.test.skip}</skip>
                         </configuration>
                         <executions>
@@ -220,44 +223,87 @@
                                     <goal>execute</goal>
                                 </goals>
                                 <configuration>
+                                    <driver>org.postgresql.Driver</driver>
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/postgres</url>
                                     <autocommit>true</autocommit>
                                     <sqlCommand>
-                                        CREATE DATABASE ${test.db.name} TEMPLATE template1;
+                                        CREATE DATABASE ${test.db.name1} TEMPLATE template1;
+                                        CREATE DATABASE ${test.db.name2} TEMPLATE template1;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
                             </execution>
+
+                             <!-- execution against database 1 -->
                             <execution>
-                                <id>drop-schemas</id>
+                                <id>drop-schemas-database1</id>
                                 <phase>process-test-resources</phase>
                                 <goals>
                                     <goal>execute</goal>
                                 </goals>
                                 <configuration>
+                                    <driver>org.postgresql.Driver</driver>
+                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name1}</url>
                                     <sqlCommand>
-                                        DROP SCHEMA IF EXISTS ztest_shard CASCADE;
-                                        DROP SCHEMA IF EXISTS ztest_shard1 CASCADE;
-                                        DROP SCHEMA IF EXISTS ztest_shard2 CASCADE;
-                                        DROP SCHEMA IF EXISTS customerexample CASCADE;
+                                        DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
+                                        DROP SCHEMA IF EXISTS ztest_schema2 CASCADE;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>create-data</id>
+                             <execution>
+                                <id>create-data-database1</id>
                                 <phase>process-test-resources</phase>
                                 <goals>
                                     <goal>execute</goal>
                                 </goals>
                                 <configuration>
+                                    <driver>org.postgresql.Driver</driver>
+                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name1}</url>
                                     <delimiterType>row</delimiterType>
                                     <keepFormat>true</keepFormat>
                                     <orderFile>ascending</orderFile>
                                     <fileset>
                                         <basedir>${basedir}</basedir>
                                         <includes>
-                                            <include>database/**/*.sql</include>
+                                            <include>database/test/21_shard1/**/*.sql</include>
+                                        </includes>
+                                    </fileset>
+                                </configuration>
+                            </execution>
+                            
+                            <!-- execution against database 2 -->
+                            <execution>
+                                <id>drop-schemas-database2</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <driver>org.postgresql.Driver</driver>
+                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name2}</url>
+                                    <sqlCommand>
+                                        DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
+                                    </sqlCommand>
+                                    <onError>continue</onError>
+                                </configuration>
+                            </execution>
+                             <execution>
+                                <id>create-data-database2</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <driver>org.postgresql.Driver</driver>
+                                    <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name2}</url>
+                                    <delimiterType>row</delimiterType>
+                                    <keepFormat>true</keepFormat>
+                                    <orderFile>ascending</orderFile>
+                                    <fileset>
+                                        <basedir>${basedir}</basedir>
+                                        <includes>
+                                            <include>database/test/22_shard2/**/*.sql</include>
                                         </includes>
                                     </fileset>
                                 </configuration>

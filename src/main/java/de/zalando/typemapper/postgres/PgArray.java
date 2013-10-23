@@ -48,7 +48,7 @@ public final class PgArray<E> implements java.sql.Array {
     }
 
     public static <T> PgArray<T> ARRAY(final T... array) {
-        return PgArray.ARRAY(array == null ? null : Arrays.asList(array));
+        return PgArray.ARRAY(Arrays.asList(array));
     }
 
     public static <T> PgArray<T> ARRAY(final Collection<T> collection) {

@@ -18,6 +18,11 @@ public class NameUtilsTest {
     }
 
     @Test
+    public void testUpperCamelCaseToUnderScore() {
+        Assert.assertEquals("http_servlet", NameUtils.camelCaseToUnderscore("HTTPServlet"));
+    }
+
+    @Test
     public void testCamelCaseWithNumbersToUnderScore() {
         Assert.assertEquals("simple_size_2", NameUtils.camelCaseToUnderscore("simpleSize2"));
     }

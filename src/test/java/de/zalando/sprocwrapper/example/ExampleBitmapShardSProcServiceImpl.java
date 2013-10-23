@@ -59,11 +59,6 @@ public class ExampleBitmapShardSProcServiceImpl
     }
 
     @Override
-    public List<String> insertNewDataWithoutTransaction(final String someData, final String failOnShard) {
-        return sproc.insertNewDataWithoutTransaction(someData, failOnShard);
-    }
-
-    @Override
     public List<AddressPojo> findAddressesByStreet(final String string) {
         return sproc.findAddressesByStreet(string);
     }

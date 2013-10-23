@@ -30,8 +30,6 @@ public class HStoreTestIT extends AbstractTest {
     @Test
     // @Ignore("Needs hstore() installed into postgres DB")
     public void testHStoreNull() throws SQLException {
-        TypeMapperFactory.initTypeAndFunctionCaches(connection, "default");
-
         final PreparedStatement ps = connection.prepareStatement("SELECT 'str' as str, null as map");
         final ResultSet rs = ps.executeQuery();
         final TypeMapper<?> mapper = TypeMapperFactory.createTypeMapper(ClassWithMap.class);
@@ -46,8 +44,6 @@ public class HStoreTestIT extends AbstractTest {
     @Test
     // @Ignore("Needs hstore() installed into postgres DB")
     public void testHStoreFilled() throws SQLException {
-        TypeMapperFactory.initTypeAndFunctionCaches(connection, "default");
-
         final PreparedStatement ps = connection.prepareStatement("SELECT 'str' as str, hstore('key', 'val') as map");
         final ResultSet rs = ps.executeQuery();
         final TypeMapper<?> mapper = TypeMapperFactory.createTypeMapper(ClassWithMap.class);
@@ -64,8 +60,6 @@ public class HStoreTestIT extends AbstractTest {
     @Test
     // @Ignore("Needs hstore() installed into postgres DB")
     public void testHStoreType() throws SQLException {
-        TypeMapperFactory.initTypeAndFunctionCaches(connection, "default");
-
         final PreparedStatement ps = connection.prepareStatement("SELECT tmp.hstore_type_function();");
         final ResultSet rs = ps.executeQuery();
         final TypeMapper<?> mapper = TypeMapperFactory.createTypeMapper(ClassWithClassWithMap.class);
@@ -83,8 +77,6 @@ public class HStoreTestIT extends AbstractTest {
     @Test
     // @Ignore("Needs hstore() installed into postgres DB")
     public void testHStoreArrayType() throws SQLException {
-        TypeMapperFactory.initTypeAndFunctionCaches(connection, "default");
-
         final PreparedStatement ps = connection.prepareStatement("SELECT tmp.hstore_array_type_function();");
         final ResultSet rs = ps.executeQuery();
         final TypeMapper<?> mapper = TypeMapperFactory.createTypeMapper(ClassWithClassWithListOfMap.class);

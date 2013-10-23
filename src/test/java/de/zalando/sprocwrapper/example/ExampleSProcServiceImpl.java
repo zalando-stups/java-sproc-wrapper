@@ -29,6 +29,11 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
         return sproc.getExampleEnum();
     }
 
+    @Override
+    public ExampleEnum getNullExampleEnum() {
+        return sproc.getNullExampleEnum();
+    }
+
     @Autowired
     public ExampleSProcServiceImpl(@Qualifier("testDataSourceProvider") final ArrayDataSourceProvider p) {
         super(p, ExampleSProcService.class);
@@ -128,31 +133,6 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public Integer getBla() {
         return sproc.getBla();
-    }
-
-    @Override
-    public int getShardIndex(final int shard) {
-        return sproc.getShardIndex(shard);
-    }
-
-    @Override
-    public List<String> collectDataFromAllShards(final String someParameter) {
-        return sproc.collectDataFromAllShards(someParameter);
-    }
-
-    @Override
-    public List<String> collectDataFromAllShardsSearchShardsOn(final String someParameter) {
-        return sproc.collectDataFromAllShardsSearchShardsOn(someParameter);
-    }
-
-    @Override
-    public List<String> collectDataFromAllShardsParallel(final String someParameter) {
-        return sproc.collectDataFromAllShardsParallel(someParameter);
-    }
-
-    @Override
-    public List<String> collectDataFromAllShardsParallelSearchShardsOn(final String someParameter) {
-        return sproc.collectDataFromAllShardsParallelSearchShardsOn(someParameter);
     }
 
     @Override
@@ -389,6 +369,31 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
+    public List<ExampleDomainObject> getListComplexObjects() {
+        return sproc.getListComplexObjects();
+    }
+
+    @Override
+    public Order getOrders(final int id) {
+        return sproc.getOrders(id);
+    }
+
+    @Override
+    public int createOrder(final String orderNumber, final OrderMonetaryAmount amount) {
+        return sproc.createOrder(orderNumber, amount);
+    }
+
+    @Override
+    public int createOrder(final String orderNumber, final OrderMonetaryAmount amount, final AddressPojo address) {
+        return sproc.createOrder(orderNumber, amount, address);
+    }
+
+    @Override
+    public int createOrder(final Order order) {
+        return sproc.createOrder(order);
+    }
+
+    @Override
     public LookupType getValueForTypeLookup() {
         return sproc.getValueForTypeLookup();
     }
@@ -399,17 +404,22 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     }
 
     @Override
-    public WrapperLookup getValueForTypeLookupInnerList() {
-        return sproc.getValueForTypeLookupInnerList();
-    }
-
-    @Override
     public WrapperLookupSchema getValueForTypeLookupSchema() {
         return sproc.getValueForTypeLookupSchema();
     }
 
     @Override
+    public WrapperOptionalLookupType getOptionalLookupTypeWithoutMapping() {
+        return sproc.getOptionalLookupTypeWithoutMapping();
+    }
+
+    @Override
     public int testInheritanceFunction(final TestInheritanceChild c) {
         return sproc.testInheritanceFunction(c);
+    }
+
+    @Override
+    public List<LookupType> testDatabaseTypeWithoutName(final List<LookupType> lookupType) {
+        return sproc.testDatabaseTypeWithoutName(lookupType);
     }
 }

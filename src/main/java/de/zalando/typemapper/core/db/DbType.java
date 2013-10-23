@@ -8,24 +8,25 @@ public class DbType {
 
     private final String schema;
     private final String name;
+    private final int id;
     private Map<Integer, DbTypeField> fields = new HashMap<Integer, DbTypeField>();
 
-    public DbType(final String schema, final String name) {
+    public DbType(final String schema, final String name, final int id) {
         this.schema = schema;
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
+        this.id = id;
     }
 
     public String getSchema() {
         return schema;
     }
 
-    @Override
-    public String toString() {
-        return "DbType [schema=" + schema + ", name=" + name + ", fields=" + fields + "]";
+    public String getName() {
+        return name;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public DbTypeField getFieldByPos(final int i) {
@@ -38,6 +39,10 @@ public class DbType {
 
     public void addField(final DbTypeField dbTypeField) {
         fields.put(dbTypeField.getPosition(), dbTypeField);
+    }
 
+    @Override
+    public String toString() {
+        return "DbType [schema=" + schema + ", name=" + name + ", id=" + id + ", fields=" + fields + "]";
     }
 }

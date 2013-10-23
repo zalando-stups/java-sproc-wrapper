@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,8 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import de.zalando.sprocwrapper.example.ComplexDate;
 import de.zalando.sprocwrapper.example.ExampleSProcServiceDateConversionImpl;
 import de.zalando.sprocwrapper.example.ExampleSProcServiceDateConversionOtherTimeZoneImpl;
-
-import junit.framework.Assert;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:backendContextTest.xml"})

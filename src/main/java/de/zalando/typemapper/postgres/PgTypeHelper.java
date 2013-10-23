@@ -31,6 +31,8 @@ import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 import de.zalando.sprocwrapper.util.NameUtils;
 
 import de.zalando.typemapper.annotations.DatabaseField;
@@ -42,7 +44,9 @@ import de.zalando.typemapper.core.db.DbType;
 import de.zalando.typemapper.core.db.DbTypeField;
 import de.zalando.typemapper.core.db.DbTypeRegister;
 import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
+import de.zalando.typemapper.core.fieldMapper.DefaultObjectMapper;
 import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
+import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 
 public class PgTypeHelper {
 
@@ -161,7 +165,7 @@ public class PgTypeHelper {
         private final String typeName;
         private final Collection<Object> attributes;
 
-        PgTypeDataHolder(final String typeName, final Collection<Object> attributes) {
+        public PgTypeDataHolder(final String typeName, final Collection<Object> attributes) {
             this.typeName = typeName;
             this.attributes = attributes;
         }
@@ -185,6 +189,22 @@ public class PgTypeHelper {
         return getObjectAttributesForPgSerialization(obj, typeHint, connection, false);
     }
 
+    private static boolean isCglibProxy(final Object obj) {
+        try {
+            return obj.getClass().getDeclaredField("CGLIB$CALLBACK_0") != null;
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
+    }
+
+    private static Class<?> getActualClass(final Object obj) {
+        if (isCglibProxy(obj)) {
+            return obj.getClass().getSuperclass();
+        } else {
+            return obj.getClass();
+        }
+    }
+
     public static PgTypeDataHolder getObjectAttributesForPgSerialization(final Object obj, final String typeHint,
             final Connection connection, final boolean forceTypeHint) {
         if (obj == null) {
@@ -192,9 +212,15 @@ public class PgTypeHelper {
         }
 
         String typeName = null;
-        final Class<?> clazz = obj.getClass();
+
+        final Class<?> clazz = getActualClass(obj);
         if (clazz.isPrimitive() || clazz.isArray()) {
             throw new IllegalArgumentException("Passed object should be a class with parameters");
+        }
+
+        // mapper defined
+        if (clazz.equals(PgTypeDataHolder.class)) {
+            return (PgTypeDataHolder) obj;
         }
 
         final DatabaseType databaseType = clazz.getAnnotation(DatabaseType.class);
@@ -223,7 +249,7 @@ public class PgTypeHelper {
 
         if (connection != null) {
             try {
-                DbType dbType = DbTypeRegister.getDbType(typeName, connection);
+                final DbType dbType = DbTypeRegister.getDbType(typeName, connection);
                 dbFields = new HashMap<String, DbTypeField>();
                 for (final DbTypeField dbfield : dbType.getFields()) {
                     dbFields.put(dbfield.getName(), dbfield);
@@ -254,15 +280,18 @@ public class PgTypeHelper {
 
                 Object value;
                 try {
-                    value = f.get(obj);
+                    value = getOptionalValue(f.get(obj));
                 } catch (final IllegalArgumentException e) {
                     throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
                 } catch (final IllegalAccessException e) {
                     throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
                 }
 
-                // here we need apply any value/type transformation before generating the
-                value = applyTransformer(f, databaseFieldDescriptor, value);
+                if (value != null) {
+
+                    // here we need apply any value/type transformation before generating the
+                    value = applyTransformer(f, databaseFieldDescriptor, value);
+                }
 
                 final int fieldPosition = databaseFieldDescriptor.getPosition();
                 if (fieldPosition > 0) {
@@ -308,10 +337,11 @@ public class PgTypeHelper {
         final int fieldsWithUndefinedPositions = resultList == null ? 0 : resultList.size();
         final int fieldsInDb = dbFields == null ? 0 : dbFields.size();
 
-        // PF-1160
-        if (fieldsInDb != fieldsWithDefinedPositions & dbFields != null) {
-            LOG.warn("Fields in DB({})!=Annotated fields({}). @DatabaseField annotation might be missing", fieldsInDb,
+        if (fieldsInDb != fieldsWithDefinedPositions & connection != null) {
+            LOG.error("fieldsInDb({})!=fieldsWithDefinedPositions({}) @DatabaseField annotation missing", fieldsInDb,
                 fieldsWithDefinedPositions);
+            throw new IllegalArgumentException("Class " + clazz.getName()
+                    + " should have all its database related fields annotated");
         }
 
         if (fieldsWithDefinedPositions > 0 && fieldsWithUndefinedPositions > 0) {
@@ -323,6 +353,16 @@ public class PgTypeHelper {
             return new PgTypeDataHolder(typeName, Collections.unmodifiableCollection(resultPositionMap.values()));
         } else {
             return new PgTypeDataHolder(typeName, Collections.unmodifiableCollection(resultList));
+        }
+    }
+
+    private static Object getOptionalValue(final Object o) {
+        if (o instanceof Optional) {
+            Optional<?> optional = (Optional<?>) o;
+
+            return optional.isPresent() ? optional.get() : null;
+        } else {
+            return o;
         }
     }
 
@@ -390,6 +430,20 @@ public class PgTypeHelper {
                 throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
             } catch (final IllegalAccessException e) {
                 throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
+            }
+        }
+
+        Class<? extends ObjectMapper<?>> mapperClass = databaseFieldDescriptor.getMapper();
+        if (mapperClass != null && mapperClass != DefaultObjectMapper.class) {
+            try {
+                @SuppressWarnings("unchecked")
+                ObjectMapper<Object> mapper = (ObjectMapper<Object>) mapperClass.newInstance();
+
+                value = mapper.marshalToDb(value);
+            } catch (InstantiationException e) {
+                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
             }
         }
 

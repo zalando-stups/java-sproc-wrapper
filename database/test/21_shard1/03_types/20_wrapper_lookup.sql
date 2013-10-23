@@ -1,1 +1,0 @@
-create type wrapper_lookup as ( count int, bugs ztest_shard1.lookup_type[] );

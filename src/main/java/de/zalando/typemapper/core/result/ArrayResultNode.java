@@ -15,14 +15,16 @@ public class ArrayResultNode implements DbResultNode {
 
     private String name;
     private String type;
+    private int typeId;
     private List<DbResultNode> children;
     private DbType typeDef;
 
-    public ArrayResultNode(final String name, final String value, final String typeName, final Connection connection)
-        throws SQLException {
+    public ArrayResultNode(final String name, final String value, final String typeName, final int typeId,
+            final Connection connection) throws SQLException {
         this.name = name;
         this.type = typeName;
-        this.typeDef = DbTypeRegister.getDbType(typeName, connection);
+        this.typeId = typeId;
+        this.typeDef = DbTypeRegister.getDbType(typeId, connection);
         this.children = new ArrayList<DbResultNode>();
 
         List<String> elements;
@@ -35,7 +37,7 @@ public class ArrayResultNode implements DbResultNode {
 
             for (String element : elements) {
                 if (typeDef != null) {
-                    children.add(new ObjectResultNode(element, "", typeName, connection));
+                    children.add(new ObjectResultNode(element, "", typeName, typeId, connection));
                 } else {
                     children.add(new SimpleResultNode(element, ""));
                 }
@@ -70,8 +72,8 @@ public class ArrayResultNode implements DbResultNode {
 
     @Override
     public String toString() {
-        return "ArrayResultNode [name=" + name + ", type=" + type + ", children=" + children + ", typeDef=" + typeDef
-                + "]";
+        return "ArrayResultNode [name=" + name + ", type=" + type + ", typeId=" + typeId + ", children=" + children
+                + ", typeDef=" + typeDef + "]";
     }
 
 }

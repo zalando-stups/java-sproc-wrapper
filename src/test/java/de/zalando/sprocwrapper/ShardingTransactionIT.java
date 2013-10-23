@@ -4,23 +4,19 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider;
 import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
-import de.zalando.sprocwrapper.example.ExampleSProcService;
-
-import junit.framework.Assert;
 
 /**
  * @author  hjacobs
@@ -30,14 +26,7 @@ import junit.framework.Assert;
 public class ShardingTransactionIT {
 
     @Autowired
-    private ExampleSProcService exampleSProcService;
-
-    @Autowired
     private ExampleBitmapShardSProcService exampleBitmapShardSProcService;
-
-    @Autowired
-    @Qualifier("testShardDataSourceFromMap")
-    private BitmapShardDataSourceProvider initializedByMapSource;
 
     @Test
     public void testWritingWithoutTransaction() {
@@ -54,10 +43,9 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddress(street, "ztest_shard1");
+            exampleBitmapShardSProcService.insertAddress(street, "local_test_db1");
         } catch (final Exception e) {
             gotException = true;
-            System.out.println(e.getMessage());
         }
 
         Assert.assertTrue(gotException);
@@ -72,7 +60,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddress(street, "ztest_shard2");
+            exampleBitmapShardSProcService.insertAddress(street, "local_test_db2");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -99,7 +87,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressOnePhase(street, "ztest_shard1");
+            exampleBitmapShardSProcService.insertAddressOnePhase(street, "local_test_db1");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -116,7 +104,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressOnePhase(street, "ztest_shard2");
+            exampleBitmapShardSProcService.insertAddressOnePhase(street, "local_test_db2");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -146,7 +134,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressTwoPhase(street, "ztest_shard1");
+            exampleBitmapShardSProcService.insertAddressTwoPhase(street, "local_test_db1");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -163,7 +151,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressTwoPhase(street, "ztest_shard2");
+            exampleBitmapShardSProcService.insertAddressTwoPhase(street, "local_test_db2");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -190,7 +178,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressUseFromService(street, "ztest_shard1");
+            exampleBitmapShardSProcService.insertAddressUseFromService(street, "local_test_db1");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -207,7 +195,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressUseFromService(street, "ztest_shard2");
+            exampleBitmapShardSProcService.insertAddressUseFromService(street, "local_test_db2");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -234,7 +222,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressTwoPhaseReadOnly(street, "ztest_shard1");
+            exampleBitmapShardSProcService.insertAddressTwoPhaseReadOnly(street, "local_test_db1");
         } catch (final Exception e) {
             gotException = true;
         }
@@ -251,7 +239,7 @@ public class ShardingTransactionIT {
         final String street = "" + DateTime.now().getMillis();
         boolean gotException = false;
         try {
-            exampleBitmapShardSProcService.insertAddressTwoPhaseReadOnly(street, "ztest_shard2");
+            exampleBitmapShardSProcService.insertAddressTwoPhaseReadOnly(street, "local_test_db2");
         } catch (final Exception e) {
             gotException = true;
         }

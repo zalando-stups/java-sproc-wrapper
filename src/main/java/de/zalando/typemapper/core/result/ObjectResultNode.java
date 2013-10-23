@@ -23,13 +23,15 @@ public class ObjectResultNode implements DbResultNode {
 
     private String name;
     private String type;
+    private int typeId;
     private List<DbResultNode> children;
     private Map<String, DbResultNode> nodeMap = new HashMap<>();
 
-    public ObjectResultNode(final String value, final String name, final String typeName, final Connection connection)
-        throws SQLException {
+    public ObjectResultNode(final String value, final String name, final String typeName, final int typeId,
+            final Connection connection) throws SQLException {
         super();
         this.type = typeName;
+        this.typeId = typeId;
         this.children = new ArrayList<DbResultNode>();
         this.name = name;
 
@@ -45,7 +47,7 @@ public class ObjectResultNode implements DbResultNode {
             throw new SQLException(e);
         }
 
-        final DbType dbType = DbTypeRegister.getDbType(typeName, connection);
+        final DbType dbType = DbTypeRegister.getDbType(typeId, connection);
         int i = 1;
         for (final String fieldValue : values) {
             if (dbType == null) {
@@ -67,11 +69,12 @@ public class ObjectResultNode implements DbResultNode {
                 } else if (fieldDef.getTypeName().equals("enumeration")) {
                     node = new SimpleResultNode(fieldValue, fieldDef.getName());
                 } else {
-                    node = new ObjectResultNode(fieldValue, fieldDef.getName(), fieldDef.getTypeName(), connection);
+                    node = new ObjectResultNode(fieldValue, fieldDef.getName(), fieldDef.getTypeName(),
+                            fieldDef.getTypeId(), connection);
                 }
             } else if (fieldDef.getType().equals("ARRAY")) {
                 node = new ArrayResultNode(fieldDef.getName(), fieldValue, fieldDef.getTypeName().substring(1),
-                        connection);
+                        fieldDef.getTypeId(), connection);
             } else {
                 node = new SimpleResultNode(fieldValue, fieldDef.getName());
             }
@@ -123,7 +126,8 @@ public class ObjectResultNode implements DbResultNode {
 
     @Override
     public String toString() {
-        return "ObjectResultNode [name=" + name + ", type=" + type + ", children=" + children + "]";
+        return "ObjectResultNode [name=" + name + ", type=" + type + ", typeId=" + typeId + ", children=" + children
+                + "]";
     }
 
 }

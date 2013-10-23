@@ -26,7 +26,6 @@ public final class ValueTransformerUtils {
     }
 
     public static Class<?> getMarshalToDbClass(final ValueTransformer<?, ?> valueTransformerForClass) {
-        return getMarshalToDbClass(valueTransformerForClass.getClass());
+        return valueTransformerForClass != null ? getMarshalToDbClass(valueTransformerForClass.getClass()) : null;
     }
-
 }

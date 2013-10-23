@@ -2,25 +2,21 @@ package de.zalando.sprocwrapper;
 
 import java.util.List;
 
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
-import de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider;
 import de.zalando.sprocwrapper.example.ExampleBitmapShardSProcService;
-import de.zalando.sprocwrapper.example.ExampleSProcService;
 import de.zalando.sprocwrapper.example.ExampleShardedObject;
-
-import junit.framework.Assert;
+import de.zalando.sprocwrapper.example.ShardingSprocService;
 
 /**
  * @author  hjacobs
@@ -30,27 +26,23 @@ import junit.framework.Assert;
 public class ShardingIT {
 
     @Autowired
-    private ExampleSProcService exampleSProcService;
+    private ShardingSprocService shardingSProcService;
 
     @Autowired
     private ExampleBitmapShardSProcService exampleBitmapShardSProcService;
-
-    @Autowired
-    @Qualifier("testShardDataSourceFromMap")
-    private BitmapShardDataSourceProvider initializedByMapSource;
 
     @Test
     public void testSharding() {
 
         // test simple identity + modulo sharding strategy
-        Assert.assertEquals(0, exampleSProcService.getShardIndex(122));
-        Assert.assertEquals(1, exampleSProcService.getShardIndex(123));
+        Assert.assertEquals(0, shardingSProcService.getShardIndex(122));
+        Assert.assertEquals(1, shardingSProcService.getShardIndex(123));
     }
 
     @Test
     public void testRunOnAllShards() {
 
-        final List<String> results = exampleSProcService.collectDataFromAllShards("a");
+        final List<String> results = shardingSProcService.collectDataFromAllShards("a");
         Assert.assertEquals(4, results.size());
         Assert.assertEquals("shard1row1", results.get(0));
         Assert.assertEquals("shard2row1", results.get(2));
@@ -60,20 +52,20 @@ public class ShardingIT {
     @Test
     public void testRunOnAllShardsParallel() {
 
-        final List<String> results = exampleSProcService.collectDataFromAllShardsParallel("a");
+        final List<String> results = shardingSProcService.collectDataFromAllShardsParallel("a");
         Assert.assertEquals(4, results.size());
         Assert.assertEquals("shard1row1", results.get(0));
         Assert.assertEquals("shard2row1", results.get(2));
         Assert.assertEquals("shard2row2", results.get(3));
 
-        exampleSProcService.collectDataFromAllShardsParallel("a");
+        shardingSProcService.collectDataFromAllShardsParallel("a");
     }
 
     @Test
     public void testRunOnAllShardsSearchShardsOn() {
 
         // Search should stop on first shard with results.
-        final List<String> results = exampleSProcService.collectDataFromAllShardsSearchShardsOn("a");
+        final List<String> results = shardingSProcService.collectDataFromAllShardsSearchShardsOn("a");
         Assert.assertEquals(2, results.size());
         Assert.assertEquals("shard2row1", results.get(0));
         Assert.assertEquals("shard2row2", results.get(1));
@@ -83,7 +75,7 @@ public class ShardingIT {
     public void testRunOnAllShardsParallelSearchShardsOn() {
 
         // Search should stop on first shard with results.
-        final List<String> results = exampleSProcService.collectDataFromAllShardsParallelSearchShardsOn("a");
+        final List<String> results = shardingSProcService.collectDataFromAllShardsParallelSearchShardsOn("a");
         Assert.assertEquals(2, results.size());
         Assert.assertEquals("shard2row1", results.get(0));
         Assert.assertEquals("shard2row2", results.get(1));
@@ -119,7 +111,6 @@ public class ShardingIT {
     }
 
     @Test
-    @Ignore("Broken! JDBC Driver doesn't respect the search path")
     public void testAutoPartitioning() {
 
         List<String> keys = Lists.newArrayList("a");
@@ -166,12 +157,5 @@ public class ShardingIT {
         Assert.assertEquals("shard1row1ef3", results.get(0));
         Assert.assertEquals("shard2row1ab3", results.get(1));
 
-    }
-
-    @Test
-    public void testInitializedByMap() {
-        Assert.assertEquals(2, initializedByMapSource.getDistinctShardIds().size());
-
-        Assert.assertEquals(true, initializedByMapSource.getDataSource(0) != initializedByMapSource.getDataSource(1));
     }
 }

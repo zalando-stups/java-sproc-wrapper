@@ -43,10 +43,12 @@ class ArrayStoredProcedureParameter extends StoredProcedureParameter {
                 if (innerTypeName == null) {
 
                     final DatabaseType dbType = paramsClass.getAnnotation(DatabaseType.class);
-                    if (dbType == null) {
-                        innerTypeName = NameUtils.camelCaseToUnderscore(paramsClass.getSimpleName());
-                    } else {
+                    if (dbType != null) {
                         innerTypeName = dbType.name();
+                    }
+
+                    if (innerTypeName == null || innerTypeName.isEmpty()) {
+                        innerTypeName = NameUtils.camelCaseToUnderscore(paramsClass.getSimpleName());
                     }
                 }
             }

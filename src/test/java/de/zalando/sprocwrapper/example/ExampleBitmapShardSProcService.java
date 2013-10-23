@@ -67,12 +67,6 @@ public interface ExampleBitmapShardSProcService {
     )
     List<String> insertAddressTwoPhaseReadOnly(@SProcParam final String someData, @SProcParam final String failOnShard);
 
-    // the sproc mapper does not check if the sproc itself will only do reading access.
-    //
-    @SProcCall(runOnAllShards = true, readOnly = true)
-    List<String> insertNewDataWithoutTransaction(@SProcParam final String someData,
-            @SProcParam final String failOnShard);
-
     @SProcCall(
         name = "insert_address", runOnAllShards = true, readOnly = false,
         shardedWriteTransaction = WriteTransaction.NONE, parallel = true

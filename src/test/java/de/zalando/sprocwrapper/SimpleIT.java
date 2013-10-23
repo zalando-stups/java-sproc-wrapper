@@ -1,8 +1,12 @@
 package de.zalando.sprocwrapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,6 +17,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,9 +69,13 @@ import de.zalando.sprocwrapper.example.ExampleValidationSProcService;
 import de.zalando.sprocwrapper.example.GlobalTransformedObject;
 import de.zalando.sprocwrapper.example.LookupType;
 import de.zalando.sprocwrapper.example.LookupTypeSchema;
+import de.zalando.sprocwrapper.example.OptionalLookupType;
+import de.zalando.sprocwrapper.example.Order;
+import de.zalando.sprocwrapper.example.OrderPosition;
 import de.zalando.sprocwrapper.example.TestInheritanceChild;
-import de.zalando.sprocwrapper.example.WrapperLookup;
+import de.zalando.sprocwrapper.example.OrderMonetaryAmountImpl;
 import de.zalando.sprocwrapper.example.WrapperLookupSchema;
+import de.zalando.sprocwrapper.example.WrapperOptionalLookupType;
 
 import de.zalando.typemapper.parser.DateTimeUtil;
 
@@ -82,10 +91,6 @@ public class SimpleIT {
 
     @Autowired
     private ExampleNamespacedSProcService exampleNamespacedSProcService;
-
-    @Autowired
-    @Qualifier("testDataSource")
-    private DataSource dataSource;
 
     @Autowired
     @Qualifier("testDataSource1")
@@ -121,7 +126,6 @@ public class SimpleIT {
     public void testMicroSecondTimestamp() throws SQLException {
         java.sql.Timestamp t = exampleSProcService.getMicorsecondTimestamp();
         assertEquals(t.getNanos(), 123456000);
-        System.out.println(t);
     }
 
     @Test
@@ -421,11 +425,6 @@ public class SimpleIT {
     @Test
     public void testReturnDate() {
         final Date d = exampleSProcService.getFixedTestDate();
-        System.out.println("Date d:" + d);
-        System.out.println("Date now:" + (new Date(System.currentTimeMillis())));
-
-        System.out.println(d.getClass().getName());
-
         assertEquals(1328266821000L, d.getTime()); // extract(epoch from '2012-02-03 12:00:21'::timestamp)*1000
     }
 
@@ -457,13 +456,10 @@ public class SimpleIT {
         c.id = b.getId();
 
         final AddressPojo l = exampleSProcService.getAddress(c);
-        System.out.println(l);
 
         assertEquals(l.customerId, a.customerId);
         assertEquals(l.number, a.number);
         assertEquals(l.street, a.street);
-
-        System.out.println(l);
     }
 
     private static int addresscount = 1;
@@ -487,13 +483,9 @@ public class SimpleIT {
         c.id = b.getId();
 
         final AddressPojo l = exampleSProcService.getAddress(c);
-        System.out.println(l);
-
         assertEquals(l.customerId, a.customerId);
         assertEquals(l.number, a.number);
         assertEquals(l.street, a.street);
-
-        System.out.println(l);
     }
 
     @Test
@@ -814,11 +806,24 @@ public class SimpleIT {
     @Test
     public void testResourcesWithNumbers2() {
 
+        // force cache load
         Example2DomainObject1 output = exampleSProcService.getExample2EntityWithNumbers1();
         assertNotNull(output);
         assertEquals("example2field1", output.getExample2Field1());
 
         Example2DomainObject2 object2 = output.getExample2Field2();
+        assertNotNull(object2);
+        assertEquals("example2complexfield1", object2.getExample2Field1());
+        assertEquals("example2complexfield2", object2.getExample2Field2());
+
+        // drop sproc an types and create them again
+        // execute again
+        output = exampleSProcService.getExample2EntityWithNumbers1();
+
+        assertNotNull(output);
+        assertEquals("example2field1", output.getExample2Field1());
+
+        object2 = output.getExample2Field2();
         assertNotNull(object2);
         assertEquals("example2complexfield1", object2.getExample2Field1());
         assertEquals("example2complexfield2", object2.getExample2Field2());
@@ -839,11 +844,38 @@ public class SimpleIT {
         assertNull(result.getC());
     }
 
-    @Ignore
+    @Test
+    public void testListComplexObjects() {
+        List<ExampleDomainObject> result = exampleSProcService.getListComplexObjects();
+        Assert.assertNotNull(result);
+        Assert.assertEquals(3, result.size());
+
+        ExampleDomainObject obj = result.get(0);
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(obj.getA(), "a1");
+        Assert.assertEquals(obj.getB(), "b1");
+
+        obj = result.get(1);
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(obj.getA(), "a2");
+        Assert.assertEquals(obj.getB(), "b2");
+
+        obj = result.get(2);
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(obj.getA(), "a3");
+        Assert.assertEquals(obj.getB(), "b3");
+    }
+
     @Test
     public void testEnumReturnValueU() {
         ExampleEnum e = exampleSProcService.getExampleEnum();
         assertEquals(e, ExampleEnum.ENUM_CONST_2);
+    }
+
+    @Test
+    public void testNullEnumReturnValueU() {
+        ExampleEnum e = exampleSProcService.getNullExampleEnum();
+        assertNull(e);
     }
 
     @Test
@@ -866,32 +898,23 @@ public class SimpleIT {
     }
 
     @Test
-    public void testTypeLookupBugWithInnerList() throws Exception {
-        WrapperLookup t = exampleSProcService.getValueForTypeLookupInnerList();
-        assertNotNull(t);
-        assertEquals(1, t.count);
-
-        List<LookupType> bugs = t.bugs;
-        assertNotNull(bugs);
-        assertEquals(1, bugs.size());
-
-        LookupType entry = bugs.get(0);
-        assertEquals(1, entry.a);
-        assertEquals(2, entry.b);
-    }
-
-    @Test
-    @Ignore
     public void testTypeLookupBugWithSchema() throws Exception {
         WrapperLookupSchema t = exampleSProcService.getValueForTypeLookupSchema();
         assertNotNull(t);
-        assertEquals(1, t.count);
+        assertEquals(3, t.count);
 
-        List<LookupTypeSchema> bugs = t.bugs;
-        assertNotNull(bugs);
-        assertEquals(1, bugs.size());
+        List<LookupTypeSchema> schema = t.schema1;
+        assertNotNull(schema);
+        assertEquals(1, schema.size());
 
-        LookupTypeSchema entry = bugs.get(0);
+        LookupTypeSchema entry = schema.get(0);
+        assertEquals(4, entry.a);
+        assertEquals(0, entry.b);
+
+        schema = t.schema2;
+        assertNotNull(schema);
+        assertEquals(1, schema.size());
+        entry = schema.get(0);
         assertEquals(1, entry.a);
         assertEquals(2, entry.b);
     }
@@ -901,5 +924,127 @@ public class SimpleIT {
         TestInheritanceChild child = new TestInheritanceChild(1, 5, 7);
         int result = exampleSProcService.testInheritanceFunction(child);
         assertEquals(13, result);
+    }
+
+    @Test
+    public void testMonetaryValue() {
+        BigDecimal b = new BigDecimal("123.124");
+        int i = exampleSProcService.createOrder("order2", new OrderMonetaryAmountImpl(b, "EUR"));
+
+        Order o = exampleSProcService.getOrders(i);
+
+        assertEquals(o.amount.getAmount().compareTo(b), 0);
+    }
+
+    @Test
+    public void testMonetaryValueInsideOrder() {
+        BigDecimal b = new BigDecimal("12.34");
+        BigDecimal c = new BigDecimal("45.67");
+        BigDecimal d = new BigDecimal("89.12");
+
+        AddressPojo addr = new AddressPojo();
+        addr.setCustomerId(1);
+        addr.setStreet("Main Street");
+        addr.setNumber("23");
+
+        Order o = new Order("order3", new OrderMonetaryAmountImpl(b, "EUR"), addr);
+        o.positions = Arrays.asList(new OrderPosition(new OrderMonetaryAmountImpl(c, "EUR"), new OrderMonetaryAmountImpl(d, "EUR"),
+                    addr));
+
+        int i = exampleSProcService.createOrder(o);
+
+        o = exampleSProcService.getOrders(i);
+
+        assertEquals(o.amount.getAmount().compareTo(b), 0);
+        assertEquals("EUR", o.amount.getCurrency());
+        assertNotNull(o.positions);
+        assertEquals(1, o.positions.size());
+
+        assertNotNull(o.address);
+        assertTrue(o.address.isPresent());
+        assertEquals(1, o.address.get().customerId);
+        assertEquals("Main Street", o.address.get().street);
+        assertEquals("23", o.address.get().number);
+
+        OrderPosition pos = o.positions.get(0);
+        assertEquals(c, pos.amount.getAmount());
+        assertEquals("EUR", pos.amount.getCurrency());
+
+        assertNotNull(pos.optionalAmount);
+        assertTrue(pos.optionalAmount.isPresent());
+        assertEquals(d, pos.optionalAmount.get().getAmount());
+        assertEquals("EUR", pos.optionalAmount.get().getCurrency());
+
+        assertNotNull(pos.address);
+        assertTrue(pos.address.isPresent());
+        assertEquals(1, pos.address.get().customerId);
+        assertEquals("Main Street", pos.address.get().street);
+        assertEquals("23", pos.address.get().number);
+    }
+
+    @Test
+    public void testOptionalValueWithoutMapping() {
+        WrapperOptionalLookupType result = exampleSProcService.getOptionalLookupTypeWithoutMapping();
+        assertNotNull(result);
+        assertEquals(4, result.count);
+
+        List<OptionalLookupType> list = result.list;
+        assertNotNull(list);
+        assertEquals(1, list.size());
+
+        OptionalLookupType type = list.get(0);
+        assertEquals(5, type.a);
+        assertEquals(0, type.b);
+        assertNotNull(type.c);
+        assertFalse(type.c.isPresent());
+    }
+
+    @Test
+    public void testEmptyOptionalValues() {
+        BigDecimal b = new BigDecimal("12.34");
+        BigDecimal c = new BigDecimal("45.67");
+
+        Order o = new Order("order4", new OrderMonetaryAmountImpl(b, "EUR"));
+        o.positions = Arrays.asList(new OrderPosition(new OrderMonetaryAmountImpl(c, "EUR")));
+
+        int i = exampleSProcService.createOrder(o);
+
+        o = exampleSProcService.getOrders(i);
+
+        assertEquals(o.amount.getAmount().compareTo(b), 0);
+        assertEquals("EUR", o.amount.getCurrency());
+        assertNotNull(o.positions);
+        assertEquals(1, o.positions.size());
+
+        OrderPosition pos = o.positions.get(0);
+        assertEquals(c, pos.amount.getAmount());
+        assertEquals("EUR", pos.amount.getCurrency());
+
+        assertNotNull(pos.optionalAmount);
+        assertFalse(pos.optionalAmount.isPresent());
+
+        assertNotNull(pos.address);
+        assertFalse(pos.address.isPresent());
+
+        assertNotNull(o.address);
+        assertFalse(o.address.isPresent());
+    }
+
+    @Test
+    public void testDatabaseTypeWithoutName() {
+
+        LookupType type = new LookupType();
+        type.a = 1;
+        type.b = 2;
+
+        List<LookupType> input = new ArrayList<>(1);
+        input.add(type);
+
+        List<LookupType> output = exampleSProcService.testDatabaseTypeWithoutName(input);
+
+        assertNotNull(output);
+        assertEquals(1, output.size());
+        assertEquals(1, output.get(0).a);
+        assertEquals(2, output.get(0).b);
     }
 }

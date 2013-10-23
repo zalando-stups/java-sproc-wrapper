@@ -1,0 +1,1 @@
+create type wrapper_lookup as ( count int, bugs ztest_schema1.lookup_type[] );
