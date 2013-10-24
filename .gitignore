@@ -1,8 +1,11 @@
+*.iml
 .DS_Store
 .project
 .classpath
 .settings/
+.idea/
+.openshift/
 nbproject/
-.idea
 target/
-*.iml
+gh-pages/
+atlassian-ide-plugin.xml
