@@ -46,27 +46,66 @@
             </div>
 
             <div class="inner">
-            <pre class="brush: java">
+                Consider a basic example to load a customer from the database by its id field. In that case we consider the customer class to contain another object for the customer's address.
+            </div>
+            <div class="inner">
+<div style="float:left;width:33%;">
+<pre class="brush: java">
+class Customer {
+
+    @DatabaseField
+    private int id;
+
+    @DatabaseField
+    private String name;
+
+    @DatabaseField
+    private String firstName;
+
+    @DatabaseField
+    private Address address
+}
+</pre>
+</div>
+<div style="width:33%">
+ <pre class="brush: java">
+class Address {
+    @DatabaseField
+    private String street;
+
+    @DatabaseField
+    private int number;
+
+    @DatabaseField
+    private int zip;
+
+    @DatabaseField
+    private String city;
+}
+</pre>
+</div>
+</div>
+<div class="inner">
+Let's now define the interface for the sproc wrapper, that reflects the signature of the PostgreSQL stored procedure.
+ <pre class="brush: java">
 @SProcService
 interface CustomerService {
     
     @SProcCall
     Customer getCustomerForId(@SProcParam int id);
 }
-            </pre>
+</pre>
 
             <pre class="brush: sql">
-
 CREATE FUNCTION get_customer_for_id(p_id int) RETURNS customer
 $$
-SELECT c_id,c_name,c_first_name,
-       (SELECT ca_street, ca_number, ca_zip, ca_city 
-          FROM customer_address 
-         WHERE ca_customer_id = c_id AND ca_is_default)
-  FROM customer
- WHERE c_id = p_id
+SELECT id,name,first_name,
+       (SELECT (street, number, zip, city) 
+          FROM customer_address a
+         WHERE a.id = c.id AND a.ca_is_default) address
+  FROM customer c
+ WHERE id = p_id
 $$ LANGUAGE 'sql';
-
             </pre>
             </div>
 
