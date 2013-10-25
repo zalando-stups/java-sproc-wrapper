@@ -8,102 +8,84 @@ Supports horizontal database sharding (partition/access logic lies within applic
 Type Mapping
 ------------
 
-The SprocWrapper provides and efficient and easy-to-use mechanimism for translatiing values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
+The SprocWrapper provides and efficient and easy-to-use mechanimism for translating values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
 
-Here are some examples.
+Here are some examples!
 
-Basic type:
+Using a basic types:
 
 ```java
-@SProcCall
-String getNameForId(@SProcParam int id);
+@SProcService
+public interface CustomerSProcService {
+  @SProcCall
+  int registerCustomer(@SProcParam String name, @SProcParam String email);
+}
 ```
 
 ```sql
-CREATE FUNCTION get_name_for_id(p_id int) RETURNS text AS
+CREATE FUNCTION register_customer(p_name text, p_email text)
+RETURNS int AS
 $$
-SELECT name
-  FROM customer
- WHERE id = p_id
-$$ LANGUAGE ‘sql’;
+  INSERT INTO z_data.customer(c_email, c_gender)
+       VALUES (p_email, p_gender)
+    RETURNING c_id
+$$
+LANGUAGE 'sql' SECURITY DEFINER;
 ```
 
-Complex type:
+And a complex type:
 
 ```java
-@SProcCall
-List<Order> findOrders(@SProcParam String email);
+@SProcService
+public interface OrderSProcService {
+  @SProcCall
+  List<Order> findOrders(@SProcParam String email);
+}
 ```
 
 ```sql
 CREATE FUNCTION find_orders(p_email text,
   OUT order_id int,
   OUT order_date timestamp,
-  OUT shipping_address order_address) RETURNS SETOF RECORD AS
+  OUT shipping_address order_address)
+RETURNS SETOF RECORD AS
 $$
-SELECT o_id,
-       o_date,
-       ROW(oa_street, oa_city, oa_country)::order_address
-  FROM z_data.order
-  JOIN z_data.order_address
-    ON oa_order_id = o_id
-  JOIN z_data.customer
-    ON c_id = o_customer_id
- WHERE c_email = p_email
+  SELECT o_id,
+         o_date,
+         ROW(oa_street, oa_city, oa_country)::order_address
+    FROM z_data.order
+    JOIN z_data.order_address
+      ON oa_order_id = o_id
+    JOIN z_data.customer
+      ON c_id = o_customer_id
+   WHERE c_email = p_email
 $$
 LANGUAGE 'sql' SECURITY DEFINER;
 ```
 
-Supported data types:
+SprocWrapper supports the following data types:
 
-Numeric Types:
-
-| Database         | JAVA                 |
-| ---------------- | -------------------- |
-| smallint         | int                  |
-| integer          | int                  |
-| bigint           | long                 |
-| decimal          | java.math.BigDecimal |
-| numeric          | java.math.BigDecimal |
-| real             | float                |
-| double precision | double               |
-| serial           | int                  |
-| bigserial        | long                 |
-
-Character Types:
-
-| Database         | JAVA                 |
-| ---------------- | -------------------- |
-| varchar          | String               |
-| char             | char                 |
-| text             | String               |
-
-Date/Time Types:
-
-| Database         | JAVA                 |
-| ---------------- | -------------------- |
-| timestamp        | java.sql.Timestamp   |
-| date             | java.sql.Timestamp   |
-| time             | java.sql.Timestamp   |
-
-Boolean Type:
-
-| Database         | JAVA                 |
-| ---------------- | -------------------- |
-| boolean          | boolean              |
-
-Enumerated Types:
-
-| Database         | JAVA                 |
-| ---------------- | -------------------- |
-| enum             | java.lang.Enum       |
-
-Container types:
-
-| Database         | JAVA                          |
-| ---------------- | ----------------------------- |
-| array            | java.util.List/java.util.Set  |
-| hstore           | java.util.Map<String, String> |
+| Database         | Java                                              |
+| ---------------- | ------------------------------------------------- |
+| smallint         | int                                               |
+| integer          | int                                               |
+| bigint           | long                                              |
+| decimal          | java.math.BigDecimal                              |
+| numeric          | java.math.BigDecimal                              |
+| real             | float                                             |
+| double precision | double                                            |
+| serial           | int                                               |
+| bigserial        | long                                              |
+| varchar          | java.lang.String                                  |
+| char             | char                                              |
+| text             | java.lang.String                                  |
+| timestamp        | java.sql.Timestamp                                |
+| date             | java.sql.Timestamp                                |
+| time             | java.sql.Timestamp                                |
+| boolean          | boolean                                           |
+| enum             | java.lang.Enum                                    |
+| array            | java.util.List/java.util.Set                      |
+| hstore           | java.util.Map<java.lang.String, java.lang.String> |
 
 
 Note: Sprocwrapper doesn't support functions returning arrays as a single output. If one wants to return a collection, please return a SETOF instead.
