@@ -5,6 +5,117 @@ Library to make PostgreSQL stored procedures(SProcs) available through simple Ja
 
 Supports horizontal database sharding (partition/access logic lies within application), easy use of pg_advisory_lock through annotations to ensure single Java node execution, configurable statement timeouts per stored procedure, and PostgreSQL types including enums and hstore.
 
+Type Mapping
+------------
+
+The SprocWrapper provides and efficient and easy-to-use mechanimism for translatiing values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
+
+Here are some examples.
+
+Basic type:
+
+```java
+@SProcCall
+String getNameForId(@SProcParam int id);
+```
+
+```sql
+CREATE FUNCTION get_name_for_id(p_id int) RETURNS text AS
+$$
+SELECT name
+  FROM customer
+ WHERE id = p_id
+$$ LANGUAGE ‘sql’;
+```
+
+Complex type:
+
+```java
+@SProcCall
+List<Order> findOrders(@SProcParam String email);
+```
+
+```sql
+CREATE FUNCTION find_orders(p_email text,
+  OUT order_id int,
+  OUT order_date timestamp,
+  OUT shipping_address order_address) RETURNS SETOF RECORD AS
+$$
+SELECT o_id,
+       o_date,
+       ROW(oa_street, oa_city, oa_country)::order_address
+  FROM z_data.order
+  JOIN z_data.order_address
+    ON oa_order_id = o_id
+  JOIN z_data.customer
+    ON c_id = o_customer_id
+ WHERE c_email = p_email
+$$
+LANGUAGE 'sql' SECURITY DEFINER;
+```
+
+Supported data types:
+
+Numeric Types:
+
+| Database         | JAVA                 |
+| ---------------- | -------------------- |
+| smallint         | int                  |
+| integer          | int                  |
+| bigint           | long                 |
+| decimal          | java.math.BigDecimal |
+| numeric          | java.math.BigDecimal |
+| real             | float                |
+| double precision | double               |
+| serial           | int                  |
+| bigserial        | long                 |
+
+Character Types:
+
+| Database         | JAVA                 |
+| ---------------- | -------------------- |
+| varchar          | String               |
+| char             | char                 |
+| text             | String               |
+
+Date/Time Types:
+
+| Database         | JAVA                 |
+| ---------------- | -------------------- |
+| timestamp        | java.sql.Timestamp   |
+| date             | java.sql.Timestamp   |
+| time             | java.sql.Timestamp   |
+
+Boolean Type:
+
+| Database         | JAVA                 |
+| ---------------- | -------------------- |
+| boolean          | boolean              |
+
+Enumerated Types:
+
+| Database         | JAVA                 |
+| ---------------- | -------------------- |
+| enum             | java.lang.Enum       |
+
+Container types:
+
+| Database         | JAVA                          |
+| ---------------- | ----------------------------- |
+| array            | java.util.List/java.util.Set  |
+| hstore           | java.util.Map<String, String> |
+
+
+Note: Sprocwrapper doesn't support functions returning arrays as a single output. If one wants to return a collection, please return a SETOF instead.
+
+Please check unit/integration tests for more examples.
+
+Prerequisites
+-------------
+
+ * Java 7
+ * To compile, one should use [Maven](http://maven.apache.org/) 2.1.0 or above
+
 Dependencies
 ------------
 

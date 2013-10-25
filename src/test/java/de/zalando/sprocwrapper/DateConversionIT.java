@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -100,7 +99,6 @@ public class DateConversionIT {
     }
 
     @Test
-    @Ignore
     public void checkDateComplexDate() {
         final ComplexDate complexDate = new ComplexDate();
         final Date date = new Date();
