@@ -63,7 +63,7 @@ $$
 LANGUAGE 'sql' SECURITY DEFINER;
 ```
 
-Please check [unit/integration tests](tree/master/src/test/java/de/zalando/sprocwrapper) for more examples.
+Please check [unit/integration tests](src/test/java/de/zalando/sprocwrapper) for more examples.
 
 The following table shows the mapping between a database type and a Java type:
 
