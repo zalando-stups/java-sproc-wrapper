@@ -12,7 +12,7 @@ The SprocWrapper provides and efficient and easy-to-use mechanimism for translat
 
 Here are some examples!
 
-Using a basic types:
+Using basic types:
 
 ```java
 @SProcService
@@ -26,8 +26,8 @@ public interface CustomerSProcService {
 CREATE FUNCTION register_customer(p_name text, p_email text)
 RETURNS int AS
 $$
-  INSERT INTO z_data.customer(c_email, c_gender)
-       VALUES (p_email, p_gender)
+  INSERT INTO z_data.customer(c_name, c_email)
+       VALUES (p_name, p_email)
     RETURNING c_id
 $$
 LANGUAGE 'sql' SECURITY DEFINER;
@@ -63,9 +63,11 @@ $$
 LANGUAGE 'sql' SECURITY DEFINER;
 ```
 
-SprocWrapper supports the following data types:
+Please check [unit/integration tests](tree/master/src/test/java/de/zalando/sprocwrapper) for more examples.
 
-| Database         | Java                                              |
+The following table shows the mapping between a database type and a Java type:
+
+| Database         | Java Type                                         |
 | ---------------- | ------------------------------------------------- |
 | smallint         | int                                               |
 | integer          | int                                               |
@@ -84,13 +86,10 @@ SprocWrapper supports the following data types:
 | time             | java.sql.Timestamp                                |
 | boolean          | boolean                                           |
 | enum             | java.lang.Enum                                    |
-| array            | java.util.List/java.util.Set                      |
+| array            | java.util.List / java.util.Set                    |
 | hstore           | java.util.Map<java.lang.String, java.lang.String> |
 
-
 Note: Sprocwrapper doesn't support functions returning arrays as a single output. If one wants to return a collection, please return a SETOF instead.
-
-Please check unit/integration tests for more examples.
 
 Prerequisites
 -------------
@@ -155,3 +154,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
