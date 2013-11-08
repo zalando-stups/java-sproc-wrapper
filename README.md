@@ -8,7 +8,7 @@ Supports horizontal database sharding (partition/access logic lies within applic
 Type Mapping
 ------------
 
-The SprocWrapper provides and efficient and easy-to-use mechanimism for translating values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
+SprocWrapper provides an efficient and easy-to-use mechanism for translating values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
 
 Here are some examples!
 
