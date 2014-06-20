@@ -235,7 +235,8 @@ public interface ExampleSProcService {
     int createOrder(@SProcParam String orderNumber, @SProcParam OrderMonetaryAmount amount);
 
     @SProcCall
-    int createOrder(@SProcParam String orderNumber, @SProcParam OrderMonetaryAmount amount, @SProcParam AddressPojo address);
+    int createOrder(@SProcParam String orderNumber, @SProcParam OrderMonetaryAmount amount,
+            @SProcParam AddressPojo address);
 
     @SProcCall
     int createOrder(@SProcParam Order order);
@@ -266,4 +267,16 @@ public interface ExampleSProcService {
 
     @SProcCall
     List<LookupType> testDatabaseTypeWithoutName(@SProcParam List<LookupType> lookupType);
+
+    @SProcCall
+    List<ExampleDomainObjectWithInnerObject> getEmptyList(@SProcParam List<ExampleDomainObjectWithInnerObject> list);
+
+    @SProcCall(sql = "SELECT bt_value FROM ztest_schema1.basic_table WHERE bt_key = ?")
+    String getValueFromBasicTable(@SProcParam String key);
+
+    @SProcCall(sql = "UPDATE ztest_schema1.basic_table SET bt_value = ? WHERE bt_key = ? RETURNING bt_id")
+    List<Integer> changeBasicTable(@SProcParam String value, @SProcParam String key);
+
+    @SProcCall(sql = "SELECT version()")
+    String getPostgreSqlVersion();
 }

@@ -30,7 +30,8 @@ public class OrderPosition {
         this(amount, optionalAmount, null);
     }
 
-    public OrderPosition(final OrderMonetaryAmount amount, final OrderMonetaryAmount optionalAmount, final AddressPojo address) {
+    public OrderPosition(final OrderMonetaryAmount amount, final OrderMonetaryAmount optionalAmount,
+            final AddressPojo address) {
         this.amount = amount;
         this.optionalAmount = Optional.fromNullable(optionalAmount);
         this.address = Optional.fromNullable(address);

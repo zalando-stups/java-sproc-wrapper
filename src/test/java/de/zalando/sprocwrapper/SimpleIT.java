@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,9 +72,9 @@ import de.zalando.sprocwrapper.example.LookupType;
 import de.zalando.sprocwrapper.example.LookupTypeSchema;
 import de.zalando.sprocwrapper.example.OptionalLookupType;
 import de.zalando.sprocwrapper.example.Order;
+import de.zalando.sprocwrapper.example.OrderMonetaryAmountImpl;
 import de.zalando.sprocwrapper.example.OrderPosition;
 import de.zalando.sprocwrapper.example.TestInheritanceChild;
-import de.zalando.sprocwrapper.example.OrderMonetaryAmountImpl;
 import de.zalando.sprocwrapper.example.WrapperLookupSchema;
 import de.zalando.sprocwrapper.example.WrapperOptionalLookupType;
 
@@ -748,6 +749,25 @@ public class SimpleIT {
     }
 
     @Test
+    public void testValidationErrorWithNullParameters() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
+        try {
+            exampleValidationSProcService.testSprocCallWithMultipleParametersValidation(obj, null, null, null);
+            Assert.fail();
+        } catch (ConstraintViolationException e) {
+            Assert.assertNotNull(e.getConstraintViolations());
+            Assert.assertEquals(2, e.getConstraintViolations().size());
+        }
+    }
+
+    @Test
+    public void testValidationWithNullParameter() {
+        final ExampleDomainObjectWithValidation obj = new ExampleDomainObjectWithValidation("test", 4);
+        exampleValidationSProcService.testSprocCallWithMultipleParametersValidation(obj, "parameter0", "parameter1",
+            null);
+    }
+
+    @Test
     public void testReturnDomainObjectWithEmbed() {
         ExampleDomainObjectWithEmbed result = exampleSProcService.getEntityWithEmbed();
         assertNotNull(result);
@@ -948,8 +968,8 @@ public class SimpleIT {
         addr.setNumber("23");
 
         Order o = new Order("order3", new OrderMonetaryAmountImpl(b, "EUR"), addr);
-        o.positions = Arrays.asList(new OrderPosition(new OrderMonetaryAmountImpl(c, "EUR"), new OrderMonetaryAmountImpl(d, "EUR"),
-                    addr));
+        o.positions = Arrays.asList(new OrderPosition(new OrderMonetaryAmountImpl(c, "EUR"),
+                    new OrderMonetaryAmountImpl(d, "EUR"), addr));
 
         int i = exampleSProcService.createOrder(o);
 
@@ -1000,6 +1020,15 @@ public class SimpleIT {
     }
 
     @Test
+    public void testEmptyList() {
+        List<ExampleDomainObjectWithInnerObject> emptyList = Collections.emptyList();
+        List<ExampleDomainObjectWithInnerObject> response = exampleSProcService.getEmptyList(emptyList);
+
+        Assert.assertNotNull(response);
+        Assert.assertTrue(response.isEmpty());
+    }
+
+    @Test
     public void testEmptyOptionalValues() {
         BigDecimal b = new BigDecimal("12.34");
         BigDecimal c = new BigDecimal("45.67");
@@ -1046,5 +1075,17 @@ public class SimpleIT {
         assertEquals(1, output.size());
         assertEquals(1, output.get(0).a);
         assertEquals(2, output.get(0).b);
+    }
+
+    @Test
+    public void testSQLUpdate() {
+        String value = exampleSProcService.getValueFromBasicTable("key1");
+        assertTrue("value1".equals(value) || "changed-value".equals(value));
+
+        List<Integer> l1 = exampleSProcService.changeBasicTable("changed-value", "key1");
+        List<Integer> l2 = exampleSProcService.changeBasicTable("changed-value3", "key3");
+
+        assertTrue(l1.size() == 1);
+        assertTrue(l2.size() == 0);
     }
 }

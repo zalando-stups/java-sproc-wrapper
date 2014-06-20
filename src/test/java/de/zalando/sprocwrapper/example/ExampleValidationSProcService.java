@@ -1,5 +1,7 @@
 package de.zalando.sprocwrapper.example;
 
+import javax.validation.constraints.NotNull;
+
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcCall.Validate;
 import de.zalando.sprocwrapper.SProcParam;
@@ -25,4 +27,10 @@ public interface ExampleValidationSProcService {
     @SProcCall(validate = Validate.NO)
     ExampleDomainObjectWithValidation testSprocCallWithoutValidation(
             @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation);
+
+    @SProcCall
+    ExampleDomainObjectWithValidation testSprocCallWithMultipleParametersValidation(
+            @SProcParam ExampleDomainObjectWithValidation exampleDomainObjectWithValidation,
+            @SProcParam @NotNull String parameter0, @SProcParam @NotNull String parameter1,
+            @SProcParam String parameter2);
 }

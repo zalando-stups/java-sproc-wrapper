@@ -45,4 +45,12 @@ public class ExampleValidationSProcServiceImpl
             final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation) {
         return sproc.testSprocCallWithoutValidation(exampleDomainObjectWithValidation);
     }
+
+    @Override
+    public ExampleDomainObjectWithValidation testSprocCallWithMultipleParametersValidation(
+            final ExampleDomainObjectWithValidation exampleDomainObjectWithValidation, final String parameter0,
+            final String parameter1, final String parameter2) {
+        return sproc.testSprocCallWithMultipleParametersValidation(exampleDomainObjectWithValidation, parameter0,
+                parameter1, parameter2);
+    }
 }

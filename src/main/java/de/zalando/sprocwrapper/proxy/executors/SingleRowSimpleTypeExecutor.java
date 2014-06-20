@@ -10,6 +10,8 @@ import org.postgresql.util.PGobject;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import de.zalando.sprocwrapper.proxy.InvocationContext;
+
 /**
  * @author  jmussler
  */
@@ -51,7 +53,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
 
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final Object[] originalArgs, final Class returnType) {
+            final InvocationContext invocationContext, final Class<?> returnType) {
         return (new JdbcTemplate(ds)).queryForObject(sql, args, types, mapReturnType(returnType));
     }
 }

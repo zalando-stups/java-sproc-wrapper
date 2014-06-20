@@ -182,8 +182,7 @@ public class DbTypeRegister {
             final List<String> types = entry.getValue();
 
             // This should be improved. If the sproc specifies the schema of one type, we might end up using the wrong
-            // type (with the same name
-            // and different schema) because we "resolve" the conflict using the search path.
+            // type (with the same name and different schema) because we "resolve" the conflict using the search path.
             // Main problems:
             // 1 - One might hard code the schema on the sproc and SP might use the wrong type
             // 2 - We might have the same jdbc URL with different search paths

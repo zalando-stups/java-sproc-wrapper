@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import de.zalando.sprocwrapper.AbstractSProcService;
+import de.zalando.sprocwrapper.SProcParam;
 import de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 
 /**
@@ -421,5 +422,25 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public List<LookupType> testDatabaseTypeWithoutName(final List<LookupType> lookupType) {
         return sproc.testDatabaseTypeWithoutName(lookupType);
+    }
+
+    @Override
+    public List<ExampleDomainObjectWithInnerObject> getEmptyList(final List<ExampleDomainObjectWithInnerObject> list) {
+        return sproc.getEmptyList(list);
+    }
+
+    @Override
+    public List<Integer> changeBasicTable(@SProcParam final String value, @SProcParam final String key) {
+        return sproc.changeBasicTable(value, key);
+    }
+
+    @Override
+    public String getValueFromBasicTable(@SProcParam final String key) {
+        return sproc.getValueFromBasicTable(key);
+    }
+
+    @Override
+    public String getPostgreSqlVersion() {
+        return sproc.getPostgreSqlVersion();
     }
 }

@@ -179,7 +179,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                     // (DbResultNode.getValue). This should be improved because it's just causing overhead. The driver
                     // can convert at least the basic types so we should reuse this logic. Result tree should be
                     // improved.
-                    // Refactor away the if/else statements to a more object-based or polymorphic solution.
+                    // Refactor the if/else statements to a more object-based or polymorphic solution.
 
                     final Object value = ((MapResultNode) node).getMap();
                     mapping.map(result, value);

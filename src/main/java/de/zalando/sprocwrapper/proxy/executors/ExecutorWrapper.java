@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import de.zalando.sprocwrapper.SProcCall.AdvisoryLock;
 import de.zalando.sprocwrapper.dsprovider.SameConnectionDatasource;
+import de.zalando.sprocwrapper.proxy.InvocationContext;
 
 /**
  * This Executor wraps stored procedure calls that use advisory locks and / or need different statement timeouts set.
@@ -96,7 +97,7 @@ public class ExecutorWrapper implements Executor {
 
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final Object[] originalArgs, final Class returnType) {
+            final InvocationContext invocationContext, final Class<?> returnType) {
 
         SameConnectionDatasource sameConnDs = null;
 
@@ -110,7 +111,7 @@ public class ExecutorWrapper implements Executor {
                 throw new RuntimeException("Could not acquire AdvisoryLock " + lock.name());
             }
 
-            return executor.executeSProc(sameConnDs, sql, args, types, originalArgs, returnType);
+            return executor.executeSProc(sameConnDs, sql, args, types, invocationContext, returnType);
 
         } catch (final SQLException e) {
 

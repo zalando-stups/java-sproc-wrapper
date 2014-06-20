@@ -45,6 +45,6 @@ class SProcProxy implements java.lang.reflect.InvocationHandler {
             return null;
         }
 
-        return p.execute(dataSourceProvider, args);
+        return p.execute(dataSourceProvider, new InvocationContext(proxy, m, args));
     }
 }

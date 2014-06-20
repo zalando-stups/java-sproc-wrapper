@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import de.zalando.sprocwrapper.proxy.InvocationContext;
+
 import de.zalando.typemapper.core.ValueTransformer;
 import de.zalando.typemapper.core.fieldMapper.GlobalValueTransformerRegistry;
 
@@ -31,8 +33,8 @@ public class GlobalTransformerExecutorWrapper implements Executor {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final Object[] originalArgs, final Class returnType) {
-        final Object result = originalExecutor.executeSProc(ds, sql, args, types, originalArgs, String.class);
+            final InvocationContext invocationContext, final Class<?> returnType) {
+        final Object result = originalExecutor.executeSProc(ds, sql, args, types, invocationContext, String.class);
         if (result == null) {
             return null;
         }

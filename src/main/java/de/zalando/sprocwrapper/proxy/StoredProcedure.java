@@ -339,6 +339,10 @@ class StoredProcedure {
 
         // TODO: currently only implemented for single shardKey argument as first argument!
         final List<Object> originalArgument = (List<Object>) args[0];
+        if (originalArgument == null || originalArgument.isEmpty()) {
+            throw new IllegalArgumentException("ShardKey (first argument) of sproc '" + name + "' not defined");
+        }
+
         List<Object> partitionedArgument = null;
         Object[] partitionedArguments = null;
         int shardId;
@@ -383,19 +387,19 @@ class StoredProcedure {
         private final StoredProcedure sproc;
         private final DataSource shardDs;
         private final Object[] params;
-        private final Object[] originalArgs;
+        private final InvocationContext invocation;
 
         public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params,
-                final Object[] originalArgs) {
+                final InvocationContext invocation) {
             this.sproc = sproc;
             this.shardDs = shardDs;
             this.params = params;
-            this.originalArgs = originalArgs;
+            this.invocation = invocation;
         }
 
         @Override
         public Object call() throws Exception {
-            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), originalArgs,
+            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), invocation,
                     sproc.returnType);
         }
 
@@ -403,8 +407,7 @@ class StoredProcedure {
 
     private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Object execute(final DataSourceProvider dp, final Object[] args) {
+    public Object execute(final DataSourceProvider dp, final InvocationContext invocation) {
 
         List<Integer> shardIds = null;
         Map<Integer, Object[]> partitionedArguments = null;
@@ -413,17 +416,17 @@ class StoredProcedure {
             shardIds = dp.getDistinctShardIds();
         } else {
             if (autoPartition) {
-                partitionedArguments = partitionArguments(dp, args);
+                partitionedArguments = partitionArguments(dp, invocation.getArgs());
                 shardIds = Lists.newArrayList(partitionedArguments.keySet());
             } else {
-                shardIds = Lists.newArrayList(getShardId(args));
+                shardIds = Lists.newArrayList(getShardId(invocation.getArgs()));
             }
         }
 
         if (partitionedArguments == null) {
             partitionedArguments = Maps.newHashMap();
             for (final int shardId : shardIds) {
-                partitionedArguments.put(shardId, args);
+                partitionedArguments.put(shardId, invocation.getArgs());
             }
         }
 
@@ -434,7 +437,7 @@ class StoredProcedure {
 
         } catch (final SQLException e) {
             throw new CannotGetJdbcConnectionException("Failed to acquire connection for virtual shard "
-                    + shardIds.get(0) + " translates to" + dp.getDataSourceId(shardIds.get(0)) + " for " + name, e);
+                    + shardIds.get(0) + " for " + name, e);
         }
 
         final List<Object[]> paramValues = Lists.newArrayList();
@@ -459,7 +462,7 @@ class StoredProcedure {
             }
 
             // most common case: only one shard and no argument partitioning
-            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), args, returnType);
+            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), invocation, returnType);
         } else {
             Map<Integer, SameConnectionDatasource> transactionalDatasources = null;
             try {
@@ -471,11 +474,11 @@ class StoredProcedure {
                 Object sprocResult = null;
                 final long start = System.currentTimeMillis();
                 if (parallel) {
-                    sprocResult = executeInParallel(dp, args, shardIds, paramValues, transactionalDatasources, results,
-                            sprocResult);
+                    sprocResult = executeInParallel(dp, invocation, shardIds, paramValues, transactionalDatasources,
+                            results, sprocResult);
                 } else {
-                    sprocResult = executeSequential(dp, args, shardIds, paramValues, transactionalDatasources, results,
-                            sprocResult);
+                    sprocResult = executeSequential(dp, invocation, shardIds, paramValues, transactionalDatasources,
+                            results, sprocResult);
                 }
 
                 if (LOG.isTraceEnabled()) {
@@ -528,9 +531,10 @@ class StoredProcedure {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Object executeSequential(final DataSourceProvider dp, final Object[] args, final List<Integer> shardIds,
-            final List<Object[]> paramValues, final Map<Integer, SameConnectionDatasource> transactionalDatasources,
-            final List<?> results, Object sprocResult) {
+    private Object executeSequential(final DataSourceProvider dp, final InvocationContext invocation,
+            final List<Integer> shardIds, final List<Object[]> paramValues,
+            final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
+            Object sprocResult) {
         DataSource shardDs;
         int i = 0;
         final List<String> exceptions = Lists.newArrayList();
@@ -543,7 +547,7 @@ class StoredProcedure {
 
             sprocResult = null;
             try {
-                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), args,
+                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), invocation,
                         returnType);
             } catch (final Exception e) {
 
@@ -568,9 +572,10 @@ class StoredProcedure {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Object executeInParallel(final DataSourceProvider dp, final Object[] args, final List<Integer> shardIds,
-            final List<Object[]> paramValues, final Map<Integer, SameConnectionDatasource> transactionalDatasources,
-            final List<?> results, Object sprocResult) {
+    private Object executeInParallel(final DataSourceProvider dp, final InvocationContext invocation,
+            final List<Integer> shardIds, final List<Object[]> paramValues,
+            final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
+            Object sprocResult) {
         DataSource shardDs;
         final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
         FutureTask<Object> task;
@@ -582,7 +587,7 @@ class StoredProcedure {
                 LOG.debug(getDebugLog(paramValues.get(i)));
             }
 
-            task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), args));
+            task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), invocation));
             tasks.put(shardId, task);
             parallelThreadPool.execute(task);
             i++;

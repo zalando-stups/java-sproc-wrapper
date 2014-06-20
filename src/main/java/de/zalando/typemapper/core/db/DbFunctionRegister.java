@@ -12,40 +12,37 @@ import java.util.Map;
 
 public class DbFunctionRegister {
 
-    private static final String FUNCTION_DETAILS =
-            //J-
-              "SELECT ss.n_nspname AS specific_schema, "
-            + "       ss.proname::text AS specific_name, "
-            + "       (ss.x).n AS ordinal_position, "
-            + "       NULLIF(ss.proargnames[(ss.x).n], ''::text) AS parameter_name, "
-            + "       CASE "
-            + "           WHEN t.typelem <> (0)::oid AND t.typlen = (-1) "
-            + "           THEN 'ARRAY'::text "
-            + "           WHEN nt.nspname = 'pg_catalog'::name "
-            + "           THEN format_type(t.oid, NULL::INTEGER) "
-            + "           ELSE 'USER-DEFINED'::text "
-            + "       END AS formatted_type_name, "
-            + "       ss.p_oid AS procedure_oid, "
-            + "       t.typname AS unformatted_type_name, "
-            + "       t.oid AS type_oid "
-            + "  FROM pg_type t, "
-            + "       pg_namespace nt, "
-            + "       ( "
-            + "         SELECT n.nspname AS n_nspname, "
-            + "                p.proname, "
-            + "                p.oid AS p_oid, "
-            + "                p.proargnames, "
-            + "                p.proargmodes, "
-            + "                information_schema._pg_expandarray(COALESCE(p.proallargtypes, (p.proargtypes)::oid[])) AS x "
-            + "           FROM pg_namespace n, "
-            + "                pg_proc p "
-            + "          WHERE ((n.oid = p.pronamespace) "
-            + "            AND (pg_has_role(p.proowner, 'USAGE'::text) OR  has_function_privilege(p.oid, 'EXECUTE'::text))) "
-            + "        ) ss "
-            + "WHERE t.oid = (ss.x).x "
-            + "  AND t.typnamespace = nt.oid "
+    private static final String FUNCTION_DETAILS = "SELECT ss.n_nspname AS specific_schema, "                                 //
+            + "       ss.proname::text AS specific_name, "                                                                    //
+            + "       (ss.x).n AS ordinal_position, "                                                                         //
+            + "       NULLIF(ss.proargnames[(ss.x).n], ''::text) AS parameter_name, "                                         //
+            + "       CASE "                                                                                                  //
+            + "           WHEN t.typelem <> (0)::oid AND t.typlen = (-1) "                                                    //
+            + "           THEN 'ARRAY'::text "                                                                                //
+            + "           WHEN nt.nspname = 'pg_catalog'::name "                                                              //
+            + "           THEN format_type(t.oid, NULL::INTEGER) "                                                            //
+            + "           ELSE 'USER-DEFINED'::text "                                                                         //
+            + "       END AS formatted_type_name, "                                                                           //
+            + "       ss.p_oid AS procedure_oid, "                                                                            //
+            + "       t.typname AS unformatted_type_name, "                                                                   //
+            + "       t.oid AS type_oid "                                                                                     //
+            + "  FROM pg_type t, "                                                                                            //
+            + "       pg_namespace nt, "                                                                                      //
+            + "       ( "                                                                                                     //
+            + "         SELECT n.nspname AS n_nspname, "                                                                      //
+            + "                p.proname, "                                                                                   //
+            + "                p.oid AS p_oid, "                                                                              //
+            + "                p.proargnames, "                                                                               //
+            + "                p.proargmodes, "                                                                               //
+            + "                information_schema._pg_expandarray(COALESCE(p.proallargtypes, (p.proargtypes)::oid[])) AS x "  //
+            + "           FROM pg_namespace n, "                                                                              //
+            + "                pg_proc p "                                                                                    //
+            + "          WHERE ((n.oid = p.pronamespace) "                                                                    //
+            + "            AND (pg_has_role(p.proowner, 'USAGE'::text) OR  has_function_privilege(p.oid, 'EXECUTE'::text))) " //
+            + "        ) ss "                                                                                                 //
+            + "WHERE t.oid = (ss.x).x "                                                                                       //
+            + "  AND t.typnamespace = nt.oid "                                                                                //
             + "  AND ss.proargmodes[(ss.x).n] = ANY ('{o,b,t}'::char[]);";
-            //J+
 
     private Map<String, DbFunction> functions = null;
     private Map<String, List<String>> functionNameToFQName = null;
@@ -73,8 +70,8 @@ public class DbFunctionRegister {
                 final String paramTypeName = resultSet.getString(i++);
                 final int paramTypeId = resultSet.getInt(i++);
 
-                addFunctionParam(functionSchema, functionName, paramName, paramPosition, paramType, procedureId, paramTypeName,
-                    paramTypeId);
+                addFunctionParam(functionSchema, functionName, paramName, paramPosition, paramType, procedureId,
+                    paramTypeName, paramTypeId);
             }
         } finally {
             if (resultSet != null) {
@@ -88,7 +85,8 @@ public class DbFunctionRegister {
     }
 
     private void addFunctionParam(final String functionSchema, final String functionName, final String paramName,
-            final int paramPosition, final String paramType, final int procedureId, final String paramTypeName, final int paramTypeId) {
+            final int paramPosition, final String paramType, final int procedureId, final String paramTypeName,
+            final int paramTypeId) {
 
         final String functionId = getFunctionIdentifier(functionSchema, functionName);
         DbFunction function = functions.get(functionId);
@@ -143,7 +141,7 @@ public class DbFunctionRegister {
     }
 
     public static synchronized void reInitRegistry(final Connection connection) throws SQLException {
-        if(registers == null) {
+        if (registers == null) {
             registers = new HashMap<String, DbFunctionRegister>();
         }
 

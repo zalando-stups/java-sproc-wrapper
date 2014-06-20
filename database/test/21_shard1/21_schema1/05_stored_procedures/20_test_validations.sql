@@ -71,3 +71,15 @@ BEGIN
   return a;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION test_sproc_call_with_multiple_parameters_validation (
+    a example_domain_object_with_validation,
+    parameter0 text,
+    parameter1 text,
+    parameter2 text)
+RETURNS example_domain_object_with_validation AS
+$$
+BEGIN
+  return a;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
