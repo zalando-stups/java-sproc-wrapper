@@ -82,8 +82,10 @@ The following table shows the mapping between a database type and a Java type:
 | char             | char                                              |
 | text             | java.lang.String                                  |
 | timestamp        | java.sql.Timestamp                                |
+| timestamptz      | java.sql.Timestamp                                |
 | date             | java.sql.Timestamp                                |
 | time             | java.sql.Timestamp                                |
+| timetz           | java.sql.Timestamp                                |
 | boolean          | boolean                                           |
 | enum             | java.lang.Enum                                    |
 | array            | java.util.List / java.util.Set                    |
@@ -101,9 +103,9 @@ Dependencies
 ------------
 
  * Spring Framework
- * PostgreSQL driver ;)
+ * PostgreSQL JDBC driver ;)
  * Google Guava
- * and more see pom.xml for details
+ * and more see `pom.xml` for details
 
 How to run integration tests
 ----------------------------
@@ -121,12 +123,12 @@ How to run integration tests
 Known issues
 ------------
 
-* PostgreSQL JDBC driver does not honor identical type names in different schemas, this may lead to issues if typemapper is used where types are present with equal name in more than one schema (this problem is solved now with the commit [3ca94e64d6322fa91c477200bfb3719deaeac153](https://github.com/pgjdbc/pgjdbc/commit/3ca94e64d6322fa91c477200bfb3719deaeac153) to [pgjdbc](https://github.com/pgjdbc/pgjdbc/) driver)
-* PostgreSQL domains are not supported as for now
-* PostgreSQL `hstore` type is mapped from and to `Map<String,String>`, there is no way to use `Map` of different types for now
-* Two different datasources with the same jdbc URL and different search paths might not work properly when we have types with the identical name.
-* SprocWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SprocWrapper might end up using the wrong one, because it will use the search_path to resolve the conflict. For more info check test: SimpleIT.testTypeLookupBugWithSchema.
-* For integration with Spring's transaction management use the TransactionAwareDataSourceProxy as the data source injected into the data source provider.
+* PostgreSQL JDBC driver does not honor identical type names in different schemas, this may lead to issues if typemapper is used where types are present with equal name in more than one schema (this problem is solved now with the commit [3ca94e64d6322fa91c477200bfb3719deaeac153](https://github.com/pgjdbc/pgjdbc/commit/3ca94e64d6322fa91c477200bfb3719deaeac153) to [pgjdbc](https://github.com/pgjdbc/pgjdbc/) driver);
+* PostgreSQL domains are not supported as for now;
+* PostgreSQL `hstore` type is mapped from and to `Map<String,String>`, there is no way to use `Map` of different types for now;
+* Two different datasources with the same JDBC URL and different search paths might not work properly when we have types with the identical name;
+* SprocWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SprocWrapper might end up using the wrong one, because it will use the `search_path` to resolve the conflict. For more info check test: `SimpleIT.testTypeLookupBugWithSchema`;
+* For integration with Spring's transaction management use the `TransactionAwareDataSourceProxy` as the data source injected into the data source provider.
 
 Documentation
 -------------
@@ -154,4 +156,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
