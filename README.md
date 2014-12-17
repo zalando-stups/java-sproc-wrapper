@@ -8,7 +8,7 @@ Supports horizontal database sharding (partition/access logic lies within applic
 Type Mapping
 ------------
 
-SprocWrapper provides an efficient and easy-to-use mechanism for translating values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
+SProcWrapper provides an efficient and easy-to-use mechanism for translating values from database to Java objects and vice-versa. It allows us to map not only primitive types, but also complex types (Java domain objects).
 
 Here are some examples!
 
@@ -91,7 +91,7 @@ The following table shows the mapping between a database type and a Java type:
 | array            | java.util.List / java.util.Set                    |
 | hstore           | java.util.Map<java.lang.String, java.lang.String> |
 
-Note: Sprocwrapper doesn't support functions returning arrays as a single output. If one wants to return a collection, please return a SETOF instead.
+Note: SProcwrapper doesn't support functions returning arrays as a single output. If one wants to return a collection, please return a SETOF instead.
 
 Prerequisites
 -------------
@@ -127,7 +127,7 @@ Known issues
 * PostgreSQL domains are not supported as for now;
 * PostgreSQL `hstore` type is mapped from and to `Map<String,String>`, there is no way to use `Map` of different types for now;
 * Two different datasources with the same JDBC URL and different search paths might not work properly when we have types with the identical name;
-* SprocWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SprocWrapper might end up using the wrong one, because it will use the `search_path` to resolve the conflict. For more info check test: `SimpleIT.testTypeLookupBugWithSchema`;
+* SProcWrapper relies on the search path to resolve conflicting types with the same name (right now, we are not checking the schema). If one specifies the schema of the stored procedure's return type, SProcWrapper might end up using the wrong one, because it will use the `search_path` to resolve the conflict. For more info check test: `SimpleIT.testTypeLookupBugWithSchema`;
 * For integration with Spring's transaction management use the `TransactionAwareDataSourceProxy` as the data source injected into the data source provider.
 
 Documentation
@@ -143,7 +143,7 @@ You can find some more information about the SProcWrapper in our various Zalando
 License
 -------
 
-Copyright 2012-2013 Zalando GmbH
+Copyright 2012-2014 Zalando SE
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
