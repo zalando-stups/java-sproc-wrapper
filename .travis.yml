@@ -1,0 +1,11 @@
+language: java
+jdk:
+    - openjdk7
+    - openjdk8
+    - oraclejdk7
+    - oraclejdk8
+addons:
+    postgresql: "9.3"
+
+# go faster on travis
+sudo: false
