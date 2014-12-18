@@ -112,15 +112,11 @@ Dependencies
 How to run integration tests
 ----------------------------
 
-* install local PostgreSQL cluster running on 5432
-* allow connection with postgres/postgres or create a new user and set config values in pom.xml and application.test.properties
- - create schema and database privileges required for test cases
-* make sure you have hstore extension installed, preferably in template1
-* create zalando_test database on your localhost PostgreSQL cluster
- - possibly add hstore extension to database
-* run integration tests (JUnit tests with database access):
-    mvn clean test -Pintegration-test
+The provided helper script will start a PostgreSQL instance with Docker on port 5432 and run integration tests:
 
+    ./test.sh
+
+You can use the provided Vagrant box to run the script in.
 
 Known issues
 ------------
