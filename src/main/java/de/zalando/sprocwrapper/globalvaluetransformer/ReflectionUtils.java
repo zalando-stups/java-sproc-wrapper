@@ -19,7 +19,6 @@ public class ReflectionUtils {
      *
      * @param   clazz       the class to introspect
      * @param   name        the name of the method
-     * @param   paramTypes  the parameter types of the method (may be <code>null</code> to indicate any signature)
      *
      * @return  the Method object, or <code>null</code> if none found
      */
