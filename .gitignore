@@ -1,4 +1,5 @@
 *.iml
+.vagrant
 .DS_Store
 .project
 .classpath

@@ -51,6 +51,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>3.2.3.RELEASE</spring.version>
         <postgresql.version>9.2-1003-jdbc4</postgresql.version>
+
     </properties>
 
     <build>
@@ -104,7 +105,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-            <version>4.10</version>
+            <version>4.12</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -265,6 +266,9 @@
                                     <sqlCommand>
                                         CREATE DATABASE ${test.db.name1} TEMPLATE template1;
                                         CREATE DATABASE ${test.db.name2} TEMPLATE template1;
+                                        CREATE ROLE zalando_api_owner;
+                                        CREATE ROLE zalando_api_executor;
+                                        CREATE ROLE zalando_api_usage;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
@@ -281,6 +285,7 @@
                                     <driver>org.postgresql.Driver</driver>
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name1}</url>
                                     <sqlCommand>
+                                        CREATE EXTENSION hstore;
                                         DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_schema2 CASCADE;
                                     </sqlCommand>
@@ -307,7 +312,7 @@
                                     </fileset>
                                 </configuration>
                             </execution>
-                            
+
                             <!-- execution against database 2 -->
                             <execution>
                                 <id>drop-schemas-database2</id>
@@ -319,6 +324,7 @@
                                     <driver>org.postgresql.Driver</driver>
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name2}</url>
                                     <sqlCommand>
+                                        CREATE EXTENSION hstore;
                                         DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
                                     </sqlCommand>
                                     <onError>continue</onError>
