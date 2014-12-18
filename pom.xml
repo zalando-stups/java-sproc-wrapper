@@ -34,12 +34,18 @@
     </licenses>
 
     <developers>
-      <developer>
-        <name>Jan Mußler</name>
-        <email>jan.mussler@zalando.de</email>
-        <organization>Zalando</organization>
-        <organizationUrl>http://tech.zalando.com/</organizationUrl>
-      </developer>
+        <developer>
+            <name>Jan Mußler</name>
+            <email>jan.mussler@zalando.de</email>
+            <organization>Zalando SE</organization>
+            <organizationUrl>http://tech.zalando.com/</organizationUrl>
+        </developer>
+        <developer>
+            <name>Henning Jacobs</name>
+            <email>henning.jacobs@zalando.de</email>
+            <organization>Zalando SE</organization>
+            <organizationUrl>http://tech.zalando.com/</organizationUrl>
+        </developer>
     </developers>
 
     <prerequisites>
@@ -75,28 +81,42 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.3</version>
                 <executions>
-                  <execution>
-                    <id>attach-sources</id>
-                    <phase>verify</phase>
-                    <goals>
-                      <goal>jar-no-fork</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <version>2.10.1</version>
-              <executions>
-                 <execution>
-                   <id>attach-javadoc</id>
-                   <phase>verify</phase>
-                   <goals>
-                     <goal>jar</goal>
-                   </goals>
-                 </execution>
-               </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -274,7 +294,7 @@
                                 </configuration>
                             </execution>
 
-                             <!-- execution against database 1 -->
+                            <!-- execution against database 1 -->
                             <execution>
                                 <id>drop-schemas-database1</id>
                                 <phase>process-test-resources</phase>
@@ -292,7 +312,7 @@
                                     <onError>continue</onError>
                                 </configuration>
                             </execution>
-                             <execution>
+                            <execution>
                                 <id>create-data-database1</id>
                                 <phase>process-test-resources</phase>
                                 <goals>
@@ -330,7 +350,7 @@
                                     <onError>continue</onError>
                                 </configuration>
                             </execution>
-                             <execution>
+                            <execution>
                                 <id>create-data-database2</id>
                                 <phase>process-test-resources</phase>
                                 <goals>
@@ -378,13 +398,13 @@
         </profile>
     </profiles>
     <distributionManagement>
-      <snapshotRepository>
-        <id>ossrh</id>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
-      <repository>
-        <id>ossrh</id>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
 </project>
