@@ -1,5 +1,7 @@
 package de.zalando.typemapper.postgres;
 
+import com.google.common.base.Objects;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -175,4 +177,19 @@ public final class PgArray<E> implements java.sql.Array {
         throw new SQLFeatureNotSupportedException("Feature not supported");
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(elementTypeName, serializer.collection);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PgArray) {
+            PgArray other = (PgArray) obj;
+            return Objects.equal(elementTypeName, other.elementTypeName) &&
+                    Objects.equal(serializer.collection, other.serializer.collection);
+        } else {
+            return false;
+        }
+    }
 }
