@@ -1,7 +1,6 @@
 language: java
 jdk:
     - openjdk7
-    - openjdk8
     - oraclejdk7
     - oraclejdk8
 addons:
@@ -9,3 +8,8 @@ addons:
 
 # go faster on travis
 sudo: false
+
+# stop mvn install from running
+install: true
+
+script: mvn -B -V package javadoc:javadoc test
