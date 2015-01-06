@@ -9,4 +9,7 @@ addons:
 # go faster on travis
 sudo: false
 
+# stop mvn install from running
+install: true
+
 script: mvn -B -V package javadoc:javadoc test
