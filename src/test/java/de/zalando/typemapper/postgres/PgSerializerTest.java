@@ -1,7 +1,7 @@
 package de.zalando.typemapper.postgres;
 
 import static org.hamcrest.CoreMatchers.is;
-
+import static org.cthul.matchers.CthulMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import static de.zalando.typemapper.postgres.PgArray.ARRAY;
@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -26,6 +27,7 @@ public class PgSerializerTest {
     // Fields
     private Object objectToSerialize;
     private String expectedString;
+    private Pattern expectedPattern;
 
     /*
      * Constructor. The JUnit test runner will instantiate this class once for
@@ -33,9 +35,19 @@ public class PgSerializerTest {
      *
      * @Parameters.
      */
-    public PgSerializerTest(final Object objectToSerialize, final String expectedString) {
+    public PgSerializerTest(final Object objectToSerialize, final Object expected) {
         this.objectToSerialize = objectToSerialize;
-        this.expectedString = expectedString;
+        if (expected instanceof String) {
+            this.expectedString = (String) expected;
+            this.expectedPattern = null;
+        } else if (expected instanceof Pattern) {
+            this.expectedString = null;
+            this.expectedPattern = (Pattern) expected;
+        } else {
+           throw new IllegalArgumentException(String.format(
+                   "Expected either a String or a Pattern, got: %s (%s)",
+                   expected, expected == null ? null : expected.getClass()));
+        }
     }
 
     /*
@@ -49,10 +61,10 @@ public class PgSerializerTest {
     public static Collection<Object[]> generateData() throws SQLException {
         return Arrays.asList(
                 new Object[][] {
-                    {new Date(112, 11, 1, 6, 6, 6), "2012-12-01 06:06:06.000000 +01:00:00"},
-                    {new Date(112, 9, 1, 6, 6, 6), "2012-10-01 06:06:06.000000 +02:00:00"},
+                    {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06.000000 [+-]?\\d{2}:\\d{2}:00")},
+                    {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06.000000 [+-]?\\d{2}:\\d{2}:00")},
                     {1, "1"},
-                    {Integer.valueOf(69), "69"},
+                    {69, "69"},
                     {true, "t"},
                     {new int[] {1, 2, 3, 4}, "{1,2,3,4}"},
                     {new Integer[] {null, 2, 3, 4}, "{NULL,2,3,4}"},
@@ -78,12 +90,15 @@ public class PgSerializerTest {
 
     /**
      * Test how SerializationUtils.toPgString() method works.
-     *
-     * @throws  SerializationError
      */
     @Test
     public void serializationTest() {
-        assertThat(PgTypeHelper.toPgString(this.objectToSerialize), is(this.expectedString));
+        String result = PgTypeHelper.toPgString(this.objectToSerialize);
+        if (this.expectedString != null) {
+            assertThat(result, is(this.expectedString));
+        } else {
+            assertThat(result, matchesPattern(this.expectedPattern));
+        }
     }
 
 }
