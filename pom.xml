@@ -4,7 +4,7 @@
 
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <packaging>jar</packaging>
     <name>Stored Procedure Wrapper</name>
     <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration). Supports sharding, advisory locking, statement timeouts and PostgreSQL types such as enums and hstore.</description>
@@ -211,7 +211,18 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.9</version>
+            <version>0.9.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.18.2-GA</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

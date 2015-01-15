@@ -9,6 +9,18 @@ Library to make PostgreSQL stored procedures(SProcs) available through simple Ja
 
 Supports horizontal database sharding (partition/access logic lies within application), easy use of pg_advisory_lock through annotations to ensure single Java node execution, configurable statement timeouts per stored procedure, and PostgreSQL types including enums and hstore.
 
+Usage
+------------
+To use SProcWrapper, add the following lines to your pom.xml:
+
+```xml
+<dependency>
+    <groupId>de.zalando</groupId>
+    <artifactId>zalando-sprocwrapper</artifactId>
+    <version>1.2.4</version>
+</dependency>
+```
+
 Type Mapping
 ------------
 
