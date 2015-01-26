@@ -329,6 +329,7 @@
                                     <driver>org.postgresql.Driver</driver>
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name1}</url>
                                     <sqlCommand>
+                                        DROP EXTENSION IF EXISTS hstore CASCADE;
                                         CREATE EXTENSION hstore;
                                         DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_schema2 CASCADE;
@@ -368,6 +369,7 @@
                                     <driver>org.postgresql.Driver</driver>
                                     <url>jdbc:postgresql://${test.db.host}:${test.db.port}/${test.db.name2}</url>
                                     <sqlCommand>
+                                        DROP EXTENSION IF EXISTS hstore CASCADE;
                                         CREATE EXTENSION hstore;
                                         DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
                                     </sqlCommand>
