@@ -5,6 +5,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @author Soroosh Sarabadani
+ */
 public class SProcServiceAnnotationHandlerTest {
     private SProcServiceAnnotationHandler handler;
 

@@ -1,13 +1,11 @@
 package de.zalando.sprocwrapper.proxy;
-
-import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcService;
 import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by soroosh on 1/31/15.
+ * @author Soroosh Sarabadani
  */
 class SProcServiceAnnotationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SProcServiceAnnotationHandler.class);
@@ -57,7 +55,7 @@ class SProcServiceAnnotationHandler {
         if (serviceAnnotation == null) {
             return DEFAULT_HANDLER_RESULT;
         }
-        VirtualShardKeyStrategy keyStrategy = DEFAULT_VIRTUAL_SHARD_KEY_STRATEGY;
+        VirtualShardKeyStrategy keyStrategy;
 
         try {
             keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();

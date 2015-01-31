@@ -2,7 +2,6 @@ package de.zalando.sprocwrapper.proxy;
 
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcParam;
-import de.zalando.sprocwrapper.sharding.ShardKey;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * @author Soroosh Sarabadani
+ */
 public class SProcCallHandlerTest {
     private SProcCallHandler handler;
 
