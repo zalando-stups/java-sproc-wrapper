@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author  jmussler
+ * @author jmussler
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -41,10 +41,32 @@ public @interface SProcCall {
     }
 
     public static enum WriteTransaction {
-        USE_FROM_SERVICE,
-        NONE,
-        ONE_PHASE,
-        TWO_PHASE
+        USE_FROM_SERVICE {
+            @Override
+            public SProcService.WriteTransaction getServiceWriteTransaction() {
+                return null;
+            }
+        },
+        NONE {
+            @Override
+            public SProcService.WriteTransaction getServiceWriteTransaction() {
+                return SProcService.WriteTransaction.NONE;
+            }
+        },
+        ONE_PHASE {
+            @Override
+            public SProcService.WriteTransaction getServiceWriteTransaction() {
+                return SProcService.WriteTransaction.ONE_PHASE;
+            }
+        },
+        TWO_PHASE {
+            @Override
+            public SProcService.WriteTransaction getServiceWriteTransaction() {
+                return SProcService.WriteTransaction.TWO_PHASE;
+            }
+        };
+
+        public abstract SProcService.WriteTransaction getServiceWriteTransaction();
     }
 
     String name() default "";
