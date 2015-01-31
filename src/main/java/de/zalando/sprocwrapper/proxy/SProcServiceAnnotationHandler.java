@@ -13,17 +13,19 @@ class SProcServiceAnnotationHandler {
     private static final String DEFAULT_PREFIX = "";
     private static final VirtualShardKeyStrategy VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT = new VirtualShardKeyStrategy();
 
-    protected static final HandlerResult DEFAULT_HANDLER_RESULT = new HandlerResult(DEFAULT_PREFIX, VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT);
+    protected static final HandlerResult DEFAULT_HANDLER_RESULT = new HandlerResult(DEFAULT_PREFIX, VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT, false);
 
     public static class HandlerResult {
 
         private final String prefix;
         private final VirtualShardKeyStrategy shardKeyStrategy;
+        private boolean validateActive;
 
-        public HandlerResult(String prefix, VirtualShardKeyStrategy shardKeyStrategy) {
+        public HandlerResult(String prefix, VirtualShardKeyStrategy shardKeyStrategy, boolean validateActive) {
 
             this.prefix = prefix;
             this.shardKeyStrategy = shardKeyStrategy;
+            this.validateActive = validateActive;
         }
 
         public String getPrefix() {
@@ -34,6 +36,9 @@ class SProcServiceAnnotationHandler {
             return shardKeyStrategy;
         }
 
+        public boolean isValidateActive() {
+            return validateActive;
+        }
     }
 
     public SProcServiceAnnotationHandler() {
@@ -57,6 +62,7 @@ class SProcServiceAnnotationHandler {
         if (!"".equals(serviceAnnotation.namespace().trim())) {
             prefix = serviceAnnotation.namespace() + "_";
         }
-        return new HandlerResult(prefix, keyStrategy);
+
+        return new HandlerResult(prefix, keyStrategy, serviceAnnotation.validate());
     }
 }
