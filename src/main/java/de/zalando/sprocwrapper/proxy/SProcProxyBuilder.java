@@ -21,11 +21,11 @@ import de.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
 import de.zalando.sprocwrapper.util.NameUtils;
 
 /**
- * @author  jmussler
+ * @author jmussler
  */
 public class SProcProxyBuilder {
 
-    private static final VirtualShardKeyStrategy VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT = new VirtualShardKeyStrategy();
+    private static SProcServiceAnnotationHandler sProcServiceAnnotationHandler = new SProcServiceAnnotationHandler();
 
     private static final Logger LOG = LoggerFactory.getLogger(SProcProxyBuilder.class);
 
@@ -43,21 +43,13 @@ public class SProcProxyBuilder {
 
         final SProcProxy proxy = new SProcProxy(d);
 
-        final SProcService serviceAnnotation = c.getAnnotation(SProcService.class);
-        VirtualShardKeyStrategy keyStrategy = VIRTUAL_SHARD_KEY_STRATEGY_DEFAULT;
-        String prefix = "";
-        if (serviceAnnotation != null) {
-            try {
-                keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();
-            } catch (final InstantiationException | IllegalAccessException ex) {
-                LOG.error("ShardKey strategy for service can not be instantiated", ex);
-                return null;
-            }
-
-            if (!"".equals(serviceAnnotation.namespace())) {
-                prefix = serviceAnnotation.namespace() + "_";
-            }
+        SProcServiceAnnotationHandler.HandlerResult handlerResult;
+        try {
+            handlerResult = sProcServiceAnnotationHandler.handle(c);
+        } catch (IllegalArgumentException ex) {
+            return null;
         }
+        final SProcService serviceAnnotation = c.getAnnotation(SProcService.class);
 
         for (final Method method : methods) {
             final SProcCall scA = method.getAnnotation(SProcCall.class);
@@ -71,9 +63,9 @@ public class SProcProxyBuilder {
                 name = getSqlNameForMethod(method.getName());
             }
 
-            name = prefix + name;
+            name = handlerResult.getPrefix() + name;
 
-            VirtualShardKeyStrategy sprocStrategy = keyStrategy;
+            VirtualShardKeyStrategy sprocStrategy = handlerResult.getShardKeyStrategy();
             if (scA.shardStrategy() != Void.class) {
                 try {
                     sprocStrategy = (VirtualShardKeyStrategy) scA.shardStrategy().newInstance();
@@ -117,19 +109,19 @@ public class SProcProxyBuilder {
                         != de.zalando.sprocwrapper.SProcCall.WriteTransaction.USE_FROM_SERVICE) {
                     switch (scA.shardedWriteTransaction()) {
 
-                        case NONE :
+                        case NONE:
                             writeTransaction = WriteTransaction.NONE;
                             break;
 
-                        case ONE_PHASE :
+                        case ONE_PHASE:
                             writeTransaction = WriteTransaction.ONE_PHASE;
                             break;
 
-                        case TWO_PHASE :
+                        case TWO_PHASE:
                             writeTransaction = WriteTransaction.TWO_PHASE;
                             break;
 
-                        case USE_FROM_SERVICE :
+                        case USE_FROM_SERVICE:
                             writeTransaction = getWriteTransactionServiceAnnotation(serviceAnnotation);
                     }
                 }
@@ -186,7 +178,7 @@ public class SProcProxyBuilder {
             proxy.addStoredProcedure(method, storedProcedure);
         }
 
-        return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[] {c}, proxy);
+        return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[]{c}, proxy);
     }
 
     private static WriteTransaction getWriteTransactionServiceAnnotation(final SProcService serviceAnnotation) {
