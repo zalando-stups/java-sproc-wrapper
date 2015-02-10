@@ -1,13 +1,13 @@
 SProcWrapper
 ============
 
-[![Build Status](https://travis-ci.org/zalando/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper)
+[![Build Status](https://travis-ci.org/zalando/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando/java-sproc-wrapper/badge.png)](https://coveralls.io/r/zalando/java-sproc-wrapper)
 
-[![Coverage Status](https://coveralls.io/repos/zalando/java-sproc-wrapper/badge.png)](https://coveralls.io/r/zalando/java-sproc-wrapper)
+[![ReviewNinja](http://app.review.ninja/assets/images/wereviewninja-32.png)](http://app.review.ninja/zalando/java-sproc-wrapper)
 
 Library to make PostgreSQL stored procedures(SProcs) available through simple Java "SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration).
 
-Supports horizontal database sharding (partition/access logic lies within application), easy use of pg_advisory_lock through annotations to ensure single Java node execution, configurable statement timeouts per stored procedure, and PostgreSQL types including enums and hstore.
+Supports horizontal database sharding (partition/access logic lies within application), easy use of `pg_advisory_lock` through annotations to ensure single Java node execution, configurable statement timeouts per stored procedure, and PostgreSQL types including enums and hstore.
 
 Usage
 ------------
