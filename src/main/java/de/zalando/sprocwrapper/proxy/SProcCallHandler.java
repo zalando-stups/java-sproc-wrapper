@@ -64,11 +64,9 @@ public class SProcCallHandler {
     }
 
     private SProcService.WriteTransaction getWriteTransaction(SProcCall scA, SProcServiceAnnotationHandler.HandlerResult handlerResult) {
-        SProcService.WriteTransaction writeTransaction = handlerResult.getWriteTransaction();
-        if (scA.shardedWriteTransaction() != de.zalando.sprocwrapper.SProcCall.WriteTransaction.USE_FROM_SERVICE) {
-            writeTransaction = scA.shardedWriteTransaction().getServiceWriteTransaction();
-        }
-        return writeTransaction;
+        SProcService.WriteTransaction serviceWriteTransaction = handlerResult.getWriteTransaction();
+        serviceWriteTransaction = scA.shardedWriteTransaction().getServiceWriteTransaction(serviceWriteTransaction);
+        return serviceWriteTransaction;
     }
 
     public Map<Method, StoredProcedure> handle(Class c, SProcServiceAnnotationHandler.HandlerResult handlerResult) {
