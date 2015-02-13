@@ -13,7 +13,7 @@ import com.google.common.base.Preconditions;
 /**
  * @author  jmussler
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Inherited
 public @interface SProcCall {
