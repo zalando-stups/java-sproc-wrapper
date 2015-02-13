@@ -17,7 +17,7 @@ To use SProcWrapper, add the following lines to your pom.xml:
 <dependency>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>1.2.4</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
