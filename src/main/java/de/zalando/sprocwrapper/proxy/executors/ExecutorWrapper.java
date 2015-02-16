@@ -65,7 +65,7 @@ public class ExecutorWrapper implements Executor {
         }
 
         final Statement st = conn.createStatement();
-        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.getSprocId() + ") AS \"" + lock
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.getLockId() + ") AS \"" + lock
                     .getName() + "\";");
 
         boolean b = false;
@@ -84,7 +84,7 @@ public class ExecutorWrapper implements Executor {
         }
 
         final Statement st = conn.createStatement();
-        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.getSprocId() + ")");
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.getLockId() + ")");
         boolean b = false;
         if (rs.next()) {
             b = rs.getBoolean(1);

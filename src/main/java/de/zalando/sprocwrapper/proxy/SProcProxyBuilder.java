@@ -137,7 +137,7 @@ public class SProcProxyBuilder {
                 storedProcedure = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
                         scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper,
                         scA.timeoutInMilliSeconds(),
-                        new SProcCall.AdvisoryLock(scA.adivsoryLockName(), scA.adivsoryLockSprocId()), useValidation,
+                        new SProcCall.AdvisoryLock(scA.adivsoryLockName(), scA.adivsoryLockId()), useValidation,
                         scA.readOnly(), writeTransaction);
                 if (!"".equals(scA.sql())) {
                     storedProcedure.setQuery(scA.sql());

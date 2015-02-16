@@ -7,7 +7,7 @@ public class AdvisoryLockTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotCreateAdvisoryLockWithWrongName() {
-        new SProcCall.AdvisoryLock(SProcCall.AdvisoryLock.NoLock.NAME, SProcCall.AdvisoryLock.NoLock.SPROC_ID + 1);
+        new SProcCall.AdvisoryLock(SProcCall.AdvisoryLock.NoLock.NAME, SProcCall.AdvisoryLock.NoLock.LOCK_ID + 1);
     }
 
     @Test
@@ -18,9 +18,9 @@ public class AdvisoryLockTest {
     @Test
     public void shouldCompareLocksCorrectly() {
         Assert.assertEquals(SProcCall.AdvisoryLock.NoLock.LOCK,
-            new SProcCall.AdvisoryLock(SProcCall.AdvisoryLock.NoLock.NAME, SProcCall.AdvisoryLock.NoLock.SPROC_ID));
+            new SProcCall.AdvisoryLock(SProcCall.AdvisoryLock.NoLock.NAME, SProcCall.AdvisoryLock.NoLock.LOCK_ID));
         Assert.assertNotEquals(SProcCall.AdvisoryLock.LockOne.LOCK,
-            new SProcCall.AdvisoryLock(SProcCall.AdvisoryLock.NoLock.NAME, SProcCall.AdvisoryLock.NoLock.SPROC_ID));
+            new SProcCall.AdvisoryLock(SProcCall.AdvisoryLock.NoLock.NAME, SProcCall.AdvisoryLock.NoLock.LOCK_ID));
     }
 
 }

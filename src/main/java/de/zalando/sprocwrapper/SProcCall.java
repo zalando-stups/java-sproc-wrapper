@@ -22,35 +22,35 @@ public @interface SProcCall {
 
         public static class NoLock {
             public static final String NAME = "NO_LOCK";
-            public static final long SPROC_ID = 0L;
-            public static final AdvisoryLock LOCK = new AdvisoryLock(NAME, SPROC_ID);
+            public static final long LOCK_ID = 0L;
+            public static final AdvisoryLock LOCK = new AdvisoryLock(NAME, LOCK_ID);
         }
 
         public static class LockOne {
             public static final String NAME = "LOCK_ONE";
-            public static final long SPROC_ID = 1L;
-            public static final AdvisoryLock LOCK = new AdvisoryLock(NAME, SPROC_ID);
+            public static final long LOCK_ID = 1L;
+            public static final AdvisoryLock LOCK = new AdvisoryLock(NAME, LOCK_ID);
         }
 
         private final String name;
-        private final long sprocId;
+        private final long lockId;
 
-        public AdvisoryLock(final String name, final long sprocId) {
+        public AdvisoryLock(final String name, final long lockId) {
             Preconditions.checkNotNull(name, "Name parameter cannot be null.");
-            Preconditions.checkArgument(sprocId == NoLock.SPROC_ID && Objects.equals(name, NoLock.NAME)
-                    || sprocId != NoLock.SPROC_ID && !Objects.equals(name, NoLock.NAME),
-                "SprocId parameter is different than %s (%s) but the name parameter was not changed: [name: %s, sprocId: %s]",
-                NoLock.SPROC_ID, NoLock.NAME, name, sprocId);
+            Preconditions.checkArgument(lockId == NoLock.LOCK_ID && Objects.equals(name, NoLock.NAME)
+                    || lockId != NoLock.LOCK_ID && !Objects.equals(name, NoLock.NAME),
+                "LockId parameter is different than %s (%s) but the name parameter was not changed: [name: %s, lockId: %s]",
+                NoLock.LOCK_ID, NoLock.NAME, name, lockId);
             this.name = name;
-            this.sprocId = sprocId;
+            this.lockId = lockId;
         }
 
         public String getName() {
             return name;
         }
 
-        public long getSprocId() {
-            return sprocId;
+        public long getLockId() {
+            return lockId;
         }
 
         @Override
@@ -65,7 +65,7 @@ public @interface SProcCall {
 
             final AdvisoryLock that = (AdvisoryLock) o;
 
-            if (sprocId != that.sprocId) {
+            if (lockId != that.lockId) {
                 return false;
             }
 
@@ -79,13 +79,13 @@ public @interface SProcCall {
         @Override
         public int hashCode() {
             int result = name.hashCode();
-            result = 31 * result + (int) (sprocId ^ (sprocId >>> 32));
+            result = 31 * result + (int) (lockId ^ (lockId >>> 32));
             return result;
         }
 
         @Override
         public String toString() {
-            return "AdvisoryLock{" + "name='" + name + '\'' + ", sprocId=" + sprocId + '}';
+            return "AdvisoryLock{" + "name='" + name + '\'' + ", lockId=" + lockId + '}';
         }
     }
 
@@ -149,7 +149,7 @@ public @interface SProcCall {
 
     long timeoutInMilliSeconds() default 0;
 
-    long adivsoryLockSprocId() default AdvisoryLock.NoLock.SPROC_ID;
+    long adivsoryLockId() default AdvisoryLock.NoLock.LOCK_ID;
 
     String adivsoryLockName() default AdvisoryLock.NoLock.NAME;
 
