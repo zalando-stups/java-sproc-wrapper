@@ -305,21 +305,23 @@ public class PgTypeHelper {
                     DbTypeField dbField = null;
                     if (dbFields != null) {
 
+                        if (resultPositionMap == null) {
+                            resultPositionMap = new TreeMap<Integer, Object>();
+                        }
+
                         // we have type information from database (field positions)
                         final String dbFieldName = Mapping.getDatabaseFieldName(f, databaseFieldDescriptor.getName());
                         dbField = dbFields.get(dbFieldName);
 
                         if (dbField == null) {
-                            throw new IllegalArgumentException("Field " + f.getName() + " (" + dbFieldName
-                                    + ") of class " + clazz.getSimpleName() + " could not be found in database type "
-                                    + typeName);
+                            if (!databaseFieldDescriptor.isOptional()) {
+                                throw new IllegalArgumentException("Field " + f.getName() + " (" + dbFieldName
+                                        + ") of class " + clazz.getSimpleName()
+                                        + " could not be found in database type " + typeName);
+                            }
+                        } else {
+                            resultPositionMap.put(dbField.getPosition(), value);
                         }
-
-                        if (resultPositionMap == null) {
-                            resultPositionMap = new TreeMap<Integer, Object>();
-                        }
-
-                        resultPositionMap.put(dbField.getPosition(), value);
                     }
 
                     if (dbField == null) {
@@ -327,7 +329,9 @@ public class PgTypeHelper {
                             resultList = new ArrayList<Object>();
                         }
 
-                        resultList.add(value);
+                        if (!databaseFieldDescriptor.isOptional()) {
+                            resultList.add(value);
+                        }
                     }
                 }
             }

@@ -35,4 +35,5 @@ public @interface DatabaseField {
 
     Class<? extends ObjectMapper<?>> mapper() default DefaultObjectMapper.class;
 
+    boolean optional() default false;
 }

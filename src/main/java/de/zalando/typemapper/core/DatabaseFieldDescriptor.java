@@ -11,18 +11,21 @@ public class DatabaseFieldDescriptor {
     private int position;
     private Class<? extends ValueTransformer<?, ?>> transformer;
     private Class<? extends ObjectMapper<?>> mapper;
+    private boolean optional;
 
     public DatabaseFieldDescriptor(final DatabaseField databaseField) {
         this.name = databaseField.name();
         this.position = databaseField.position();
         this.transformer = databaseField.transformer();
         this.mapper = databaseField.mapper();
+        this.optional = databaseField.optional();
     }
 
     public DatabaseFieldDescriptor(final Column column) {
         this.name = column.name();
         this.position = -1;
         this.transformer = AnyTransformer.class;
+        this.optional = false;
     }
 
     public String getName() {
@@ -40,4 +43,9 @@ public class DatabaseFieldDescriptor {
     public Class<? extends ObjectMapper<?>> getMapper() {
         return mapper;
     }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
 }
