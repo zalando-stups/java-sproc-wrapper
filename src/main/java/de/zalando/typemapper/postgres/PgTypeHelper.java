@@ -314,7 +314,7 @@ public class PgTypeHelper {
                         dbField = dbFields.get(dbFieldName);
 
                         if (dbField == null) {
-                            if (!databaseFieldDescriptor.isOptional()) {
+                            if (databaseType == null || !databaseType.partial()) {
                                 throw new IllegalArgumentException("Field " + f.getName() + " (" + dbFieldName
                                         + ") of class " + clazz.getSimpleName()
                                         + " could not be found in database type " + typeName);
@@ -329,7 +329,7 @@ public class PgTypeHelper {
                             resultList = new ArrayList<Object>();
                         }
 
-                        if (!databaseFieldDescriptor.isOptional()) {
+                        if (databaseType == null || !databaseType.partial()) {
                             resultList.add(value);
                         }
                     }
