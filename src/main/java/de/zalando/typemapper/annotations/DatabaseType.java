@@ -20,4 +20,10 @@ public @interface DatabaseType {
      * Flattens hierarchical structure of object and makes parent fields exposed to PgTypeHelper.
      */
     boolean inheritance() default false;
+
+    /**
+     * Annotated java class can have more @DatabaseField annotated fields than corresponding database type.
+     */
+    boolean partial() default false;
+
 }

@@ -152,7 +152,7 @@ class StoredProcedure {
             }
         }
 
-        if (this.timeout > 0 || this.adivsoryLock != AdvisoryLock.NO_LOCK) {
+        if (this.timeout > 0 || (this.adivsoryLock != null && !(this.adivsoryLock.equals(AdvisoryLock.NoLock.LOCK)))) {
 
             // Wrapper provides locking and changing of session settings functionality
             this.executor = new ExecutorWrapper(executor, this.timeout, this.adivsoryLock);

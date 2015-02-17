@@ -40,4 +40,5 @@ public class DatabaseFieldDescriptor {
     public Class<? extends ObjectMapper<?>> getMapper() {
         return mapper;
     }
+
 }

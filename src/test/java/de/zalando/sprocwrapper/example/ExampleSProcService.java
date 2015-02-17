@@ -279,4 +279,11 @@ public interface ExampleSProcService {
 
     @SProcCall(sql = "SELECT version()")
     String getPostgreSqlVersion();
+
+    @SProcCall
+    PartialObject getPartialObject(@SProcParam PartialObject partialObject);
+
+    @SProcCall
+    PartialObject getPartialObject(@SProcParam NotPartialObject partialObject);
+
 }
