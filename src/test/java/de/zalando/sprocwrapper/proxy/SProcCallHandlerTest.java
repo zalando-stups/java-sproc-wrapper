@@ -2,6 +2,7 @@ package de.zalando.sprocwrapper.proxy;
 
 import de.zalando.sprocwrapper.SProcCall;
 import de.zalando.sprocwrapper.SProcParam;
+import de.zalando.sprocwrapper.SProcService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import java.util.Map;
  * @author Soroosh Sarabadani
  */
 public class SProcCallHandlerTest {
+    private static final SProcServiceAnnotationHandler.HandlerResult DEFAULT_HANDLER_RESULT = new SProcServiceAnnotationHandler.HandlerResult("", new SubVirtualShardKeyStrategy(), false, null);
     private SProcCallHandler handler;
 
 
@@ -103,6 +105,30 @@ public class SProcCallHandlerTest {
 
         StoredProcedure storedProcedure = handle.get(sProcCallAnnotatedMethods.get(0));
         Assert.assertEquals("?", storedProcedure.getSqlParameterList());
+    }
+
+    @Test
+    public void NONE_ONE_PHASE_TWO_PHASE_should_return_correspond_write_transaction() {
+        Assert.assertEquals(SProcService.WriteTransaction.NONE, SProcCallHandler.mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction.NONE,DEFAULT_HANDLER_RESULT));
+        Assert.assertEquals(SProcService.WriteTransaction.ONE_PHASE,SProcCallHandler.mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction.ONE_PHASE, DEFAULT_HANDLER_RESULT));
+        Assert.assertEquals(SProcService.WriteTransaction.TWO_PHASE, SProcCallHandler.mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction.TWO_PHASE, DEFAULT_HANDLER_RESULT));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mapSprocWriteTransactionToServiceWriteTransaction_should_throw_exception_when_SprocService_is_null() {
+
+        SProcCallHandler.mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction.USE_FROM_SERVICE, DEFAULT_HANDLER_RESULT);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mapSprocWriteTransactionToServiceWriteTransaction_should_throw_exception_when_sproccall_wirtetransaction_is_null() {
+        SProcCallHandler.mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction.USE_FROM_SERVICE, DEFAULT_HANDLER_RESULT);
+    }
+
+    @Test
+    public void mapSprocWriteTransactionToServiceWriteTransaction_should_return_service_writetransaction() {
+        SProcService.WriteTransaction writeTransaction = SProcCallHandler.mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction.USE_FROM_SERVICE, new SProcServiceAnnotationHandler.HandlerResult("", new SubVirtualShardKeyStrategy(), false, SProcService.WriteTransaction.ONE_PHASE));
+        Assert.assertEquals(SProcService.WriteTransaction.ONE_PHASE,writeTransaction);
     }
 
 

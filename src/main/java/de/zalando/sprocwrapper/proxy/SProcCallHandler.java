@@ -63,9 +63,28 @@ public class SProcCallHandler {
         return result;
     }
 
-    private SProcService.WriteTransaction getWriteTransaction(SProcCall scA, SProcServiceAnnotationHandler.HandlerResult handlerResult) {
+    public static SProcService.WriteTransaction mapSprocWriteTransactionToServiceWriteTransaction(SProcCall.WriteTransaction scWiWriteTransaction, SProcServiceAnnotationHandler.HandlerResult handlerResult) {
         SProcService.WriteTransaction serviceWriteTransaction = handlerResult.getWriteTransaction();
-        serviceWriteTransaction = scA.shardedWriteTransaction().getServiceWriteTransaction(serviceWriteTransaction);
+        if (scWiWriteTransaction == null) {
+            throw new IllegalArgumentException("scWiWriteTransaction cannot be null");
+        }
+
+        switch (scWiWriteTransaction) {
+            case NONE:
+                serviceWriteTransaction = SProcService.WriteTransaction.NONE;
+                break;
+            case ONE_PHASE:
+                serviceWriteTransaction = SProcService.WriteTransaction.ONE_PHASE;
+                break;
+            case TWO_PHASE:
+                serviceWriteTransaction = SProcService.WriteTransaction.TWO_PHASE;
+                break;
+            default:
+                if (serviceWriteTransaction == null) {
+                    throw new IllegalArgumentException("ServiceWriteTransaction cannot be null");
+                }
+                break;
+        }
         return serviceWriteTransaction;
     }
 
@@ -148,7 +167,7 @@ public class SProcCallHandler {
 
     private StoredProcedure getStoredProcedure(SProcCall scA, SProcServiceAnnotationHandler.HandlerResult handlerResult, Method method, String name, VirtualShardKeyStrategy sprocStrategy, RowMapper<?> resultMapper, boolean useValidation) {
         try {
-            SProcService.WriteTransaction writeTransaction = this.getWriteTransaction(scA, handlerResult);
+            SProcService.WriteTransaction writeTransaction = mapSprocWriteTransactionToServiceWriteTransaction(scA.shardedWriteTransaction(), handlerResult);
 
             StoredProcedure storedProcedure = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
                     scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper,

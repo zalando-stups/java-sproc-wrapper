@@ -41,35 +41,11 @@ public @interface SProcCall {
     }
 
     public static enum WriteTransaction {
-        USE_FROM_SERVICE {
-            @Override
-            public SProcService.WriteTransaction getServiceWriteTransaction(SProcService.WriteTransaction serviceWriteTransaction) {
-                if (serviceWriteTransaction == null) {
-                    throw new IllegalArgumentException("USE_FROM_SERVICE is not possible when serviceWriteTransaction is null.");
-                }
-                return serviceWriteTransaction;
-            }
-        },
-        NONE {
-            @Override
-            public SProcService.WriteTransaction getServiceWriteTransaction(SProcService.WriteTransaction serviceWriteTransaction) {
-                return SProcService.WriteTransaction.NONE;
-            }
-        },
-        ONE_PHASE {
-            @Override
-            public SProcService.WriteTransaction getServiceWriteTransaction(SProcService.WriteTransaction serviceWriteTransaction) {
-                return SProcService.WriteTransaction.ONE_PHASE;
-            }
-        },
-        TWO_PHASE {
-            @Override
-            public SProcService.WriteTransaction getServiceWriteTransaction(SProcService.WriteTransaction serviceWriteTransaction) {
-                return SProcService.WriteTransaction.TWO_PHASE;
-            }
-        };
+        USE_FROM_SERVICE,
+        NONE,
+        ONE_PHASE,
+        TWO_PHASE
 
-        public abstract SProcService.WriteTransaction getServiceWriteTransaction(SProcService.WriteTransaction serviceWriteTransaction);
     }
 
     String name() default "";
