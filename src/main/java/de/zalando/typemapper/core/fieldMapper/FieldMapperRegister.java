@@ -3,9 +3,7 @@ package de.zalando.typemapper.core.fieldMapper;
 import java.math.BigDecimal;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.zalando.typemapper.core.ValueTransformer;
@@ -14,6 +12,8 @@ public class FieldMapperRegister {
 
     @SuppressWarnings({ "rawtypes" })
     private static final Map<Class, FieldMapper> register = new ConcurrentHashMap<Class, FieldMapper>();
+
+    private static final NullFieldMapper NULL_FIELD_MAPPER = new NullFieldMapper();
 
     static {
         final FieldMapper dateFieldMapper = new DateFieldMapper();
@@ -62,12 +62,6 @@ public class FieldMapperRegister {
 
         final FieldMapper hstoreMapper = new HStoreFieldMapper();
         FieldMapperRegister.register(Map.class, hstoreMapper);
-
-        final FieldMapper nullListMapper = new NullListFieldMapper();
-        FieldMapperRegister.register(List.class, nullListMapper);
-
-        final FieldMapper nullSetMapper = new NullSetFieldMapper();
-        FieldMapperRegister.register(Set.class, nullSetMapper);
     }
 
     @SuppressWarnings("rawtypes")
@@ -94,6 +88,10 @@ public class FieldMapperRegister {
             if (clazz.getEnumConstants() != null) {
                 fieldMapper = register.get(Enum.class);
             }
+        }
+
+        if (fieldMapper == null) {
+            fieldMapper = NULL_FIELD_MAPPER;
         }
 
         return fieldMapper;

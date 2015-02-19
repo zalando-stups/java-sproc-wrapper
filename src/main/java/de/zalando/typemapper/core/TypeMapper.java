@@ -154,17 +154,11 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                 // TODO pribeiro we need to distinguish between null value and a mapping not defined in the tree
                 if (node == null) {
 
-                    // this may be okay - if any return value is NULL, we will reach this path.
-                    // to classify and mark this as an error, we need more information.
-                    LOG.trace("Could not map property {} of class {}: field not in result tree, field may be nullable.",
-                        mapping.getName(), resultClass.getSimpleName());
-                    continue;
-                }
-
-                if (DbResultNodeType.MAP != node.getNodeType() && node.getValue() == null) {
                     if (mapping.isOptionalField()) {
                         mapping.map(result, null);
                     }
+
+                    continue;
                 }
 
                 // TODO pribeiro we should use polymorphism instead. Build like a chain.
