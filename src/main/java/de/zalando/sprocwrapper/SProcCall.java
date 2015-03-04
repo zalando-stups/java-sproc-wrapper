@@ -6,6 +6,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import java.util.Objects;
+
+import com.google.common.base.Preconditions;
+
 /**
  * @author jmussler
  */
@@ -14,24 +18,75 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface SProcCall {
 
-    public static enum AdvisoryLock {
-        NO_LOCK(0L),
-        LOCK_ONE(1L);
+    public static class AdvisoryLock {
 
-        /*
-         * Add more values to this enum if you need additional types of locks
-         */
-
-        private AdvisoryLock(final long sprocId) {
-            this.sprocId = sprocId;
+        public static class NoLock {
+            public static final String NAME = "NO_LOCK";
+            public static final long LOCK_ID = 0L;
+            public static final AdvisoryLock LOCK = new AdvisoryLock(NAME, LOCK_ID);
         }
 
-        private final long sprocId;
-
-        public long getSprocId() {
-            return sprocId;
+        public static class LockOne {
+            public static final String NAME = "LOCK_ONE";
+            public static final long LOCK_ID = 1L;
+            public static final AdvisoryLock LOCK = new AdvisoryLock(NAME, LOCK_ID);
         }
 
+        private final String name;
+        private final long lockId;
+
+        public AdvisoryLock(final String name, final long lockId) {
+            Preconditions.checkNotNull(name, "Name parameter cannot be null.");
+            Preconditions.checkArgument(lockId == NoLock.LOCK_ID && Objects.equals(name, NoLock.NAME)
+                    || lockId != NoLock.LOCK_ID && !Objects.equals(name, NoLock.NAME),
+                "LockId parameter is different than %s (%s) but the name parameter was not changed: [name: %s, lockId: %s]",
+                NoLock.LOCK_ID, NoLock.NAME, name, lockId);
+            this.name = name;
+            this.lockId = lockId;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public long getLockId() {
+            return lockId;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final AdvisoryLock that = (AdvisoryLock) o;
+
+            if (lockId != that.lockId) {
+                return false;
+            }
+
+            if (!name.equals(that.name)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name.hashCode();
+            result = 31 * result + (int) (lockId ^ (lockId >>> 32));
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "AdvisoryLock{" + "name='" + name + '\'' + ", lockId=" + lockId + '}';
+        }
     }
 
     public static enum Validate {
@@ -95,7 +150,10 @@ public @interface SProcCall {
 
     long timeoutInMilliSeconds() default 0;
 
-    AdvisoryLock adivsoryLockType() default AdvisoryLock.NO_LOCK;
+    long adivsoryLockId() default AdvisoryLock.NoLock.LOCK_ID;
+
+    String adivsoryLockName() default AdvisoryLock.NoLock.NAME;
 
     Validate validate() default Validate.AS_DEFINED_IN_SERVICE;
+
 }

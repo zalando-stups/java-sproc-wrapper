@@ -93,10 +93,10 @@ class StoredProcedure {
     private final AdvisoryLock adivsoryLock;
 
     public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
-            final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
-            final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
-            final AdvisoryLock advisoryLock, final boolean useValidation, final boolean readOnly,
-            final WriteTransaction writeTransaction) throws InstantiationException, IllegalAccessException {
+                           final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
+                           final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
+                           final AdvisoryLock advisoryLock, final boolean useValidation, final boolean readOnly,
+                           final WriteTransaction writeTransaction) throws InstantiationException, IllegalAccessException {
         this.name = name;
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
@@ -152,7 +152,7 @@ class StoredProcedure {
             }
         }
 
-        if (this.timeout > 0 || this.adivsoryLock != AdvisoryLock.NO_LOCK) {
+        if (this.timeout > 0 || (this.adivsoryLock != null && !(this.adivsoryLock.equals(AdvisoryLock.NoLock.LOCK)))) {
 
             // Wrapper provides locking and changing of session settings functionality
             this.executor = new ExecutorWrapper(executor, this.timeout, this.adivsoryLock);
@@ -328,7 +328,7 @@ class StoredProcedure {
      */
     @SuppressWarnings("unchecked")
     private Map<Integer, Object[]> partitionArguments(final DataSourceProvider dataSourceProvider,
-            final Object[] args) {
+                                                      final Object[] args) {
 
         // use TreeMap here to maintain ordering by shard ID
         final Map<Integer, Object[]> argumentsByShardId = Maps.newTreeMap();
@@ -390,7 +390,7 @@ class StoredProcedure {
         private final InvocationContext invocation;
 
         public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params,
-                final InvocationContext invocation) {
+                    final InvocationContext invocation) {
             this.sproc = sproc;
             this.shardDs = shardDs;
             this.params = params;
@@ -483,9 +483,9 @@ class StoredProcedure {
 
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("[{}] execution of [{}] on [{}] shards took [{}] ms",
-                        new Object[] {
-                            parallel ? "parallel" : "serial", name, shardIds.size(), System.currentTimeMillis() - start
-                        });
+                            new Object[] {
+                                    parallel ? "parallel" : "serial", name, shardIds.size(), System.currentTimeMillis() - start
+                            });
                 }
 
                 // no error - we may need to commit
@@ -502,10 +502,10 @@ class StoredProcedure {
             } catch (final RuntimeException runtimeException) {
 
                 LOG.trace("[{}] execution of [{}] on [{}] shards aborted by runtime exception [{}]",
-                    new Object[] {
-                        parallel ? "parallel" : "serial", name, shardIds.size(), runtimeException.getMessage(),
-                        runtimeException
-                    });
+                        new Object[] {
+                                parallel ? "parallel" : "serial", name, shardIds.size(), runtimeException.getMessage(),
+                                runtimeException
+                        });
 
                 // error occured, we may need to rollback all transactions.
                 rollbackTransaction(transactionalDatasources);
@@ -515,9 +515,9 @@ class StoredProcedure {
             } catch (final Throwable throwable) {
 
                 LOG.trace("[{}] execution of [{}] on [{}] shards aborted by throwable exception [{}]",
-                    new Object[] {
-                        parallel ? "parallel" : "serial", name, shardIds.size(), throwable.getMessage(), throwable
-                    });
+                        new Object[] {
+                                parallel ? "parallel" : "serial", name, shardIds.size(), throwable.getMessage(), throwable
+                        });
 
                 // error occured, we may need to rollback all transactions.
                 rollbackTransaction(transactionalDatasources);
@@ -532,9 +532,9 @@ class StoredProcedure {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Object executeSequential(final DataSourceProvider dp, final InvocationContext invocation,
-            final List<Integer> shardIds, final List<Object[]> paramValues,
-            final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
-            Object sprocResult) {
+                                     final List<Integer> shardIds, final List<Object[]> paramValues,
+                                     final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
+                                     Object sprocResult) {
         DataSource shardDs;
         int i = 0;
         final List<String> exceptions = Lists.newArrayList();
@@ -573,9 +573,9 @@ class StoredProcedure {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Object executeInParallel(final DataSourceProvider dp, final InvocationContext invocation,
-            final List<Integer> shardIds, final List<Object[]> paramValues,
-            final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
-            Object sprocResult) {
+                                     final List<Integer> shardIds, final List<Object[]> paramValues,
+                                     final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
+                                     Object sprocResult) {
         DataSource shardDs;
         final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
         FutureTask<Object> task;
@@ -647,7 +647,7 @@ class StoredProcedure {
     }
 
     private DataSource getShardDs(final DataSourceProvider dp,
-            final Map<Integer, SameConnectionDatasource> transactionIds, final int shardId) {
+                                  final Map<Integer, SameConnectionDatasource> transactionIds, final int shardId) {
         if (transactionIds.isEmpty()) {
             return dp.getDataSource(shardId);
         }
@@ -656,7 +656,7 @@ class StoredProcedure {
     }
 
     private Map<Integer, SameConnectionDatasource> startTransaction(final DataSourceProvider dp,
-            final List<Integer> shardIds) throws SQLException {
+                                                                    final List<Integer> shardIds) throws SQLException {
         final Map<Integer, SameConnectionDatasource> ret = Maps.newHashMap();
 
         if (readOnly == false && writeTransaction != WriteTransaction.NONE) {
@@ -696,8 +696,8 @@ class StoredProcedure {
                         // do our best. we cannot rollback at this point.
                         // store other shards as much as possible.
                         LOG.error(
-                            "ERROR: could not commitTransaction on shard [{}] - this will produce inconsistent data.",
-                            shardEntry.getKey(), e);
+                                "ERROR: could not commitTransaction on shard [{}] - this will produce inconsistent data.",
+                                shardEntry.getKey(), e);
                     }
                 }
             } else if (writeTransaction == WriteTransaction.TWO_PHASE) {
@@ -722,7 +722,7 @@ class StoredProcedure {
 
                         // log, but go on, prepare other transactions - but they will be removed as well.
                         LOG.debug("prepare transaction [{}] on shard [{}] failed!",
-                            new Object[] {transactionId, shardEntry.getKey(), e});
+                                new Object[] {transactionId, shardEntry.getKey(), e});
                     }
                 }
 
@@ -734,7 +734,7 @@ class StoredProcedure {
                     for (final Entry<Integer, SameConnectionDatasource> shardEntry : datasources.entrySet()) {
                         try {
                             LOG.trace("commit prepared transaction [{}] on shard [{}]", transactionId,
-                                shardEntry.getKey());
+                                    shardEntry.getKey());
 
                             final DataSource shardDs = shardEntry.getValue();
                             final Statement st = shardDs.getConnection().createStatement();
@@ -751,8 +751,8 @@ class StoredProcedure {
                             // a nagios check should detect them so that we can handle any errors
                             // that may be produced at this point.
                             LOG.error(
-                                "FAILED: could not commit prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
-                                new Object[] {transactionId, shardEntry.getKey(), e});
+                                    "FAILED: could not commit prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
+                                    new Object[] {transactionId, shardEntry.getKey(), e});
                         }
                     }
 
@@ -768,7 +768,7 @@ class StoredProcedure {
     }
 
     private void rollbackPrepared(final Map<Integer, SameConnectionDatasource> datasources,
-            final String transactionId) {
+                                  final String transactionId) {
 
         final String rollbackQuery = "ROLLBACK PREPARED '" + transactionId + "'";
 
@@ -784,8 +784,8 @@ class StoredProcedure {
                 shardEntry.getValue().close();
             } catch (final Exception e) {
                 LOG.error(
-                    "FAILED: could not rollback prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
-                    new Object[] {transactionId, shardEntry.getKey(), e});
+                        "FAILED: could not rollback prepared transaction [{}] on shard [{}] - this will produce inconsistent data.",
+                        new Object[] {transactionId, shardEntry.getKey(), e});
             }
         }
     }
@@ -804,7 +804,7 @@ class StoredProcedure {
                     shardEntry.getValue().close();
                 } catch (final Exception e) {
                     LOG.error("ERROR: could not rollback on shard [{}] - this will produce inconsistent data.",
-                        shardEntry.getKey());
+                            shardEntry.getKey());
                 }
             }
         }

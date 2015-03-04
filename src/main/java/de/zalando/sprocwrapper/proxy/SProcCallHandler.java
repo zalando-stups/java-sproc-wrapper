@@ -171,7 +171,7 @@ public class SProcCallHandler {
 
             StoredProcedure storedProcedure = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
                     scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper,
-                    scA.timeoutInMilliSeconds(), scA.adivsoryLockType(), useValidation, scA.readOnly(),
+                    scA.timeoutInMilliSeconds(), new SProcCall.AdvisoryLock(scA.adivsoryLockName(),scA.adivsoryLockId()), useValidation, scA.readOnly(),
                     writeTransaction);
             if (!"".equals(scA.sql())) {
                 storedProcedure.setQuery(scA.sql());

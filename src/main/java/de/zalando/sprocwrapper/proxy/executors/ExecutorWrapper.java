@@ -60,13 +60,13 @@ public class ExecutorWrapper implements Executor {
     }
 
     private boolean lockAdvisoryLock(final Connection conn) throws SQLException {
-        if (lock == AdvisoryLock.NO_LOCK) {
+        if (lock == null || lock.equals(AdvisoryLock.NoLock.LOCK)) {
             return true;
         }
 
         final Statement st = conn.createStatement();
-        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.getSprocId() + ") AS \"" + lock.name()
-                    + "\";");
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.getLockId() + ") AS \"" + lock
+                .getName() + "\";");
 
         boolean b = false;
         if (rs.next()) {
@@ -79,12 +79,12 @@ public class ExecutorWrapper implements Executor {
     }
 
     private boolean unlockAdvisoryLock(final Connection conn) throws SQLException {
-        if (lock == AdvisoryLock.NO_LOCK) {
+        if (lock == null || lock.equals(AdvisoryLock.NoLock.LOCK)) {
             return true;
         }
 
         final Statement st = conn.createStatement();
-        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.getSprocId() + ")");
+        final ResultSet rs = st.executeQuery("SELECT pg_advisory_unlock(" + lock.getLockId() + ")");
         boolean b = false;
         if (rs.next()) {
             b = rs.getBoolean(1);
@@ -97,7 +97,7 @@ public class ExecutorWrapper implements Executor {
 
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final InvocationContext invocationContext, final Class<?> returnType) {
+                               final InvocationContext invocationContext, final Class<?> returnType) {
 
         SameConnectionDatasource sameConnDs = null;
 
@@ -108,7 +108,7 @@ public class ExecutorWrapper implements Executor {
             setTimeout(sameConnDs.getConnection());
 
             if (!lockAdvisoryLock(sameConnDs.getConnection())) {
-                throw new RuntimeException("Could not acquire AdvisoryLock " + lock.name());
+                throw new RuntimeException("Could not acquire AdvisoryLock " + lock.getName());
             }
 
             return executor.executeSProc(sameConnDs, sql, args, types, invocationContext, returnType);
@@ -130,7 +130,7 @@ public class ExecutorWrapper implements Executor {
                     }
 
                     // unlock in all cases, locks not owned by this session cannot be unlocked
-                    if (lock != AdvisoryLock.NO_LOCK) {
+                    if (lock != null && !lock.equals(AdvisoryLock.NoLock.LOCK)) {
                         try {
                             unlockAdvisoryLock(sameConnDs.getConnection());
                         } catch (final SQLException ex) {
