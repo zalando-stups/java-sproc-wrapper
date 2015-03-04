@@ -38,6 +38,7 @@ public class SProcProxyBuilder {
             return null;
         }
         return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[]{c}, proxy);
+
     }
 
 }

@@ -443,4 +443,14 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public String getPostgreSqlVersion() {
         return sproc.getPostgreSqlVersion();
     }
+
+    @Override
+    public PartialObject getPartialObject(final PartialObject partialObject) {
+        return sproc.getPartialObject(partialObject);
+    }
+
+    @Override
+    public PartialObject getPartialObject(final NotPartialObject notPartialObject) {
+        return sproc.getPartialObject(notPartialObject);
+    }
 }
