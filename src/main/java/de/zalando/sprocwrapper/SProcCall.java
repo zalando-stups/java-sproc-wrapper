@@ -11,7 +11,7 @@ import java.util.Objects;
 import com.google.common.base.Preconditions;
 
 /**
- * @author  jmussler
+ * @author jmussler
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -100,6 +100,7 @@ public @interface SProcCall {
         NONE,
         ONE_PHASE,
         TWO_PHASE
+
     }
 
     String name() default "";

@@ -66,7 +66,7 @@ public class ExecutorWrapper implements Executor {
 
         final Statement st = conn.createStatement();
         final ResultSet rs = st.executeQuery("SELECT pg_advisory_lock(" + lock.getLockId() + ") AS \"" + lock
-                    .getName() + "\";");
+                .getName() + "\";");
 
         boolean b = false;
         if (rs.next()) {
@@ -97,7 +97,7 @@ public class ExecutorWrapper implements Executor {
 
     @Override
     public Object executeSProc(final DataSource ds, final String sql, final Object[] args, final int[] types,
-            final InvocationContext invocationContext, final Class<?> returnType) {
+                               final InvocationContext invocationContext, final Class<?> returnType) {
 
         SameConnectionDatasource sameConnDs = null;
 
