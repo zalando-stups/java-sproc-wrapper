@@ -194,9 +194,6 @@ public class Mapping {
             }
 
             fieldMapper = FieldMapperRegister.getMapperForClass(getFieldClass());
-            if (fieldMapper == null) {
-                throw new NotsupportedTypeException("Could not find mapper for type " + getFieldClass());
-            }
         }
 
         return fieldMapper;
