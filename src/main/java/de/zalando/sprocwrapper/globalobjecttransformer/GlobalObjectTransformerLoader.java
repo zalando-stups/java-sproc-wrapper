@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.reflections.Reflections;
 
+import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 
 import org.reflections.util.ClasspathHelper;
@@ -102,7 +103,7 @@ public class GlobalObjectTransformerLoader {
         final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
                     new FilterBuilder.Include(FilterBuilder.prefix(myNameSpaceToScan))).setUrls(
                     ClasspathHelper.forPackage(myNameSpaceToScan)).setScanners(new TypeAnnotationsScanner()
-                        .filterResultsBy(filter)));
+                        .filterResultsBy(filter), new SubTypesScanner()));
         final Set<Class<?>> objectMapper = reflections.getTypesAnnotatedWith(GlobalObjectMapper.class);
 
         return objectMapper;
