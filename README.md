@@ -147,9 +147,9 @@ Documentation
 
 You can find some more information about the SProcWrapper in our various Zalando Technology blog posts:
 
-* http://tech.zalando.com/goto-2013-why-zalando-trusts-in-postgresql/
-* http://tech.zalando.com/zalando-stored-procedure-wrapper-part-i/
-* http://tech.zalando.com/files/2013/04/jug_dortmund_april_2013.pdf
+* http://tech.zalando.com/blog/goto-2013-why-zalando-trusts-in-postgresql/
+* http://tech.zalando.com/blog/zalando-stored-procedure-wrapper-part-i/
+* http://tech.zalando.com/blog/files/2013/04/jug_dortmund_april_2013.pdf
 
 
 License
