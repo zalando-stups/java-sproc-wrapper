@@ -23,7 +23,7 @@ public class SProcProxyBuilder {
 
     @SuppressWarnings("unchecked")
     public static <T> T build(final DataSourceProvider d, final Class<T> c) {
-        final SProcProxy proxy = new SProcProxy(d);
+        final SProcProxy proxy = new SProcProxy(d, c.getName());
 
 
         try {
