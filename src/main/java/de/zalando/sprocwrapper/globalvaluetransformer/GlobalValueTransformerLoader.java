@@ -66,18 +66,20 @@ public class GlobalValueTransformerLoader {
                 final Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(
                         GlobalValueTransformer.class);
                 for (final Class<?> foundGlobalValueTransformer : typesAnnotatedWith) {
-                    final Class<?> valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
-                            foundGlobalValueTransformer);
-                    if (valueTransformerReturnType != null) {
+                    final Class<?> valueTransformerReturnType;
+                    try {
+                        valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
+                                foundGlobalValueTransformer);
                         GlobalValueTransformerRegistry.register(valueTransformerReturnType,
                             (ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance());
-                        LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",
-                            foundGlobalValueTransformer.getSimpleName(), valueTransformerReturnType.getSimpleName());
-                    } else {
-                        LOG.error(
-                            "Could add global transformer [{}] to global registry. Could not find method unmarshalFromDb.",
-                            foundGlobalValueTransformer);
+                    } catch (final RuntimeException e) {
+                        LOG.error("Failed to add global transformer [{}] to global registry.",
+                            foundGlobalValueTransformer, e);
+                        continue;
                     }
+
+                    LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",
+                        foundGlobalValueTransformer.getSimpleName(), valueTransformerReturnType.getSimpleName());
                 }
             }
 
