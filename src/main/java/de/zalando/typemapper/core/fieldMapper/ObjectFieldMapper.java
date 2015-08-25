@@ -1,5 +1,7 @@
 package de.zalando.typemapper.core.fieldMapper;
 
+import static de.zalando.typemapper.postgres.PgTypeHelper.getDatabaseFieldDescriptor;
+
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.List;
@@ -7,7 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.zalando.typemapper.annotations.DatabaseField;
+import de.zalando.typemapper.core.DatabaseFieldDescriptor;
 import de.zalando.typemapper.core.Mapping;
 import de.zalando.typemapper.core.result.ArrayResultNode;
 import de.zalando.typemapper.core.result.DbResultNode;
@@ -34,13 +36,13 @@ public class ObjectFieldMapper {
     public static final Object mapFromDbObjectNode(final Class classz, final ObjectResultNode node,
             final Mapping mapping) throws InstantiationException, IllegalAccessException, IllegalArgumentException,
         InvocationTargetException, NotsupportedTypeException {
-        DatabaseField databaseField = mapping.getField().getAnnotation(DatabaseField.class);
+        final DatabaseFieldDescriptor descriptor = getDatabaseFieldDescriptor(mapping.getField());
         final Object value;
 
         if (mapping.isOptionalField() && isRowWithAllFieldsNull(node)) {
             value = null;
-        } else if (databaseField.mapper() != DefaultObjectMapper.class) {
-            ObjectMapper mapper = databaseField.mapper().newInstance();
+        } else if (descriptor.getMapper() != DefaultObjectMapper.class) {
+            ObjectMapper mapper = descriptor.getMapper().newInstance();
             value = mapper.unmarshalFromDbNode(node);
         } else {
             value = mapField(mapping.getFieldClass(), node);
