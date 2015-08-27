@@ -15,7 +15,7 @@ import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 
 import de.zalando.typemapper.core.db.DbFunction;
 import de.zalando.typemapper.core.db.DbFunctionRegister;
@@ -32,7 +32,7 @@ import de.zalando.typemapper.core.result.SimpleResultNode;
 import de.zalando.typemapper.parser.exception.RowParserException;
 import de.zalando.typemapper.parser.postgres.ParseUtils;
 
-public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
+public class TypeMapper<ITEM> implements RowMapper<ITEM> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TypeMapper.class);
 
@@ -76,7 +76,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
         LOG.trace("Extracting result tree");
 
         // cast to obtain more information from the result set.
-        final Jdbc4ResultSet pgSet = (Jdbc4ResultSet) set;
+        final Jdbc4ResultSet pgSet = set.unwrap(Jdbc4ResultSet.class);
         final ResultSetMetaData rsMetaData = pgSet.getMetaData();
 
         final ResultTree tree = new ResultTree();

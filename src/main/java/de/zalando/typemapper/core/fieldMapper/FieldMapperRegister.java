@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.zalando.typemapper.core.ValueTransformer;
@@ -62,6 +63,9 @@ public class FieldMapperRegister {
 
         final FieldMapper hstoreMapper = new HStoreFieldMapper();
         FieldMapperRegister.register(Map.class, hstoreMapper);
+
+        final FieldMapper uuidMapper = new UUIDFieldMapper();
+        FieldMapperRegister.register(UUID.class, uuidMapper);
     }
 
     @SuppressWarnings("rawtypes")
