@@ -76,7 +76,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
         LOG.trace("Extracting result tree");
 
         // cast to obtain more information from the result set.
-        final Jdbc4ResultSet pgSet = (Jdbc4ResultSet) set;
+        final Jdbc4ResultSet pgSet = set.unwrap(Jdbc4ResultSet.class);
         final ResultSetMetaData rsMetaData = pgSet.getMetaData();
 
         final ResultTree tree = new ResultTree();
