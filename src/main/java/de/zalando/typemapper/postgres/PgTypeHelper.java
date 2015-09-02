@@ -8,17 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.persistence.Column;
 
@@ -96,7 +86,7 @@ public class PgTypeHelper {
         m.put("double precision", "float8");
         m.put("boolean", "bool");
         m.put("decimal", "numeric");
-        m.put("character verrying", "varchar");
+        m.put("character varying", "varchar");
         m.put("char", "bpchar");
         m.put("character", "bpchar");
         pgGenericTypeNameAliasMap = Collections.unmodifiableMap(m);
@@ -149,6 +139,7 @@ public class PgTypeHelper {
         m.put(java.sql.Date.class, "timestamp");
         m.put(java.sql.Timestamp.class, "timestamp");
         m.put(java.sql.Time.class, "timestamp");
+        m.put(java.util.UUID.class, "uuid");
         javaGenericClassToPgTypeNameMap = Collections.unmodifiableMap(m);
     }
 
