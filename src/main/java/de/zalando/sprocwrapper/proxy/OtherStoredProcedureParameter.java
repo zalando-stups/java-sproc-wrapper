@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.postgresql.util.PGobject;
 
@@ -46,6 +47,18 @@ class OtherStoredProcedureParameter extends StoredProcedureParameter {
             }
 
             result = pgobj;
+        } else if (clazz.isAssignableFrom(UUID.class)) {
+            final PGobject pgobj = new PGobject();
+            pgobj.setType(typeName);
+            try {
+                pgobj.setValue(value.toString());
+            } catch (SQLException ex) {
+                if (sensitive) {
+                    LOG.error("Failed to set PG object value (sensitive parameter, stacktrace hidden)");
+                } else {
+                    LOG.error("Failed to set PG object value", ex);
+                }
+            }
         } else {
             try {
                 result = PgTypeHelper.asPGobject(value, typeName, connection);
