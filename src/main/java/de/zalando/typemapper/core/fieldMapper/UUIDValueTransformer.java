@@ -11,7 +11,7 @@ import java.util.UUID;
  * Created by akushsky on 03.09.2015.
  */
 @GlobalValueTransformer
-public class UUIDValueTransformer extends ValueTransformer<PGobject, UUID> {
+public class UUIDValueTransformer extends ValueTransformer<UUID, UUID> {
 
     @Override
     public UUID unmarshalFromDb(String value) {
@@ -19,15 +19,7 @@ public class UUIDValueTransformer extends ValueTransformer<PGobject, UUID> {
     }
 
     @Override
-    public PGobject marshalToDb(UUID uuid) {
-        PGobject pgUUID = new PGobject();
-        pgUUID.setType("uuid");
-        try {
-            pgUUID.setValue(uuid.toString());
-        } catch (SQLException e) {
-            throw new ClassCastException(e.getMessage());
-        }
-
-        return pgUUID;
+    public UUID marshalToDb(UUID uuid) {
+        return uuid;
     }
 }
