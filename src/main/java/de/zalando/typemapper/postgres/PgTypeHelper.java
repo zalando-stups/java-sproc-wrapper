@@ -520,6 +520,8 @@ public class PgTypeHelper {
             sb.append(HStore.serialize(map));
         } else if (o instanceof Collection) {
             sb.append(PgArray.ARRAY((Collection<?>) o).toString(connection));
+        } else if (o instanceof UUID) {
+            sb.append(o.toString());
         } else {
 
             // we do not know what to do with this object,
