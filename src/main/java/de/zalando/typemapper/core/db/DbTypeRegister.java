@@ -243,7 +243,7 @@ public class DbTypeRegister {
         // fqName concept is wrong. we should know not only the name, but the schema as well. This should be reworked.
         final String fqName = register.typeFQN.get(name);
 
-        return fqName == null ? register.typeByName.get(connection.unwrap(Jdbc4Connection.class).getUserName() + "." + name) : register.typeByName.get(fqName);
+        return fqName == null ? null : register.typeByName.get(fqName);
     }
 
     public static DbType getDbType(final int id, final Connection connection) throws SQLException {
