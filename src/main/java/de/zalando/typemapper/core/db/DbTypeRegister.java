@@ -50,31 +50,67 @@ public class DbTypeRegister {
             final HashMap<String, List<String>> typeNameToFQN = new HashMap<String, List<String>>();
 
             //J-
+//            statement = connection.prepareStatement(
+//                    "select tn.nspname as type_schema, " +
+//                    "t.typname as type_name, " +
+//                    "t.oid as type_id, " +
+//                    "t.typtype as type_type, " +
+//                    "a.attname as att_name, " +
+//                    "(CASE WHEN ((t2.typelem <> (0)::oid) AND (t2.typlen = -1)) " +
+//                    "THEN 'ARRAY'::text  WHEN (tn2.nspname = 'pg_catalog'::name) " +
+//                    "THEN format_type(a.atttypid, NULL::integer) " +
+//                    "ELSE 'USER-DEFINED'::text END) as att_type, " +
+//                    "t2.typname, " +
+//                    "t2.oid, " +
+//                    "a.attnum as att_position, " +
+//                    "t.typelem <> 0 AND t.typlen = (-1) as is_array, " +
+//                    "t.typelem " +
+//                    "from pg_type as t " +
+//                    "join pg_namespace as tn on t.typnamespace = tn.oid " +
+//                    "left join pg_class c on t.typrelid = c.oid "+
+//                    "left join pg_attribute as a on a.attrelid = t.typrelid and a.attnum > 0 and not a.attisdropped " +
+//                    "left join pg_type as t2 on a.atttypid = t2.oid " +
+//                    "left join pg_namespace as tn2 on t2.typnamespace = tn2.oid " +
+//                    "where (t.typtype = 'e' OR (t.typtype = 'c' AND c.relkind = 'c'::char) OR (t.typelem <> 0 AND  t.typlen = (-1) AND t.typtype = 'b'))" +
+//                    "and tn.nspname not in ( 'pg_catalog', 'pg_toast', 'information_schema' ) " +
+//                    "and t.typowner > 0 " +
+//                    "order by is_array, t.typowner, type_schema, type_name, att_position");
+            // New by kuchkin [27.10.2015]
             statement = connection.prepareStatement(
-                    "select tn.nspname as type_schema, " +
-                    "t.typname as type_name, " +
-                    "t.oid as type_id, " +
-                    "t.typtype as type_type, " +
-                    "a.attname as att_name, " +
-                    "(CASE WHEN ((t2.typelem <> (0)::oid) AND (t2.typlen = -1)) " +
-                    "THEN 'ARRAY'::text  WHEN (tn2.nspname = 'pg_catalog'::name) " +
-                    "THEN format_type(a.atttypid, NULL::integer) " +
-                    "ELSE 'USER-DEFINED'::text END) as att_type, " +
-                    "t2.typname, " +
-                    "t2.oid, " +
-                    "a.attnum as att_position, " +
-                    "t.typelem <> 0 AND t.typlen = (-1) as is_array, " +
-                    "t.typelem " +
-                    "from pg_type as t " +
-                    "join pg_namespace as tn on t.typnamespace = tn.oid " +
-                    "left join pg_class c on t.typrelid = c.oid "+
-                    "left join pg_attribute as a on a.attrelid = t.typrelid and a.attnum > 0 and not a.attisdropped " +
-                    "left join pg_type as t2 on a.atttypid = t2.oid " +
-                    "left join pg_namespace as tn2 on t2.typnamespace = tn2.oid " +
-                    "where (t.typtype = 'e' OR (t.typtype = 'c' AND c.relkind = 'c'::char) OR (t.typelem <> 0 AND  t.typlen = (-1) AND t.typtype = 'b'))" +
-                    "and tn.nspname not in ( 'pg_catalog', 'pg_toast', 'information_schema' ) " +
-                    "and t.typowner > 0 " +
-                    "order by is_array, t.typowner, type_schema, type_name, att_position");
+                    "select\n" +
+                            "  tn.nspname as type_schema,\n" +
+                            "  t.typname as type_name,\n" +
+                            "  t.oid as type_id,\n" +
+                            "  t.typtype as type_type,\n" +
+                            "  a.attname as att_name,\n" +
+                            "  (CASE WHEN ((t2.typelem <> (0)::oid) AND (t2.typlen = -1)) THEN 'ARRAY'::text \n" +
+                            "        WHEN (tn2.nspname = 'pg_catalog'::name) THEN format_type(a.atttypid, NULL::integer) ELSE 'USER-DEFINED'::text \n" +
+                            "  END) as att_type,\n" +
+                            "  t2.typname,\n" +
+                            "  t2.oid,\n" +
+                            "  a.attnum as att_position,\n" +
+                            "  t.typelem <> 0 AND t.typlen = (-1) as is_array,\n" +
+                            "  t.typelem\n" +
+                            "from pg_type as t\n" +
+                            "join pg_namespace as tn\n" +
+                            "  on t.typnamespace = tn.oid\n" +
+                            "left join pg_class c\n" +
+                            "  on t.typrelid = c.oid\n" +
+                            "left join pg_attribute as a\n" +
+                            "  on a.attrelid = t.typrelid\n" +
+                            "  and a.attnum > 0\n" +
+                            "  and not a.attisdropped\n" +
+                            "left join pg_type as t2\n" +
+                            "  on a.atttypid = t2.oid\n" +
+                            "left join pg_namespace as tn2\n" +
+                            "  on t2.typnamespace = tn2.oid\n" +
+                            "left join (select row_number() over () as n, * from unnest(current_schemas(false))) sl (n, schema_name)\n" +
+                            "  on sl.schema_name = tn.nspname\n" +
+                            "where (t.typtype = 'e' OR (t.typtype = 'c' AND c.relkind = 'c'::char) OR (t.typelem <> 0 AND t.typlen = (-1) AND t.typtype = 'b'))\n" +
+                            "  and tn.nspname not in ( 'pg_catalog', 'pg_toast', 'information_schema' )\n" +
+                            "  and t.typowner > 0\n" +
+                            "order by sl.n, is_array, t.typowner, type_schema, type_name, att_position"
+            );
             //J+
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
