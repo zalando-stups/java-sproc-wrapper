@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.postgresql.jdbc4.Jdbc4Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +144,7 @@ public class DbTypeRegister {
     }
 
     public static List<String> getSearchPath(final Connection connection) throws SQLException {
-        final ResultSet searchPathResult = connection.createStatement().executeQuery("show search_path;");
+        final ResultSet searchPathResult = connection.createStatement().executeQuery("select * from array_to_string(current_schemas(false),',');");
         searchPathResult.next();
 
         final String searchPathStr = searchPathResult.getString(1);
@@ -242,7 +243,7 @@ public class DbTypeRegister {
         // fqName concept is wrong. we should know not only the name, but the schema as well. This should be reworked.
         final String fqName = register.typeFQN.get(name);
 
-        return fqName == null ? null : register.typeByName.get(fqName);
+        return fqName == null ? register.typeByName.get(connection.unwrap(Jdbc4Connection.class).getUserName() + "." + name) : register.typeByName.get(fqName);
     }
 
     public static DbType getDbType(final int id, final Connection connection) throws SQLException {
