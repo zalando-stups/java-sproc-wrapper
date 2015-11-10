@@ -56,7 +56,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>3.2.3.RELEASE</spring.version>
-        <postgresql.version>9.3-1102-jdbc41</postgresql.version>
+        <postgresql.version>9.4-1205-jdbc41</postgresql.version>
 
     </properties>
 
@@ -68,7 +68,7 @@
                 <version>3.1</version>
                 <configuration>
                     <source>1.7</source>
-                    <target>1.7</target>
+                    <target>1.7/target>
                 </configuration>
             </plugin>
             <plugin>
