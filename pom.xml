@@ -19,7 +19,8 @@
         <connection>scm:git:git://github.com/zalando/java-sproc-wrapper.git</connection>
         <developerConnection>scm:git:git@github.com:zalando/java-sproc-wrapper.git</developerConnection>
         <url>https://github.com/zalando/java-sproc-wrapper.git</url>
-    </scm>
+      	<tag>HEAD</tag>
+  	</scm>
 
     <issueManagement>
         <system>GitHub</system>
