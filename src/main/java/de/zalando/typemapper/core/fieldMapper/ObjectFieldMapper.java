@@ -62,7 +62,9 @@ public class ObjectFieldMapper {
         // instantiate enums by string value
         if (clazz.isEnum()) {
             final DbResultNode currentNode = node.getChildByName(node.getType());
-            result = Enum.valueOf(clazz, currentNode.getValue());
+            if(currentNode != null){
+            	result = Enum.valueOf(clazz, currentNode.getValue());
+            }
         } else {
             result = clazz.newInstance();
 
