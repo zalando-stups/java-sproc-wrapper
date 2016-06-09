@@ -15,9 +15,9 @@ public class OptionalMapper {
     private static final Method Optional_ofNullable = getOptionalMethod("ofNullable", Object.class);
     private static final Method Optional_orElse = getOptionalMethod("orElse", Object.class);
 
-    private static @Nullable Method getOptionalMethod(String methodName, Class<?>... parameterTypes) {
+    private static @Nullable Method getOptionalMethod(final String methodName, Class<?>... parameterTypes) {
         try {
-            return Class.forName(JAVA_OPTIONAL_CLASS_NAME).getMethod("ofNullable", Object.class);
+            return Class.forName(JAVA_OPTIONAL_CLASS_NAME).getMethod(methodName, parameterTypes);
         } catch (ClassNotFoundException e) {
             LOG.warn("Java Optional is not supported", e);
         } catch (NoSuchMethodException e) {
