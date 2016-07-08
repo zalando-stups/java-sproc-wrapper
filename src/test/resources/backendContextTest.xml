@@ -25,34 +25,68 @@
     <context:component-scan base-package="de.zalando" />
     <context:annotation-config />
 
-    <bean id="testDataSource1" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
-        <property name="driverClass" value="org.postgresql.Driver" />
-        <property name="jdbcUrl" value="${frontend.sproc.datasource.url1}" />
-        <property name="username" value="${frontend.sproc.datasource.username}" />
-        <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_schema1, ztest_schema2, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
+    <bean id="hikariConfig1" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="connectionTestQuery" value="SELECT 1" />
+        <property name="dataSourceClassName" value="org.postgresql.ds.PGSimpleDataSource" />
+        <property name="maximumPoolSize" value="5" />
+        <property name="idleTimeout" value="5000" />
+        <property name="connectionInitSql" value="SET search_path to ztest_schema1, ztest_schema2, public" />
+
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${frontend.sproc.datasource.url1}</prop>
+                <prop key="user">${frontend.sproc.datasource.username}</prop>
+                <prop key="password">${frontend.sproc.datasource.password}</prop>
+            </props>
+        </property>
     </bean>
 
-    <bean id="testDataSource2" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
-        <property name="driverClass" value="org.postgresql.Driver" />
-        <property name="jdbcUrl" value="${frontend.sproc.datasource.url2}" />
-        <property name="username" value="${frontend.sproc.datasource.username}" />
-        <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET search_path to ztest_schema1, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
+    <!-- HikariCP configuration -->
+    <bean id="testDataSource1" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig1" />
     </bean>
 
-    <bean id="testDataSource3" destroy-method="close" class="com.jolbox.bonecp.BoneCPDataSource" lazy-init="true">
-        <property name="driverClass" value="org.postgresql.Driver" />
-        <property name="jdbcUrl" value="${frontend.sproc.datasource.url1}" />
-        <property name="username" value="${frontend.sproc.datasource.username}" />
-        <property name="password" value="${frontend.sproc.datasource.password}" />
-        <property name="initSQL" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_schema1, public;" />
-        <property name="minConnectionsPerPartition" value="5" />
-        <property name="maxConnectionsPerPartition" value="5" />
+    <bean id="hikariConfig2" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="connectionTestQuery" value="SELECT 1" />
+        <property name="dataSourceClassName" value="org.postgresql.ds.PGSimpleDataSource" />
+        <property name="maximumPoolSize" value="5" />
+        <property name="idleTimeout" value="5000" />
+        <property name="connectionInitSql" value="SET search_path to ztest_schema1, public" />
+
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${frontend.sproc.datasource.url2}</prop>
+                <prop key="user">${frontend.sproc.datasource.username}</prop>
+                <prop key="password">${frontend.sproc.datasource.password}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="testDataSource2" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig2" />
+    </bean>
+
+    <bean id="hikariConfig3" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="connectionTestQuery" value="SELECT 1" />
+        <property name="dataSourceClassName" value="org.postgresql.ds.PGSimpleDataSource" />
+        <property name="maximumPoolSize" value="5" />
+        <property name="idleTimeout" value="5000" />
+        <property name="connectionInitSql" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_schema1, public" />
+
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${frontend.sproc.datasource.url1}</prop>
+                <prop key="user">${frontend.sproc.datasource.username}</prop>
+                <prop key="password">${frontend.sproc.datasource.password}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="testDataSource3" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig3" />
     </bean>
 
     <bean id="testDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
@@ -82,7 +116,7 @@
 
     <bean id="testBitmapShardDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
         <constructor-arg>
-            <value>com.jolbox.bonecp.BoneCPDataSource</value>
+            <value>com.zaxxer.hikari.HikariDataSource</value>
         </constructor-arg>
         <constructor-arg>
             <map>
