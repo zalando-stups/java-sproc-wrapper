@@ -31,7 +31,7 @@
         <property name="dataSourceClassName" value="org.postgresql.ds.PGSimpleDataSource" />
         <property name="maximumPoolSize" value="5" />
         <property name="idleTimeout" value="5000" />
-        <property name="connectionInitSql" value="SET search_path to ztest_schema1, ztest_schema2, public" />
+        <property name="connectionInitSql" value="SET APPLICATION_NAME='dataSource1'; SET search_path to ztest_schema1, ztest_schema2, public" />
 
         <property name="dataSourceProperties">
             <props>
@@ -53,7 +53,7 @@
         <property name="dataSourceClassName" value="org.postgresql.ds.PGSimpleDataSource" />
         <property name="maximumPoolSize" value="5" />
         <property name="idleTimeout" value="5000" />
-        <property name="connectionInitSql" value="SET search_path to ztest_schema1, public" />
+        <property name="connectionInitSql" value="SET APPLICATION_NAME='dataSource2'; SET search_path to ztest_schema1, public" />
 
         <property name="dataSourceProperties">
             <props>
@@ -74,7 +74,7 @@
         <property name="dataSourceClassName" value="org.postgresql.ds.PGSimpleDataSource" />
         <property name="maximumPoolSize" value="5" />
         <property name="idleTimeout" value="5000" />
-        <property name="connectionInitSql" value="SET TIME ZONE 'PST8PDT'; SET search_path to ztest_schema1, public" />
+        <property name="connectionInitSql" value="SET APPLICATION_NAME='dataSource3'; SET TIME ZONE 'PST8PDT'; SET search_path to ztest_schema1, public" />
 
         <property name="dataSourceProperties">
             <props>
