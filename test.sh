@@ -1,12 +1,22 @@
 #!/bin/bash
 
+if ! which docker &> /dev/null ; then
+    echo 'Ensure that docker is installed and is in PATH'
+    exit 1
+fi
+
+if ! docker info | grep -q 'Server Version' ; then
+    echo 'Ensure that docker service is running'
+    echo 1
+fi
+
 if nc -w 5 -z localhost 5432; then
     echo 'There is already some process listening on port 5432.'
     echo 'Please shutdown any existing PostgreSQL instance and re-run this script.'
     exit 1
 fi
 
-PGVERSION=9.4.5
+PGVERSION=9.5.4
 
 container=$(docker ps | grep postgres:$PGVERSION)
 if [ -z "$container" ]; then
