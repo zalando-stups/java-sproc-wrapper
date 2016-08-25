@@ -1,3 +1,4 @@
+*.swp
 *.iml
 .vagrant
 .DS_Store
