@@ -7,7 +7,7 @@ fi
 
 if ! docker info | grep -q 'Server Version' ; then
     echo 'Ensure that docker service is running'
-    echo 1
+    exit 1
 fi
 
 if nc -w 5 -z localhost 5432; then
