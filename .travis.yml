@@ -15,4 +15,4 @@ install: true
 script: mvn -B -V package javadoc:javadoc test
 
 after_success:
-    - mvn clean test jacoco:report coveralls:report
+    - mvn -B -V clean test jacoco:report coveralls:report
