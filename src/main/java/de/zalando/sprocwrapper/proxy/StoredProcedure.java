@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import javax.sql.DataSource;
+import javax.annotation.concurrent.Immutable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -383,24 +384,37 @@ class StoredProcedure {
         return argumentsByShardId;
     }
 
-    private static class Call implements Callable<Object> {
-        private final StoredProcedure sproc;
-        private final DataSource shardDs;
-        private final Object[] params;
-        private final InvocationContext invocation;
+    @Immutable
+    private static final class Call implements Callable<Object> {
 
-        public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params,
-                    final InvocationContext invocation) {
-            this.sproc = sproc;
+        private final Executor executor;
+        private final DataSource shardDs;
+        private final String query;
+        private final Object[] params;
+        private final int[] types;
+        private final InvocationContext invocation;
+        private final Class<?> returnType;
+
+        Call(final Executor executor,
+            final DataSource shardDs,
+            final String query,
+            final Object[] params,
+            final int[] types,
+            final InvocationContext invocation,
+            final Class<?> returnType) {
+
+            this.executor = executor;
             this.shardDs = shardDs;
+            this.query = query;
             this.params = params;
+            this.types = types;
             this.invocation = invocation;
+            this.returnType = returnType;
         }
 
         @Override
         public Object call() throws Exception {
-            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), invocation,
-                    sproc.returnType);
+            return executor.executeSProc(shardDs, query, params, types, invocation, returnType);
         }
 
     }
@@ -576,18 +590,25 @@ class StoredProcedure {
                                      final List<Integer> shardIds, final List<Object[]> paramValues,
                                      final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
                                      Object sprocResult) {
-        DataSource shardDs;
+
         final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
-        FutureTask<Object> task;
         int i = 0;
 
         for (final int shardId : shardIds) {
-            shardDs = getShardDs(dp, transactionalDatasources, shardId);
+            final DataSource shardDs = getShardDs(dp, transactionalDatasources, shardId);
             if (LOG.isDebugEnabled()) {
                 LOG.debug(getDebugLog(paramValues.get(i)));
             }
 
-            task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), invocation));
+            final FutureTask<Object> task = new FutureTask<>(new Call(
+                executor,
+                shardDs,
+                getQuery(),
+                paramValues.get(i),
+                getTypes(),
+                invocation,
+                returnType
+            ));
             tasks.put(shardId, task);
             parallelThreadPool.execute(task);
             i++;
