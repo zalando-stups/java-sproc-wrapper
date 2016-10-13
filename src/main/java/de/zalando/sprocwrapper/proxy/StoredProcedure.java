@@ -91,6 +91,8 @@ class StoredProcedure {
     private static final Executor SINGLE_ROW_SIMPLE_TYPE_EXECUTOR = new SingleRowSimpleTypeExecutor();
     private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
+    private static final ExecutorService PARALLEL_THREAD_POOL = Executors.newCachedThreadPool();
+
     private final long timeout;
     private final AdvisoryLock adivsoryLock;
 
@@ -376,18 +378,6 @@ class StoredProcedure {
         return argumentsByShardId;
     }
 
-    private Callable<Object> with(final DataSource shardDs, final Object[] params, final InvocationContext invocation) {
-        final StoredProcedure sproc = this;
-        return new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return sproc.executor.executeSProc(shardDs, sproc.query, params, sproc.types, invocation, sproc.returnType);
-            }
-        };
-    }
-
-    private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
-
     public Object execute(final DataSourceProvider dp, final InvocationContext invocation) {
 
         List<Integer> shardIds = null;
@@ -443,7 +433,7 @@ class StoredProcedure {
             }
 
             // most common case: only one shard and no argument partitioning
-            return executor.executeSProc(firstDs, query, paramValues.get(0), types, invocation, returnType);
+            return execute(firstDs, paramValues.get(0), invocation);
         } else {
             Map<Integer, SameConnectionDatasource> transactionalDatasources = null;
             try {
@@ -528,8 +518,7 @@ class StoredProcedure {
 
             sprocResult = null;
             try {
-                sprocResult = executor.executeSProc(shardDs, query, paramValues.get(i), types, invocation,
-                        returnType);
+                sprocResult = execute(shardDs, paramValues.get(i), invocation);
             } catch (final Exception e) {
 
                 // remember all exceptions and go on
@@ -569,7 +558,7 @@ class StoredProcedure {
 
             final FutureTask<Object> task = new FutureTask<>(with(shardDs, paramValues.get(i), invocation));
             tasks.put(shardId, task);
-            parallelThreadPool.execute(task);
+            PARALLEL_THREAD_POOL.execute(task);
             i++;
         }
 
@@ -603,6 +592,19 @@ class StoredProcedure {
         }
 
         return sprocResult;
+    }
+
+    private Callable<Object> with(final DataSource shardDs, final Object[] params, final InvocationContext invocation) {
+        return new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return StoredProcedure.this.execute(shardDs, params, invocation);
+            }
+        };
+    }
+
+    private Object execute(final DataSource shardDs, final Object[] params, final InvocationContext invocation) {
+        return executor.executeSProc(shardDs, query, params, types, invocation, returnType);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
