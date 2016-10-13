@@ -122,8 +122,10 @@ public class SProcCallHandler {
 
             RowMapper<?> resultMapper = this.getRowMapper(scA);
 
-            boolean useValidation = this.isValidationActive(scA, handlerResult);
-            final StoredProcedure storedProcedure = this.getStoredProcedure(scA, handlerResult, method, name, sprocStrategy, resultMapper, useValidation);
+            final boolean useValidation = this.isValidationActive(scA, handlerResult);
+
+            final List<ShardKeyParameter> shardKeyParameters = new ArrayList<>();
+            final List<StoredProcedureParameter> params = new ArrayList<>();
 
             int pos = 0;
             for (final Annotation[] as : method.getParameterAnnotations()) {
@@ -140,7 +142,7 @@ public class SProcCallHandler {
                     }
 
                     if (a instanceof ShardKey) {
-                        storedProcedure.addShardKeyParameter(pos, clazz);
+                        shardKeyParameters.add(new ShardKeyParameter(pos, clazz));
                     }
 
                     if (a instanceof SProcParam) {
@@ -149,7 +151,7 @@ public class SProcCallHandler {
                         final String dbTypeName = sParam.type();
 
                         try {
-                            storedProcedure.addParam(StoredProcedureParameter.createParameter(clazz, genericType,
+                            params.add(StoredProcedureParameter.createParameter(clazz, genericType,
                                     method, dbTypeName, sParam.sqlType(), pos, sParam.sensitive()));
                         } catch (final InstantiationException | IllegalAccessException e) {
                             LOG.error("Could not instantiate StoredProcedureParameter. ABORTING.", e);
@@ -160,22 +162,27 @@ public class SProcCallHandler {
 
                 pos++;
             }
+            final StoredProcedure storedProcedure = createStoredProcedure(scA, handlerResult, method, name, params, sprocStrategy, shardKeyParameters, resultMapper, useValidation);
+
             result.put(method, storedProcedure);
         }
         return result;
     }
 
-    private StoredProcedure getStoredProcedure(SProcCall scA, SProcServiceAnnotationHandler.HandlerResult handlerResult, Method method, String name, VirtualShardKeyStrategy sprocStrategy, RowMapper<?> resultMapper, boolean useValidation) {
+    private StoredProcedure createStoredProcedure(SProcCall scA, SProcServiceAnnotationHandler.HandlerResult handlerResult,
+        Method method, String name, List<StoredProcedureParameter> params,
+        VirtualShardKeyStrategy sprocStrategy, List<ShardKeyParameter> shardKeyParameters,
+        RowMapper<?> resultMapper, boolean useValidation) {
         try {
             SProcService.WriteTransaction writeTransaction = mapSprocWriteTransactionToServiceWriteTransaction(scA.shardedWriteTransaction(), handlerResult);
 
-            StoredProcedure storedProcedure = new StoredProcedure(name, method.getGenericReturnType(), sprocStrategy,
+            String query = !"".equals(scA.sql()) ? scA.sql() : null;
+
+            StoredProcedure storedProcedure = new StoredProcedure(name, query, params, method.getGenericReturnType(), sprocStrategy, shardKeyParameters,
                     scA.runOnAllShards(), scA.searchShards(), scA.parallel(), resultMapper,
                     scA.timeoutInMilliSeconds(), new SProcCall.AdvisoryLock(scA.adivsoryLockName(),scA.adivsoryLockId()), useValidation, scA.readOnly(),
                     writeTransaction);
-            if (!"".equals(scA.sql())) {
-                storedProcedure.setQuery(scA.sql());
-            }
+
             return storedProcedure;
         } catch (final InstantiationException | IllegalAccessException e) {
             LOG.error("Could not instantiate StoredProcedure. ABORTING.", e);
