@@ -221,7 +221,7 @@ class StoredProcedure {
     }
 
     public int getShardId(final Object[] objs) {
-        if (shardKeyParameters == null) {
+        if (shardKeyParameters.isEmpty()) {
             return shardStrategy.getShardId(null);
         }
 
