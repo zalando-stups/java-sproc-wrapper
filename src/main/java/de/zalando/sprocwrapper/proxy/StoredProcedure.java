@@ -581,6 +581,10 @@ class StoredProcedure {
         FutureTask<Object> task;
         int i = 0;
 
+        // Pre-evaluate values before concurrent run.
+        getQuery();
+        getTypes();
+
         for (final int shardId : shardIds) {
             shardDs = getShardDs(dp, transactionalDatasources, shardId);
             if (LOG.isDebugEnabled()) {
