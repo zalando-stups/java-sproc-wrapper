@@ -186,7 +186,7 @@ class StoredProcedure {
         return name;
     }
 
-    public Object[] getParams(final Object[] origParams, final Connection connection) {
+    private Object[] getParams(final Object[] origParams, final Connection connection) {
         final Object[] ps = new Object[params.size()];
 
         int i = 0;
@@ -207,10 +207,6 @@ class StoredProcedure {
         return ps;
     }
 
-    public int[] getTypes() {
-        return types;
-    }
-
     private static int[] createTypes(final List<StoredProcedureParameter> params) {
         int[] types = new int[params.size()];
         int i = 0;
@@ -220,7 +216,7 @@ class StoredProcedure {
         return types;
     }
 
-    public int getShardId(final Object[] objs) {
+    private int getShardId(final Object[] objs) {
         if (shardKeyParameters.isEmpty()) {
             return shardStrategy.getShardId(null);
         }
@@ -243,10 +239,6 @@ class StoredProcedure {
 
     public String getSqlParameterList() {
         return sqlParameterList;
-    }
-
-    public String getQuery() {
-        return query;
     }
 
     private static String createSqlParameterList(final List<StoredProcedureParameter> params) {
@@ -476,7 +468,7 @@ class StoredProcedure {
             }
 
             // most common case: only one shard and no argument partitioning
-            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), invocation, returnType);
+            return executor.executeSProc(firstDs, query, paramValues.get(0), types, invocation, returnType);
         } else {
             Map<Integer, SameConnectionDatasource> transactionalDatasources = null;
             try {
@@ -561,12 +553,12 @@ class StoredProcedure {
 
             sprocResult = null;
             try {
-                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), invocation,
+                sprocResult = executor.executeSProc(shardDs, query, paramValues.get(i), types, invocation,
                         returnType);
             } catch (final Exception e) {
 
                 // remember all exceptions and go on
-                exceptions.add("shardId: " + shardId + ", message: " + e.getMessage() + ", query: " + getQuery());
+                exceptions.add("shardId: " + shardId + ", message: " + e.getMessage() + ", query: " + query);
                 causes.put(shardId, e);
             }
 
@@ -603,9 +595,9 @@ class StoredProcedure {
             final FutureTask<Object> task = new FutureTask<>(new Call(
                 executor,
                 shardDs,
-                getQuery(),
+                query,
                 paramValues.get(i),
-                getTypes(),
+                types,
                 invocation,
                 returnType
             ));
@@ -623,13 +615,13 @@ class StoredProcedure {
             } catch (final InterruptedException ex) {
 
                 // remember all exceptions and go on
-                exceptions.add("got sharding execution exception: " + ex.getMessage() + ", query: " + getQuery());
+                exceptions.add("got sharding execution exception: " + ex.getMessage() + ", query: " + query);
                 causes.put(taskToFinish.getKey(), ex);
             } catch (final ExecutionException ex) {
 
                 // remember all exceptions and go on
                 exceptions.add("got sharding execution exception: " + ex.getCause().getMessage() + ", query: "
-                        + getQuery());
+                        + query);
                 causes.put(taskToFinish.getKey(), ex.getCause());
             }
 
