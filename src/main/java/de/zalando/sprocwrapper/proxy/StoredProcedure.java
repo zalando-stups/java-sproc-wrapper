@@ -72,19 +72,19 @@ class StoredProcedure {
 
     private final Class<?> returnType;
 
+    private final VirtualShardKeyStrategy shardStrategy;
+    private final List<ShardKeyParameter> shardKeyParameters;
+    private final boolean autoPartition;
+
     // whether the result type is a collection (List)
     private final boolean collectionResult;
     private final boolean runOnAllShards;
     private final boolean searchShards;
-    private final boolean autoPartition;
     private final boolean parallel;
     private final boolean readOnly;
     private final WriteTransaction writeTransaction;
 
     private final Executor executor;
-
-    private final VirtualShardKeyStrategy shardStrategy;
-    private final List<ShardKeyParameter> shardKeyParameters;
 
     private static final Executor MULTI_ROW_SIMPLE_TYPE_EXECUTOR = new MultiRowSimpleTypeExecutor();
     private static final Executor MULTI_ROW_TYPE_MAPPER_EXECUTOR = new MultiRowTypeMapperExecutor();
@@ -106,6 +106,10 @@ class StoredProcedure {
         this.sqlParameterList = createSqlParameterList(params);
         this.query = (query != null ? query : defaultQuery(name, sqlParameterList));
 
+        this.shardStrategy = sStrategy;
+        this.shardKeyParameters = new ArrayList<>(shardKeyParameters);
+        this.autoPartition = isAutoPartition(shardKeyParameters);
+
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
         this.parallel = parallel;
@@ -114,11 +118,6 @@ class StoredProcedure {
 
         this.adivsoryLock = advisoryLock;
         this.timeout = timeout;
-
-        this.shardStrategy = sStrategy;
-        this.shardKeyParameters = new ArrayList<>(shardKeyParameters);
-
-        this.autoPartition = isAutoPartition(shardKeyParameters);
 
         ValueTransformer<?, ?> valueTransformerForClass = null;
         Executor exec;
@@ -246,6 +245,10 @@ class StoredProcedure {
         return sqlParameterList;
     }
 
+    public String getQuery() {
+        return query;
+    }
+
     private static String createSqlParameterList(final List<StoredProcedureParameter> params) {
         String s = "";
         boolean first = true;
@@ -262,12 +265,17 @@ class StoredProcedure {
         return s;
     }
 
-    public String getQuery() {
-        return query;
-    }
-
     private static String defaultQuery(final String name, final String sqlParameterList) {
         return "SELECT * FROM " + name + " ( " + sqlParameterList + " )";
+    }
+
+    private static boolean isAutoPartition(final List<ShardKeyParameter> shardKeyParameters) {
+        for (ShardKeyParameter p : shardKeyParameters) {
+            if (List.class.isAssignableFrom(p.getType())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -374,15 +382,6 @@ class StoredProcedure {
         }
 
         return argumentsByShardId;
-    }
-
-    private boolean isAutoPartition(final List<ShardKeyParameter> shardKeyParameters) {
-        for (ShardKeyParameter p : shardKeyParameters) {
-            if (List.class.isAssignableFrom(p.getType())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Immutable
