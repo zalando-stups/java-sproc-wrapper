@@ -376,39 +376,14 @@ class StoredProcedure {
         return argumentsByShardId;
     }
 
-    @Immutable
-    private static final class Call implements Callable<Object> {
-
-        private final Executor executor;
-        private final DataSource shardDs;
-        private final String query;
-        private final Object[] params;
-        private final int[] types;
-        private final InvocationContext invocation;
-        private final Class<?> returnType;
-
-        Call(final Executor executor,
-            final DataSource shardDs,
-            final String query,
-            final Object[] params,
-            final int[] types,
-            final InvocationContext invocation,
-            final Class<?> returnType) {
-
-            this.executor = executor;
-            this.shardDs = shardDs;
-            this.query = query;
-            this.params = params;
-            this.types = types;
-            this.invocation = invocation;
-            this.returnType = returnType;
-        }
-
-        @Override
-        public Object call() throws Exception {
-            return executor.executeSProc(shardDs, query, params, types, invocation, returnType);
-        }
-
+    private Callable<Object> with(final DataSource shardDs, final Object[] params, final InvocationContext invocation) {
+        final StoredProcedure sproc = this;
+        return new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return sproc.executor.executeSProc(shardDs, sproc.query, params, sproc.types, invocation, sproc.returnType);
+            }
+        };
     }
 
     private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
@@ -592,15 +567,7 @@ class StoredProcedure {
                 LOG.debug(getDebugLog(paramValues.get(i)));
             }
 
-            final FutureTask<Object> task = new FutureTask<>(new Call(
-                executor,
-                shardDs,
-                query,
-                paramValues.get(i),
-                types,
-                invocation,
-                returnType
-            ));
+            final FutureTask<Object> task = new FutureTask<>(with(shardDs, paramValues.get(i), invocation));
             tasks.put(shardId, task);
             parallelThreadPool.execute(task);
             i++;
