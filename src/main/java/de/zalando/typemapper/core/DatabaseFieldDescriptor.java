@@ -4,6 +4,7 @@ import javax.persistence.Column;
 
 import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.core.fieldMapper.AnyTransformer;
+import de.zalando.typemapper.core.fieldMapper.DefaultObjectMapper;
 import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 
 public class DatabaseFieldDescriptor {
@@ -23,6 +24,7 @@ public class DatabaseFieldDescriptor {
         this.name = column.name();
         this.position = -1;
         this.transformer = AnyTransformer.class;
+        this.mapper = DefaultObjectMapper.class;
     }
 
     public String getName() {

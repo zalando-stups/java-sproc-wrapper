@@ -4,11 +4,22 @@ import javax.persistence.Column;
 
 public class ClassWithColumnDefinition {
 
+    @Column(name = "i")
+    public int i;
+
     @Column(name = "l")
     public long l;
 
     @Column
     public char c;
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(final int i) {
+        this.i = i;
+    }
 
     public long getL() {
         return l;
