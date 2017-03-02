@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import javax.sql.DataSource;
+import javax.annotation.concurrent.Immutable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ import de.zalando.typemapper.core.ValueTransformer;
 /**
  * @author  jmussler
  */
+@Immutable
 class StoredProcedure {
 
     private static final int TRUNCATE_DEBUG_PARAMS_MAX_LENGTH = 1024;
@@ -61,57 +63,66 @@ class StoredProcedure {
 
     private static final Logger LOG = LoggerFactory.getLogger(StoredProcedure.class);
 
-    private final List<StoredProcedureParameter> params = new ArrayList<StoredProcedureParameter>();
-
     private final String name;
-    private String query = null;
-    private Class<?> returnType = null;
+    private final List<StoredProcedureParameter> params;
+    private final int[] types;
+
+    private final String sqlParameterList;
+    private final String query;
+
+    private final Class<?> returnType;
+
+    private final VirtualShardKeyStrategy shardStrategy;
+    private final List<ShardKeyParameter> shardKeyParameters;
+    private final boolean autoPartition;
 
     // whether the result type is a collection (List)
-    private boolean collectionResult = false;
+    private final boolean collectionResult;
     private final boolean runOnAllShards;
     private final boolean searchShards;
-    private boolean autoPartition;
     private final boolean parallel;
     private final boolean readOnly;
     private final WriteTransaction writeTransaction;
 
-    private Executor executor = null;
-
-    private VirtualShardKeyStrategy shardStrategy;
-    private List<ShardKeyParameter> shardKeyParameters = null;
-    private final RowMapper<?> resultMapper;
-
-    private int[] types = null;
+    private final Executor executor;
 
     private static final Executor MULTI_ROW_SIMPLE_TYPE_EXECUTOR = new MultiRowSimpleTypeExecutor();
     private static final Executor MULTI_ROW_TYPE_MAPPER_EXECUTOR = new MultiRowTypeMapperExecutor();
     private static final Executor SINGLE_ROW_SIMPLE_TYPE_EXECUTOR = new SingleRowSimpleTypeExecutor();
     private static final Executor SINGLE_ROW_TYPE_MAPPER_EXECUTOR = new SingleRowTypeMapperExecutor();
 
+    private static final ExecutorService PARALLEL_THREAD_POOL = Executors.newCachedThreadPool();
+
     private final long timeout;
     private final AdvisoryLock adivsoryLock;
 
-    public StoredProcedure(final String name, final java.lang.reflect.Type genericType,
-                           final VirtualShardKeyStrategy sStrategy, final boolean runOnAllShards, final boolean searchShards,
+    public StoredProcedure(final String name, final String query, final List<StoredProcedureParameter> params, final java.lang.reflect.Type genericType,
+                           final VirtualShardKeyStrategy sStrategy, final List<ShardKeyParameter> shardKeyParameters, final boolean runOnAllShards, final boolean searchShards,
                            final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
                            final AdvisoryLock advisoryLock, final boolean useValidation, final boolean readOnly,
                            final WriteTransaction writeTransaction) throws InstantiationException, IllegalAccessException {
         this.name = name;
+        this.params = new ArrayList<>(params);
+        this.types = createTypes(params);
+
+        this.sqlParameterList = createSqlParameterList(params);
+        this.query = (query != null ? query : defaultQuery(name, sqlParameterList));
+
+        this.shardStrategy = sStrategy;
+        this.shardKeyParameters = new ArrayList<>(shardKeyParameters);
+        this.autoPartition = isAutoPartition(shardKeyParameters);
+
         this.runOnAllShards = runOnAllShards;
         this.searchShards = searchShards;
         this.parallel = parallel;
         this.readOnly = readOnly;
-        this.resultMapper = resultMapper;
         this.writeTransaction = writeTransaction;
 
         this.adivsoryLock = advisoryLock;
         this.timeout = timeout;
 
-        shardStrategy = sStrategy;
-
         ValueTransformer<?, ?> valueTransformerForClass = null;
-
+        Executor exec;
         if (genericType instanceof ParameterizedType) {
             final ParameterizedType pType = (ParameterizedType) genericType;
 
@@ -124,30 +135,32 @@ class StoredProcedure {
 
                 if (valueTransformerForClass != null
                         || SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
-                    executor = MULTI_ROW_SIMPLE_TYPE_EXECUTOR;
+                    exec = MULTI_ROW_SIMPLE_TYPE_EXECUTOR;
                 } else {
-                    executor = MULTI_ROW_TYPE_MAPPER_EXECUTOR;
+                    exec = MULTI_ROW_TYPE_MAPPER_EXECUTOR;
                 }
 
                 collectionResult = true;
             } else {
-                executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
+                collectionResult = false;
+                exec = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
                 returnType = (Class<?>) pType.getRawType();
             }
 
         } else {
+            collectionResult = false;
             returnType = (Class<?>) genericType;
 
             // check if we have a value transformer (and initialize the registry):
             valueTransformerForClass = GlobalValueTransformerLoader.getValueTransformerForClass(returnType);
 
             if (valueTransformerForClass != null || SingleRowSimpleTypeExecutor.SIMPLE_TYPES.containsKey(returnType)) {
-                executor = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
+                exec = SINGLE_ROW_SIMPLE_TYPE_EXECUTOR;
             } else {
                 if (resultMapper != null) {
-                    executor = new SingleRowCustomMapperExecutor(resultMapper);
+                    exec = new SingleRowCustomMapperExecutor(resultMapper);
                 } else {
-                    executor = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
+                    exec = SINGLE_ROW_TYPE_MAPPER_EXECUTOR;
                 }
             }
         }
@@ -155,46 +168,27 @@ class StoredProcedure {
         if (this.timeout > 0 || (this.adivsoryLock != null && !(this.adivsoryLock.equals(AdvisoryLock.NoLock.LOCK)))) {
 
             // Wrapper provides locking and changing of session settings functionality
-            this.executor = new ExecutorWrapper(executor, this.timeout, this.adivsoryLock);
+            exec = new ExecutorWrapper(exec, this.timeout, this.adivsoryLock);
         }
 
         if (useValidation) {
-            this.executor = new ValidationExecutorWrapper(this.executor);
+            exec = new ValidationExecutorWrapper(exec);
         }
 
         if (valueTransformerForClass != null) {
 
             // we need to transform the return value by the global value transformer.
             // add the transformation to the as a transformerExecutor
-            this.executor = new GlobalTransformerExecutorWrapper(this.executor);
+            exec = new GlobalTransformerExecutorWrapper(exec);
         }
-    }
-
-    public void addParam(final StoredProcedureParameter p) {
-        params.add(p);
-    }
-
-    public void setVirtualShardKeyStrategy(final VirtualShardKeyStrategy s) {
-        shardStrategy = s;
-    }
-
-    public void addShardKeyParameter(final int jp, final Class<?> clazz) {
-        if (shardKeyParameters == null) {
-            shardKeyParameters = new ArrayList<ShardKeyParameter>(1);
-        }
-
-        if (List.class.isAssignableFrom(clazz)) {
-            autoPartition = true;
-        }
-
-        shardKeyParameters.add(new ShardKeyParameter(jp));
+        this.executor = exec;
     }
 
     public String getName() {
         return name;
     }
 
-    public Object[] getParams(final Object[] origParams, final Connection connection) {
+    private Object[] getParams(final Object[] origParams, final Connection connection) {
         final Object[] ps = new Object[params.size()];
 
         int i = 0;
@@ -215,21 +209,17 @@ class StoredProcedure {
         return ps;
     }
 
-    public int[] getTypes() {
-        if (types == null) {
-            types = new int[params.size()];
-
-            int i = 0;
-            for (final StoredProcedureParameter p : params) {
-                types[i++] = p.getType();
-            }
+    private static int[] createTypes(final List<StoredProcedureParameter> params) {
+        int[] types = new int[params.size()];
+        int i = 0;
+        for (final StoredProcedureParameter p : params) {
+            types[i++] = p.getType();
         }
-
         return types;
     }
 
-    public int getShardId(final Object[] objs) {
-        if (shardKeyParameters == null) {
+    private int getShardId(final Object[] objs) {
+        if (shardKeyParameters.isEmpty()) {
             return shardStrategy.getShardId(null);
         }
 
@@ -237,7 +227,7 @@ class StoredProcedure {
         int i = 0;
         Object obj;
         for (final ShardKeyParameter p : shardKeyParameters) {
-            obj = objs[p.javaPos];
+            obj = objs[p.getPos()];
             if (obj instanceof ShardedObject) {
                 obj = ((ShardedObject) obj).getShardKey();
             }
@@ -250,6 +240,10 @@ class StoredProcedure {
     }
 
     public String getSqlParameterList() {
+        return sqlParameterList;
+    }
+
+    private static String createSqlParameterList(final List<StoredProcedureParameter> params) {
         String s = "";
         boolean first = true;
         for (int i = 1; i <= params.size(); ++i) {
@@ -265,16 +259,17 @@ class StoredProcedure {
         return s;
     }
 
-    public void setQuery(final String sql) {
-        query = sql;
+    private static String defaultQuery(final String name, final String sqlParameterList) {
+        return "SELECT * FROM " + name + " ( " + sqlParameterList + " )";
     }
 
-    public String getQuery() {
-        if (query == null) {
-            query = "SELECT * FROM " + name + " ( " + getSqlParameterList() + " )";
+    private static boolean isAutoPartition(final List<ShardKeyParameter> shardKeyParameters) {
+        for (ShardKeyParameter p : shardKeyParameters) {
+            if (List.class.isAssignableFrom(p.getType())) {
+                return true;
+            }
         }
-
-        return query;
+        return false;
     }
 
     /**
@@ -383,30 +378,6 @@ class StoredProcedure {
         return argumentsByShardId;
     }
 
-    private static class Call implements Callable<Object> {
-        private final StoredProcedure sproc;
-        private final DataSource shardDs;
-        private final Object[] params;
-        private final InvocationContext invocation;
-
-        public Call(final StoredProcedure sproc, final DataSource shardDs, final Object[] params,
-                    final InvocationContext invocation) {
-            this.sproc = sproc;
-            this.shardDs = shardDs;
-            this.params = params;
-            this.invocation = invocation;
-        }
-
-        @Override
-        public Object call() throws Exception {
-            return sproc.executor.executeSProc(shardDs, sproc.getQuery(), params, sproc.getTypes(), invocation,
-                    sproc.returnType);
-        }
-
-    }
-
-    private static ExecutorService parallelThreadPool = Executors.newCachedThreadPool();
-
     public Object execute(final DataSourceProvider dp, final InvocationContext invocation) {
 
         List<Integer> shardIds = null;
@@ -462,7 +433,7 @@ class StoredProcedure {
             }
 
             // most common case: only one shard and no argument partitioning
-            return executor.executeSProc(firstDs, getQuery(), paramValues.get(0), getTypes(), invocation, returnType);
+            return execute(firstDs, paramValues.get(0), invocation);
         } else {
             Map<Integer, SameConnectionDatasource> transactionalDatasources = null;
             try {
@@ -547,12 +518,11 @@ class StoredProcedure {
 
             sprocResult = null;
             try {
-                sprocResult = executor.executeSProc(shardDs, getQuery(), paramValues.get(i), getTypes(), invocation,
-                        returnType);
+                sprocResult = execute(shardDs, paramValues.get(i), invocation);
             } catch (final Exception e) {
 
                 // remember all exceptions and go on
-                exceptions.add("shardId: " + shardId + ", message: " + e.getMessage() + ", query: " + getQuery());
+                exceptions.add("shardId: " + shardId + ", message: " + e.getMessage() + ", query: " + query);
                 causes.put(shardId, e);
             }
 
@@ -576,20 +546,19 @@ class StoredProcedure {
                                      final List<Integer> shardIds, final List<Object[]> paramValues,
                                      final Map<Integer, SameConnectionDatasource> transactionalDatasources, final List<?> results,
                                      Object sprocResult) {
-        DataSource shardDs;
+
         final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
-        FutureTask<Object> task;
         int i = 0;
 
         for (final int shardId : shardIds) {
-            shardDs = getShardDs(dp, transactionalDatasources, shardId);
+            final DataSource shardDs = getShardDs(dp, transactionalDatasources, shardId);
             if (LOG.isDebugEnabled()) {
                 LOG.debug(getDebugLog(paramValues.get(i)));
             }
 
-            task = new FutureTask<Object>(new Call(this, shardDs, paramValues.get(i), invocation));
+            final FutureTask<Object> task = new FutureTask<>(with(shardDs, paramValues.get(i), invocation));
             tasks.put(shardId, task);
-            parallelThreadPool.execute(task);
+            PARALLEL_THREAD_POOL.execute(task);
             i++;
         }
 
@@ -602,13 +571,13 @@ class StoredProcedure {
             } catch (final InterruptedException ex) {
 
                 // remember all exceptions and go on
-                exceptions.add("got sharding execution exception: " + ex.getMessage() + ", query: " + getQuery());
+                exceptions.add("got sharding execution exception: " + ex.getMessage() + ", query: " + query);
                 causes.put(taskToFinish.getKey(), ex);
             } catch (final ExecutionException ex) {
 
                 // remember all exceptions and go on
                 exceptions.add("got sharding execution exception: " + ex.getCause().getMessage() + ", query: "
-                        + getQuery());
+                        + query);
                 causes.put(taskToFinish.getKey(), ex.getCause());
             }
 
@@ -623,6 +592,19 @@ class StoredProcedure {
         }
 
         return sprocResult;
+    }
+
+    private Callable<Object> with(final DataSource shardDs, final Object[] params, final InvocationContext invocation) {
+        return new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return StoredProcedure.this.execute(shardDs, params, invocation);
+            }
+        };
+    }
+
+    private Object execute(final DataSource shardDs, final Object[] params, final InvocationContext invocation) {
+        return executor.executeSProc(shardDs, query, params, types, invocation, returnType);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
