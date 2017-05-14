@@ -574,11 +574,11 @@ public class SimpleIT {
 
         final String sql = "SELECT ";
 
-        final int xx = (new JdbcTemplate(dataSource1)).queryForInt(sql + 11111);
+        final int xx = (new JdbcTemplate(dataSource1)).queryForObject(sql + 11111, Integer.class);
 
         final long startTime = System.currentTimeMillis();
         for (int i = 0; i < loops; i++) {
-            final int j = (new JdbcTemplate(dataSource1)).queryForInt(sql + i);
+            final int j = (new JdbcTemplate(dataSource1)).queryForObject(sql + i, Integer.class);
         }
 
         final long endTime = System.currentTimeMillis();

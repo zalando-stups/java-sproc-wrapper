@@ -9,6 +9,7 @@ import static de.zalando.typemapper.postgres.PgRow.ROW;
 
 import java.sql.SQLException;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -61,8 +62,9 @@ public class PgSerializerTest {
     public static Collection<Object[]> generateData() throws SQLException {
         return Arrays.asList(
                 new Object[][] {
-                    {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06.000000 [+-]?\\d{2}:\\d{2}:00")},
-                    {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06.000000 [+-]?\\d{2}:\\d{2}:00")},
+                    {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06[+-]?\\d{2}")},
+                    {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06[+-]?\\d{2}")},
+                    {Date.from(Instant.parse("2017-05-14T12:34:56.123456789Z")), Pattern.compile("2017-05-14 14:34:56.123000[+-]?\\d{2}")},
                     {1, "1"},
                     {69, "69"},
                     {true, "t"},

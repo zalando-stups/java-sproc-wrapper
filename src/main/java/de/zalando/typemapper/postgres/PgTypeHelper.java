@@ -14,7 +14,7 @@ import javax.persistence.Column;
 
 import org.postgresql.core.BaseConnection;
 
-import org.postgresql.jdbc2.PostgresJDBCDriverReusedTimestampUtils;
+import org.postgresql.jdbc.PostgresJDBCDriverReusedTimestampUtils;
 
 import org.postgresql.util.PGobject;
 
