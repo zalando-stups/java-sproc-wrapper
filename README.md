@@ -1,7 +1,7 @@
 SProcWrapper
 ============
 
-[![Build Status](https://travis-ci.org/zalando/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando/java-sproc-wrapper/badge.svg)](https://coveralls.io/r/zalando/java-sproc-wrapper)
+[![Build Status](https://travis-ci.org/zalando-incubator/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando-incubator/java-sproc-wrapper/badge.svg)](https://coveralls.io/r/zalando-incubator/java-sproc-wrapper)
 
 Library to make PostgreSQL stored procedures(SProcs) available through simple Java "SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration).
 
