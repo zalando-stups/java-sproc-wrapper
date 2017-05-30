@@ -1,6 +1,8 @@
 package de.zalando.typemapper.postgres;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -60,6 +62,7 @@ public class PgSerializerTest {
                 new Object[][] {
                     {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06[+-]?\\d{2}")},
                     {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06[+-]?\\d{2}")},
+                    {Date.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2017-05-14T12:34:56.123456789+00:00", Instant::from)), Pattern.compile("2017-05-14 14:34:56.123000[+-]?\\d{2}")},
                     {1, "1"},
                     {69, "69"},
                     {true, "t"},
