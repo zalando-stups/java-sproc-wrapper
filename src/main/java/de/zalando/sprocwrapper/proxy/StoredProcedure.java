@@ -550,6 +550,10 @@ class StoredProcedure {
         final Map<Integer, FutureTask<Object>> tasks = Maps.newHashMapWithExpectedSize(shardIds.size());
         int i = 0;
 
+        // Pre-evaluate values before concurrent run.
+        getQuery();
+        getTypes();
+
         for (final int shardId : shardIds) {
             final DataSource shardDs = getShardDs(dp, transactionalDatasources, shardId);
             if (LOG.isDebugEnabled()) {
