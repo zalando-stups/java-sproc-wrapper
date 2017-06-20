@@ -1,32 +1,44 @@
 package de.zalando.sprocwrapper.proxy;
 
 import java.lang.reflect.Method;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
 import org.postgresql.util.PGobject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import de.zalando.typemapper.postgres.PgTypeHelper;
 
 /**
- * @author  jmussler
+ * @author jmussler
  */
 class OtherStoredProcedureParameter extends StoredProcedureParameter {
     private static final Logger LOG = LoggerFactory.getLogger(OtherStoredProcedureParameter.class);
 
     public OtherStoredProcedureParameter(final Class<?> clazz, final Method m, final String typeName, final int sqlType,
-            final int javaPosition, final boolean sensitive) {
+                                         final int javaPosition, final boolean sensitive) {
         super(clazz, m, typeName, sqlType, javaPosition, sensitive);
     }
 
     @Override
     public Object mapParam(final Object value, final Connection connection) {
         if (value == null) {
+            if (clazz.isEnum()) {
+                /*
+                * In situation when there is null value passed as an argument and
+                * argument type maps to custom database type which inherited from ENUM
+                * sql type "OTHER" will fallback to sql type "VARCHAR" what will cause an exception
+                 *  "No function matches the given name and argument types. You might need to add explicit type casts."
+                  *  That happens because SP expects custom type but not VARCHAR
+                 *
+                */
+                final PGobject pgobj = new PGobject();
+                pgobj.setType(typeName);
+                return pgobj;
+            }
             return null;
         }
 

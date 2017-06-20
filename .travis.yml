@@ -1,12 +1,13 @@
 language: java
 
 jdk:
-    - openjdk7
-    - oraclejdk7
+    - openjdk8
     - oraclejdk8
+      
+dist: trusty
 
 addons:
-    postgresql: "9.5"
+    postgresql: "9.6"
 
 # go faster on travis
 sudo: false
