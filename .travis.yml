@@ -1,10 +1,13 @@
 language: java
+
 jdk:
-    - openjdk7
-    - oraclejdk7
+    - openjdk8
     - oraclejdk8
+      
+dist: trusty
+
 addons:
-    postgresql: "9.3"
+    postgresql: "9.6"
 
 # go faster on travis
 sudo: false
@@ -12,7 +15,7 @@ sudo: false
 # stop mvn install from running
 install: true
 
-script: mvn -B -V package javadoc:javadoc test
+script: mvn -B -V package $( [[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ]] && echo javadoc:javadoc ) test
 
 after_success:
-    - mvn clean test jacoco:report coveralls:report
+    - mvn -B -V clean test jacoco:report coveralls:report

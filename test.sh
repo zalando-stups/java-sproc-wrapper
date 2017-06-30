@@ -1,21 +1,28 @@
 #!/bin/bash
 
+if ! which docker &> /dev/null ; then
+    echo 'Ensure that docker is installed and is in PATH'
+    exit 1
+fi
+
+if ! docker info | grep -q 'Server Version' ; then
+    echo 'Ensure that docker service is running'
+    exit 1
+fi
+
 if nc -w 5 -z localhost 5432; then
     echo 'There is already some process listening on port 5432.'
     echo 'Please shutdown any existing PostgreSQL instance and re-run this script.'
     exit 1
 fi
 
-export PGHOST=localhost
-export PGUSER=postgres
-export PGPASSWORD=postgres
-export PGDATABASE=local_zmon_db
+PGVERSION=9.5.4
 
-container=$(docker ps | grep postgres:9.3.5)
+container=$(docker ps | grep postgres:$PGVERSION)
 if [ -z "$container" ]; then
     docker rm postgres
     echo 'Starting PostgreSQL instance..'
-    docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:9.3.5
+    docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres:$PGVERSION
 fi
 
 until nc -w 5 -z localhost 5432; do
@@ -26,7 +33,8 @@ done
 sleep 5
 
 echo 'Running tests..'
-mvn clean verify -Pintegration-test
+export MAVEN_OPTS="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n"
+./mvnw clean verify -Pintegration-test
 
 echo 'Stopping PostgreSQL instance..'
 docker stop postgres

@@ -4,7 +4,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import org.postgresql.jdbc2.PostgresJDBCDriverReusedTimestampUtils;
+import org.postgresql.jdbc.PostgresJDBCDriverReusedTimestampUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

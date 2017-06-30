@@ -196,10 +196,10 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                     },
 
                     /* 20 */
-                    {new Date(112, 11, 1, 6, 6, 6), "2012-12-01 06:06:06.000000 +01:00:00", Types.TIMESTAMP},
+                    {new Date(112, 11, 1, 6, 6, 6), "2012-12-01 06:06:06+01", Types.TIMESTAMP},
 
                     /* 21 */
-                    {new Date(112, 9, 1, 6, 6, 6), "2012-10-01 06:06:06.000000 +02:00:00", Types.TIMESTAMP},
+                    {new Date(112, 9, 1, 6, 6, 6), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
 
                     /* 22 */
                     {PgTypeHelper.asPGobject(new InheritedClassWithPrimitives(1L, "1", 12)), "(1,12,1)", Types.OTHER},

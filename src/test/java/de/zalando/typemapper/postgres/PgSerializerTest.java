@@ -1,25 +1,24 @@
 package de.zalando.typemapper.postgres;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.cthul.matchers.CthulMatchers.*;
-import static org.junit.Assert.assertThat;
-
-import static de.zalando.typemapper.postgres.PgArray.ARRAY;
-import static de.zalando.typemapper.postgres.PgRow.ROW;
-
 import java.sql.SQLException;
-
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import static org.cthul.matchers.CthulMatchers.matchesPattern;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+
+import static de.zalando.typemapper.postgres.PgArray.ARRAY;
+import static de.zalando.typemapper.postgres.PgRow.ROW;
 
 @RunWith(Parameterized.class)
 public class PgSerializerTest {
@@ -44,9 +43,9 @@ public class PgSerializerTest {
             this.expectedString = null;
             this.expectedPattern = (Pattern) expected;
         } else {
-           throw new IllegalArgumentException(String.format(
-                   "Expected either a String or a Pattern, got: %s (%s)",
-                   expected, expected == null ? null : expected.getClass()));
+            throw new IllegalArgumentException(String.format(
+                    "Expected either a String or a Pattern, got: %s (%s)",
+                    expected, expected == null ? null : expected.getClass()));
         }
     }
 
@@ -59,32 +58,39 @@ public class PgSerializerTest {
     @SuppressWarnings("deprecation")
     @Parameters
     public static Collection<Object[]> generateData() throws SQLException {
+
         return Arrays.asList(
-                new Object[][] {
-                    {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06.000000 [+-]?\\d{2}:\\d{2}:00")},
-                    {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06.000000 [+-]?\\d{2}:\\d{2}:00")},
-                    {1, "1"},
-                    {69, "69"},
-                    {true, "t"},
-                    {new int[] {1, 2, 3, 4}, "{1,2,3,4}"},
-                    {new Integer[] {null, 2, 3, 4}, "{NULL,2,3,4}"},
-                    {ARRAY("a", "b").asJdbcArray("text"), "{a,b}"},
-                    {ARRAY("a", "b(x)").asJdbcArray("text"), "{a,b(x)}"},
-                    {ARRAY("a", "b{x}").asJdbcArray("text"), "{a,\"b{x}\"}"},
-                    {
-                        ARRAY("first element", "second \"quoted\" element").asJdbcArray("text"),
-                        "{\"first element\",\"second \\\"quoted\\\" element\"}"
-                    },
-                    {ROW(1, 2), "(1,2)"},
-                    {ROW("a", "b{x}"), "(a,b{x})"},
-                    {ROW("a", "b(x)"), "(a,\"b(x)\")"},
-                    {ROW(1, 2, ARRAY("a", "b")), "(1,2,\"{a,b}\")"},
-                    {ROW("a", "b", new int[] {1, 2, 3, 4}), "(a,b,\"{1,2,3,4}\")"},
-                    {ROW("a", null, ARRAY(ROW(1), ROW(2), null)), "(a,,\"{(1),(2),NULL}\")"},
-                    {
-                        ROW("a", null, ARRAY(ROW(1, 11), ROW(2, 22), null)),
-                        "(a,,\"{\"\"(1,11)\"\",\"\"(2,22)\"\",NULL}\")"
-                    },
+                new Object[][]{
+                        {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06[+-]?\\d{2}")},
+                        {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06[+-]?\\d{2}")},
+                        {Date.from(
+                                LocalDateTime.of(2017, 5, 14, 12, 34, 56, 123456789)
+                                        .atZone(ZoneId.systemDefault())
+                                        .toInstant()
+                        ),
+                                Pattern.compile("2017-05-14 12:34:56.123000[+-]?\\d{2}")},
+                        {1, "1"},
+                        {69, "69"},
+                        {true, "t"},
+                        {new int[]{1, 2, 3, 4}, "{1,2,3,4}"},
+                        {new Integer[]{null, 2, 3, 4}, "{NULL,2,3,4}"},
+                        {ARRAY("a", "b").asJdbcArray("text"), "{a,b}"},
+                        {ARRAY("a", "b(x)").asJdbcArray("text"), "{a,b(x)}"},
+                        {ARRAY("a", "b{x}").asJdbcArray("text"), "{a,\"b{x}\"}"},
+                        {
+                                ARRAY("first element", "second \"quoted\" element").asJdbcArray("text"),
+                                "{\"first element\",\"second \\\"quoted\\\" element\"}"
+                        },
+                        {ROW(1, 2), "(1,2)"},
+                        {ROW("a", "b{x}"), "(a,b{x})"},
+                        {ROW("a", "b(x)"), "(a,\"b(x)\")"},
+                        {ROW(1, 2, ARRAY("a", "b")), "(1,2,\"{a,b}\")"},
+                        {ROW("a", "b", new int[]{1, 2, 3, 4}), "(a,b,\"{1,2,3,4}\")"},
+                        {ROW("a", null, ARRAY(ROW(1), ROW(2), null)), "(a,,\"{(1),(2),NULL}\")"},
+                        {
+                                ROW("a", null, ARRAY(ROW(1, 11), ROW(2, 22), null)),
+                                "(a,,\"{\"\"(1,11)\"\",\"\"(2,22)\"\",NULL}\")"
+                        },
                 });
     }
 

@@ -1,38 +1,27 @@
 package de.zalando.typemapper.core;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import java.util.List;
-import java.util.Map;
-
-import org.postgresql.jdbc4.Jdbc4Array;
-import org.postgresql.jdbc4.Jdbc4ResultSet;
-
-import org.postgresql.util.PGobject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
 import de.zalando.typemapper.core.db.DbFunction;
 import de.zalando.typemapper.core.db.DbFunctionRegister;
 import de.zalando.typemapper.core.db.DbTypeField;
 import de.zalando.typemapper.core.fieldMapper.ArrayFieldMapper;
 import de.zalando.typemapper.core.fieldMapper.ObjectFieldMapper;
-import de.zalando.typemapper.core.result.ArrayResultNode;
-import de.zalando.typemapper.core.result.DbResultNode;
-import de.zalando.typemapper.core.result.DbResultNodeType;
-import de.zalando.typemapper.core.result.MapResultNode;
-import de.zalando.typemapper.core.result.ObjectResultNode;
-import de.zalando.typemapper.core.result.ResultTree;
-import de.zalando.typemapper.core.result.SimpleResultNode;
+import de.zalando.typemapper.core.result.*;
 import de.zalando.typemapper.parser.exception.RowParserException;
 import de.zalando.typemapper.parser.postgres.ParseUtils;
+import org.postgresql.jdbc.PgArray;
+import org.postgresql.jdbc.PgResultSet;
+import org.postgresql.util.PGobject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.RowMapper;
 
-public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+public class TypeMapper<ITEM> implements RowMapper<ITEM> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TypeMapper.class);
 
@@ -76,7 +65,7 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
         LOG.trace("Extracting result tree");
 
         // cast to obtain more information from the result set.
-        final Jdbc4ResultSet pgSet = (Jdbc4ResultSet) set;
+        final PgResultSet pgSet = set.unwrap(PgResultSet.class);
         final ResultSetMetaData rsMetaData = pgSet.getMetaData();
 
         final ResultTree tree = new ResultTree();
@@ -126,8 +115,8 @@ public class TypeMapper<ITEM> implements ParameterizedRowMapper<ITEM> {
                 final PGobject pgObj = (PGobject) obj;
                 node = new ObjectResultNode(pgObj.getValue(), name, pgObj.getType(), typeId,
                         pgSet.getStatement().getConnection());
-            } else if (obj instanceof Jdbc4Array) {
-                final Jdbc4Array arrayObj = (Jdbc4Array) obj;
+            } else if (obj instanceof PgArray) {
+                final PgArray arrayObj = (PgArray) obj;
 
                 // TODO pribeiro jdbc driver lacks support for arrays of user defined types. We should whether
                 // implement the missing feature in driver or use the current approach (parse string).

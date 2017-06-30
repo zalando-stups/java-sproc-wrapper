@@ -1,9 +1,7 @@
 SProcWrapper
 ============
 
-[![Build Status](https://travis-ci.org/zalando/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando/java-sproc-wrapper/badge.png)](https://coveralls.io/r/zalando/java-sproc-wrapper)
-
-[![ReviewNinja](http://app.review.ninja/assets/images/wereviewninja-32.png)](http://app.review.ninja/zalando/java-sproc-wrapper)
+[![Build Status](https://travis-ci.org/zalando-incubator/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando-incubator/java-sproc-wrapper/badge.svg)](https://coveralls.io/r/zalando-incubator/java-sproc-wrapper)
 
 Library to make PostgreSQL stored procedures(SProcs) available through simple Java "SProcService" interfaces including automatic object serialization and deserialization (using typemapper and convention-over-configuration).
 
@@ -17,7 +15,7 @@ To use SProcWrapper, add the following lines to your pom.xml:
 <dependency>
     <groupId>de.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>1.3.0</version>
+    <version>1.5.1</version>
 </dependency>
 ```
 

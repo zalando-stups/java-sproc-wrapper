@@ -1,50 +1,39 @@
 package de.zalando.sprocwrapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.math.BigDecimal;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 import javax.sql.DataSource;
-
 import javax.validation.ConstraintViolationException;
-
-import org.joda.time.DateTime;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import org.junit.runner.RunWith;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 
 import de.zalando.sprocwrapper.example.AddressPojo;
 import de.zalando.sprocwrapper.example.Example1DomainObject1;
@@ -77,7 +66,6 @@ import de.zalando.sprocwrapper.example.OrderPosition;
 import de.zalando.sprocwrapper.example.TestInheritanceChild;
 import de.zalando.sprocwrapper.example.WrapperLookupSchema;
 import de.zalando.sprocwrapper.example.WrapperOptionalLookupType;
-
 import de.zalando.typemapper.parser.DateTimeUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -574,11 +562,11 @@ public class SimpleIT {
 
         final String sql = "SELECT ";
 
-        final int xx = (new JdbcTemplate(dataSource1)).queryForInt(sql + 11111);
+        final int xx = (new JdbcTemplate(dataSource1)).queryForObject(sql + 11111, Integer.class);
 
         final long startTime = System.currentTimeMillis();
         for (int i = 0; i < loops; i++) {
-            final int j = (new JdbcTemplate(dataSource1)).queryForInt(sql + i);
+            final int j = (new JdbcTemplate(dataSource1)).queryForObject(sql + i, Integer.class);
         }
 
         final long endTime = System.currentTimeMillis();
@@ -1087,5 +1075,15 @@ public class SimpleIT {
 
         assertTrue(l1.size() == 1);
         assertTrue(l2.size() == 0);
+    }
+
+    @Test
+    public void testNullComplexParam() throws Exception {
+        exampleSProcService.createOrder(null);
+    }
+
+    @Test
+    public void testNullEnumParam() {
+        exampleSProcService.useEnumParam(null);
     }
 }

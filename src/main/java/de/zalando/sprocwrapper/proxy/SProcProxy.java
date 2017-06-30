@@ -20,7 +20,7 @@ class SProcProxy extends AbstractInvocationHandler {
     private final HashMap<Method, StoredProcedure> sprocs = new HashMap<Method, StoredProcedure>();
     private final DataSourceProvider dataSourceProvider;
 
-    private static final Logger LOG = LoggerFactory.getLogger(OtherStoredProcedureParameter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SProcProxy.class);
     private final String description;
 
     public boolean addStoredProcedure(final Method method, final StoredProcedure p) {
