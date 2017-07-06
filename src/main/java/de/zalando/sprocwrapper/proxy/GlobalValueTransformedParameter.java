@@ -1,7 +1,6 @@
 package de.zalando.sprocwrapper.proxy;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import java.sql.Connection;
 
@@ -18,17 +17,15 @@ import de.zalando.typemapper.postgres.PgTypeHelper;
 
 public class GlobalValueTransformedParameter extends StoredProcedureParameter {
 
-    private StoredProcedureParameter forwardingStoredProcedureParameter;
-    @SuppressWarnings("rawtypes")
-    private ValueTransformer valueTransformerForClass;
+    private final StoredProcedureParameter forwardingStoredProcedureParameter;
 
-    @SuppressWarnings("rawtypes")
-    private ObjectMapper globalObjectMapper;
+    private final ValueTransformer<?, ?> valueTransformerForClass;
+
+    private final ObjectMapper<?> globalObjectMapper;
 
     public GlobalValueTransformedParameter(final ValueTransformer<?, ?> valueTransformerForClass, final Class<?> clazz,
-            final Type genericType, final Method m, final String typeName, final int sqlType, final int javaPosition,
-            final boolean sensitive, final ObjectMapper<?> globalObjectMapper) throws InstantiationException,
-        IllegalAccessException {
+            final Method m, final String typeName, final int javaPosition, final boolean sensitive,
+            final ObjectMapper<?> globalObjectMapper) throws InstantiationException, IllegalAccessException {
         super(getValueTransformedClazz(clazz, valueTransformerForClass), m, typeName, getValueTransformedTypeId(clazz),
             javaPosition, sensitive);
 
@@ -64,11 +61,12 @@ public class GlobalValueTransformedParameter extends StoredProcedureParameter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Object getMarshaledObject(final Object o) {
         if (globalObjectMapper != null) {
-            return globalObjectMapper.marshalToDb(o);
+            return ((ObjectMapper<Object>) globalObjectMapper).marshalToDb(o);
         } else {
-            return valueTransformerForClass.marshalToDb(o);
+            return ((ValueTransformer<?, Object>) valueTransformerForClass).marshalToDb(o);
         }
     }
 

@@ -67,8 +67,8 @@ class StoredProcedureParameter {
         if (valueTransformerForClass != null) {
 
             // inject the additional logic to transform types and values
-            return new GlobalValueTransformedParameter(valueTransformerForClass, clazz, genericType, m, typeName,
-                    sqlType, javaPosition, sensitive, globalObjectMapper);
+            return new GlobalValueTransformedParameter(valueTransformerForClass, clazz, m, typeName, javaPosition,
+                    sensitive, globalObjectMapper);
         } else {
             Integer typeId = sqlType;
             if (typeId == null || typeId == -1) {
