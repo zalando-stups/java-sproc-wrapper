@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import de.zalando.sprocwrapper.dsprovider.DataSourceProvider;
@@ -56,9 +56,9 @@ class SProcProxy extends AbstractInvocationHandler {
     @Override
     public String toString() {
         return
-            Objects.toStringHelper(this)                          //
-                   .addValue(description)                         //
-                   .add("dataSourceProvider", dataSourceProvider) //
-                   .toString();
+            MoreObjects.toStringHelper(this)                          //
+                       .addValue(description)                         //
+                       .add("dataSourceProvider", dataSourceProvider) //
+                       .toString();
     }
 }
