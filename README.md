@@ -110,7 +110,7 @@ Note: SProcwrapper doesn't support functions returning arrays as a single output
 Prerequisites
 -------------
 
- * Java 7
+ * Java 8
  * To compile, one should use [Maven](http://maven.apache.org/) 2.1.0 or above
 
 Dependencies
@@ -119,7 +119,7 @@ Dependencies
  * Spring Framework
  * PostgreSQL JDBC driver ;)
  * Google Guava
- * and more see `pom.xml` for details
+ * and more see [pom.xml](pom.xml) for details
 
 How to run integration tests
 ----------------------------
@@ -149,20 +149,12 @@ You can find some more information about the SProcWrapper in our various Zalando
 * http://tech.zalando.com/blog/zalando-stored-procedure-wrapper-part-i/
 * http://tech.zalando.com/blog/files/2013/04/jug_dortmund_april_2013.pdf
 
+## Contributing
+
+See [contributing guideline](CONTRIBUTING.md).
+
 
 License
 -------
 
-Copyright 2012-2014 Zalando SE
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+MIT license. See [license file](LICENSE).
