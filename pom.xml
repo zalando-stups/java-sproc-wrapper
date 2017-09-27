@@ -26,15 +26,15 @@
     </organization>
 
     <scm>
-        <connection>scm:git:git://github.com/zalando/java-sproc-wrapper.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando/java-sproc-wrapper.git</developerConnection>
-        <url>https://github.com/zalando-incubator/java-sproc-wrapper.git</url>
+        <connection>scm:git:git://github.com/zalando-stups/java-sproc-wrapper.git</connection>
+        <developerConnection>scm:git:git@github.com:zalando-stups/java-sproc-wrapper.git</developerConnection>
+        <url>https://github.com/zalando-stups/java-sproc-wrapper.git</url>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/zalando-incubator/java-sproc-wrapper/issues</url>
+        <url>https://github.com/zalando-stups/java-sproc-wrapper/issues</url>
     </issueManagement>
 
     <licenses>

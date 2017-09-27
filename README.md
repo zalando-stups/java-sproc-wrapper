@@ -1,7 +1,7 @@
 SProcWrapper
 ============
 
-[![Build Status](https://travis-ci.org/zalando-incubator/java-sproc-wrapper.svg)](https://travis-ci.org/zalando/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando-incubator/java-sproc-wrapper/badge.svg)](https://coveralls.io/r/zalando-incubator/java-sproc-wrapper)
+[![Build Status](https://travis-ci.org/zalando-stups/java-sproc-wrapper.svg)](https://travis-ci.org/zalando-stups/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando-stups/java-sproc-wrapper/badge.svg)](https://coveralls.io/r/zalando-stups/java-sproc-wrapper)
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/de.zalando/zalando-sprocwrapper/badge.svg)](http://www.javadoc.io/doc/de.zalando/zalando-sprocwrapper)
 [![Maven Central](https://img.shields.io/maven-central/v/de.zalando/zalando-sprocwrapper.svg)](https://maven-badges.herokuapp.com/maven-central/de.zalando/zalando-sprocwrapper)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/zalando/problem-spring-web/master/LICENSE)
