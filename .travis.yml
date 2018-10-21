@@ -7,7 +7,7 @@ jdk:
 dist: trusty
 
 addons:
-    postgresql: "9.6"
+    postgresql: "9.6.10"
 
 # go faster on travis
 sudo: false
