@@ -15,7 +15,7 @@ sudo: false
 # stop mvn install from running
 install: true
 
-script: mvn -B -V package $( [[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ]] && echo javadoc:javadoc ) test
+script: ./mvnw -B -V package $( [[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ]] && echo javadoc:javadoc ) test
 
 after_success:
-    - mvn -B -V clean test jacoco:report coveralls:report
+    - ./mvnw -B -V clean test jacoco:report coveralls:report
