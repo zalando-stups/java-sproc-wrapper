@@ -1,16 +1,13 @@
 package de.zalando.sprocwrapper.proxy.executors;
 
+import de.zalando.sprocwrapper.proxy.InvocationContext;
+import org.postgresql.util.PGobject;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.postgresql.util.PGobject;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import de.zalando.sprocwrapper.proxy.InvocationContext;
 
 /**
  * @author  jmussler
@@ -42,7 +39,7 @@ public class SingleRowSimpleTypeExecutor implements Executor {
 
     }
 
-    public static Class mapReturnType(final Class returnType) {
+    public static Class<?> mapReturnType(final Class<?> returnType) {
         final Class clazz = SIMPLE_TYPES.get(returnType);
         if (clazz != null) {
             return clazz;

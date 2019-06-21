@@ -4,7 +4,6 @@ import de.zalando.typemapper.annotations.DatabaseField;
 import de.zalando.typemapper.annotations.DatabaseType;
 
 @DatabaseType(inheritance = true)
-@Deprecated
 public class InheritedClassWithPrimitivesDeprecated extends ParentClassWithPrimitives {
 
     @DatabaseField

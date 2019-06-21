@@ -1,8 +1,10 @@
 package de.zalando.sprocwrapper.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Locale;
 
-import com.google.common.base.Preconditions;
+import static org.apache.commons.lang.StringUtils.splitByCharacterTypeCamelCase;
 
 /**
  * Static utility methods for naming conventions.
@@ -14,14 +16,15 @@ public final class NameUtils {
     private NameUtils() { }
 
     public static String camelCaseToUnderscore(final String camelCase) {
+
         Preconditions.checkNotNull(camelCase, "camelCase");
 
-        final String[] camelCaseParts = org.apache.commons.lang.StringUtils.splitByCharacterTypeCamelCase(camelCase);
+        final String[] camelCaseParts = splitByCharacterTypeCamelCase(camelCase);
         for (int i = 0; i < camelCaseParts.length; i++) {
             camelCaseParts[i] = camelCaseParts[i].toLowerCase(Locale.ENGLISH);
         }
 
-        return org.apache.commons.lang.StringUtils.join(camelCaseParts, "_");
+        return String.join("_", camelCaseParts);
     }
 
 }

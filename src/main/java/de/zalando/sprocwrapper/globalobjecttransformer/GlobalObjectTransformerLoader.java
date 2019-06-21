@@ -1,28 +1,23 @@
 package de.zalando.sprocwrapper.globalobjecttransformer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import de.zalando.sprocwrapper.globalobjecttransformer.annotation.GlobalObjectMapper;
+import de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer;
+import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
 import org.reflections.Reflections;
-
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
-
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-
-import de.zalando.sprocwrapper.globalobjecttransformer.annotation.GlobalObjectMapper;
-
-import de.zalando.typemapper.core.fieldMapper.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class GlobalObjectTransformerLoader {
 
@@ -53,7 +48,10 @@ public class GlobalObjectTransformerLoader {
             }
         }
 
-        return (ObjectMapper<T>) localRegister.get(genericType);
+        @SuppressWarnings("unchecked")
+        final ObjectMapper<T> mapper = (ObjectMapper<T>) localRegister.get(genericType);
+
+        return mapper;
     }
 
     private static ImmutableMap<Class<?>, ObjectMapper<?>> buildMappers() throws InstantiationException,
@@ -75,10 +73,8 @@ public class GlobalObjectTransformerLoader {
                         foundGlobalObjectTransformer.getSimpleName(), valueTransformerReturnType.getSimpleName());
                 } else {
                     LOG.error("Found multiple global object mappers for type [{}]. [{}] replaced by [{}]",
-                        new Object[] {
                             valueTransformerReturnType, previousMapper.getClass().getSimpleName(),
-                            valueTransformerReturnType.getSimpleName()
-                        });
+                            valueTransformerReturnType.getSimpleName());
                 }
             } else {
                 LOG.error("Object mapper [{}] should extend [{}]", foundGlobalObjectTransformer.getSimpleName(),
@@ -91,22 +87,16 @@ public class GlobalObjectTransformerLoader {
     }
 
     private static Set<Class<?>> findObjectMappers() {
-        final Predicate<String> filter = new Predicate<String>() {
-            @Override
-            public boolean apply(final String input) {
-                return GlobalObjectMapper.class.getCanonicalName().equals(input);
-            }
-        };
+        final Predicate<String> filter = input -> GlobalObjectMapper.class.getCanonicalName().equals(input);
 
         final String myNameSpaceToScan = getNameSpace();
 
         final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
                     new FilterBuilder.Include(FilterBuilder.prefix(myNameSpaceToScan))).setUrls(
                     ClasspathHelper.forPackage(myNameSpaceToScan)).setScanners(new TypeAnnotationsScanner()
-                        .filterResultsBy(filter), new SubTypesScanner()));
-        final Set<Class<?>> objectMapper = reflections.getTypesAnnotatedWith(GlobalObjectMapper.class);
+                        .filterResultsBy(filter::test), new SubTypesScanner()));
 
-        return objectMapper;
+        return reflections.getTypesAnnotatedWith(GlobalObjectMapper.class);
     }
 
     private static String getNameSpace() {
@@ -120,7 +110,7 @@ public class GlobalObjectTransformerLoader {
 
                 // ignore - e.g. if a security manager exists and permissions are denied.
                 LOG.warn("Could not get the value of environment variable: {}. Using: {}",
-                    new Object[] {GLOBAL_OBJECT_TRANSFORMER_SEARCH_NAMESPACE, namespaceToScan, e});
+                        GLOBAL_OBJECT_TRANSFORMER_SEARCH_NAMESPACE, namespaceToScan, e);
             }
 
             if (myNameSpaceToScan == null) {
@@ -135,7 +125,7 @@ public class GlobalObjectTransformerLoader {
      * Use this static function to set the namespace to scan.
      *
      * @param  newNamespace  the new namespace to be searched for
-     *                       {@link de.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer}
+     *                       {@link GlobalValueTransformer}
      */
     public static void changeNamespaceToScan(final String newNamespace) {
         namespaceToScan = Preconditions.checkNotNull(newNamespace, "newNamespace");

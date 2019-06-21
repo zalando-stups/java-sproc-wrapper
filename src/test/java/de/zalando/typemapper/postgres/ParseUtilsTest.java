@@ -8,7 +8,7 @@ import de.zalando.typemapper.parser.exception.ArrayParserException;
 import de.zalando.typemapper.parser.exception.RowParserException;
 import de.zalando.typemapper.parser.postgres.ParseUtils;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * @author  hjacobs

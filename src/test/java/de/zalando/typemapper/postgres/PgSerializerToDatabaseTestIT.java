@@ -90,7 +90,7 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                     {1, "1", Types.INTEGER},
 
                     /* 1 */
-                    {Integer.valueOf(69), "69", Types.INTEGER},
+                    {69, "69", Types.INTEGER},
 
                     /* 2 */
                     {true, "true", Types.BOOLEAN},
@@ -196,10 +196,10 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                     },
 
                     /* 20 */
-                    {new Date(112, 11, 1, 6, 6, 6), "2012-12-01 06:06:06+01", Types.TIMESTAMP},
+                    {new Date(1354338366000L), "2012-12-01 06:06:06+01", Types.TIMESTAMP},
 
                     /* 21 */
-                    {new Date(112, 9, 1, 6, 6, 6), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
+                    {new Date(1349064366000L), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
 
                     /* 22 */
                     {PgTypeHelper.asPGobject(new InheritedClassWithPrimitives(1L, "1", 12)), "(1,12,1)", Types.OTHER},

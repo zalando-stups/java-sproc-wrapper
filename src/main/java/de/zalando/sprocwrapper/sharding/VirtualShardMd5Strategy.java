@@ -26,7 +26,8 @@ public class VirtualShardMd5Strategy extends VirtualShardKeyStrategy {
         }
 
         if (objs[0] instanceof List) {
-            List<String> stringList = (List<String>) objs[0];
+            @SuppressWarnings("unchecked")
+            final List<String> stringList = (List<String>) objs[0];
             if (stringList.isEmpty()) {
                 return 0;
             }
@@ -36,10 +37,10 @@ public class VirtualShardMd5Strategy extends VirtualShardKeyStrategy {
             input = (String) objs[0];
         }
 
-        MessageDigest digest;
+        final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException nsae) {
+        } catch (final NoSuchAlgorithmException nsae) {
             throw new RuntimeException("Unable to use md5 algorithm", nsae);
         }
 

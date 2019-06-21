@@ -1,5 +1,10 @@
 package de.zalando.typemapper.postgres;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -8,17 +13,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import static de.zalando.typemapper.postgres.PgArray.ARRAY;
+import static de.zalando.typemapper.postgres.PgRow.ROW;
 import static org.cthul.matchers.CthulMatchers.matchesPattern;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-
-
-import static de.zalando.typemapper.postgres.PgArray.ARRAY;
-import static de.zalando.typemapper.postgres.PgRow.ROW;
 
 @RunWith(Parameterized.class)
 public class PgSerializerTest {
@@ -61,14 +60,14 @@ public class PgSerializerTest {
 
         return Arrays.asList(
                 new Object[][]{
-                        {new Date(112, 11, 1, 6, 6, 6), Pattern.compile("2012-12-01 06:06:06[+-]?\\d{2}")},
-                        {new Date(112, 9, 1, 6, 6, 6), Pattern.compile("2012-10-01 06:06:06[+-]?\\d{2}")},
+                        {new Date(1354338366000L), Pattern.compile("2012-12-01 05:06:06[+-]?\\d{2}")},
+                        {new Date(1349064366000L), Pattern.compile("2012-10-01 04:06:06[+-]?\\d{2}")},
                         {Date.from(
                                 LocalDateTime.of(2017, 5, 14, 12, 34, 56, 123456789)
                                         .atZone(ZoneId.systemDefault())
                                         .toInstant()
                         ),
-                                Pattern.compile("2017-05-14 12:34:56.123000[+-]?\\d{2}")},
+                                Pattern.compile("2017-05-14 12:34:56.123[+-]?\\d{2}")},
                         {1, "1"},
                         {69, "69"},
                         {true, "t"},
@@ -99,7 +98,7 @@ public class PgSerializerTest {
      */
     @Test
     public void serializationTest() {
-        String result = PgTypeHelper.toPgString(this.objectToSerialize);
+        final String result = PgTypeHelper.toPgString(this.objectToSerialize);
         if (this.expectedString != null) {
             assertThat(result, is(this.expectedString));
         } else {

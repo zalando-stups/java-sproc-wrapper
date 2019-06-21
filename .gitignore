@@ -1,13 +1,9 @@
-*.swp
+### IntelliJ ###
 *.iml
-.vagrant
-.DS_Store
-.project
-.classpath
-.settings/
 .idea/
-.openshift/
-nbproject/
+
+### Maven ###
 target/
-gh-pages/
-atlassian-ide-plugin.xml
+/.mvn/wrapper/*.jar
+
+*.log

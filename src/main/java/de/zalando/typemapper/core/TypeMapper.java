@@ -39,12 +39,12 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
         ITEM result = null;
         try {
 
-            Class<ITEM> resultClass = getResultClass();
+            final Class<ITEM> resultClass = getResultClass();
 
             if (resultClass.isEnum()) { // Since Enums can't be instantiated, they need to be processed differently
                 LOG.debug("{} is an Enum", resultClass.getName());
 
-                String enumValue = set.getString(1);
+                final String enumValue = set.getString(1);
 
                 if (enumValue != null) {
                     result = (ITEM) Enum.valueOf((Class<? extends Enum>) resultClass, set.getString(1));
@@ -81,7 +81,7 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
             if ((obj instanceof PGobject) && ((PGobject) obj).getType().equals("record")) {
                 final PGobject pgObj = (PGobject) obj;
                 final DbFunction function = DbFunctionRegister.getFunction(name, pgSet.getStatement().getConnection());
-                List<String> fieldValues;
+                final List<String> fieldValues;
                 try {
                     fieldValues = ParseUtils.postgresROW2StringList(pgObj.getValue());
                 } catch (final RowParserException e) {
@@ -110,7 +110,9 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
                 i++;
                 continue;
             } else if (obj instanceof Map) {
-                node = new MapResultNode((Map<String, String>) obj, name);
+                @SuppressWarnings("unchecked")
+                final Map<String, String> map = (Map<String, String>) obj;
+                node = new MapResultNode(map, name);
             } else if (obj instanceof PGobject) {
                 final PGobject pgObj = (PGobject) obj;
                 node = new ObjectResultNode(pgObj.getValue(), name, pgObj.getType(), typeId,
@@ -178,7 +180,7 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
                 }
             } catch (final Exception e) {
                 LOG.error("Could not map property {} of class {}",
-                    new Object[] {mapping.getName(), resultClass.getSimpleName(), e});
+                        mapping.getName(), resultClass.getSimpleName(), e);
             }
         }
     }

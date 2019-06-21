@@ -49,6 +49,7 @@ public final class PgArray<E> implements java.sql.Array {
         this.elementTypeName = elementTypeName;
     }
 
+    @SafeVarargs
     public static <T> PgArray<T> ARRAY(final T... array) {
         return PgArray.ARRAY(Arrays.asList(array));
     }
