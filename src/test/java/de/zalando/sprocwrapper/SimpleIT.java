@@ -400,7 +400,7 @@ public class SimpleIT {
         assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)), result);
 
         final Timestamp t = new Timestamp(System.currentTimeMillis());
-        t.setNanos(123456789);
+        t.setNanos(123456);
         obj.setMyTimestamp(t);
         result = exampleSProcService.createOrUpdateObjectWithDate(obj);
         assertEquals("X" + (new SimpleDateFormat("yyyy-MM-dd").format(d)) + DateTimeUtil.format(t), result);

@@ -1,22 +1,18 @@
 package de.zalando.sprocwrapper.dsprovider;
 
-import java.lang.reflect.InvocationTargetException;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
@@ -31,7 +27,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
     public BitmapShardDataSourceProvider(final Map<String, DataSource> connectionDataSources) {
 
         int maskLength = 0;
-        for (Entry<String, DataSource> entry : connectionDataSources.entrySet()) {
+        for (final Entry<String, DataSource> entry : connectionDataSources.entrySet()) {
             if (entry.getKey().length() > maskLength) {
                 maskLength = entry.getKey().length();
             }
@@ -41,11 +37,11 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
         dataSources = new DataSource[1 << maskLength];
 
-        for (Entry<String, DataSource> entry : connectionDataSources.entrySet()) {
-            DataSource ds = entry.getValue();
+        for (final Entry<String, DataSource> entry : connectionDataSources.entrySet()) {
+            final DataSource ds = entry.getValue();
 
             for (int i = 0; i < dataSources.length; i++) {
-                String binaryString = StringUtils.repeat("0", maskLength) + Integer.toBinaryString(i);
+                final String binaryString = Strings.repeat("0", maskLength) + Integer.toBinaryString(i);
                 if (binaryString.endsWith(entry.getKey())) {
                     LOG.debug("Configured {} at index {}", entry.getValue(), i);
                     if (dataSources[i] != null) {
@@ -67,7 +63,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
         distinctShardIds = Lists.newArrayList();
 
-        Set<DataSource> seenDataSources = Sets.newHashSet();
+        final Set<DataSource> seenDataSources = Sets.newHashSet();
 
         for (int i = 0; i < dataSources.length; i++) {
             if (!seenDataSources.contains(dataSources[i])) {
@@ -82,7 +78,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
 
         int maskLength = 0;
-        for (Entry<String, String> entry : connectionUrls.entrySet()) {
+        for (final Entry<String, String> entry : connectionUrls.entrySet()) {
             if (entry.getKey().length() > maskLength) {
                 maskLength = entry.getKey().length();
             }
@@ -91,13 +87,13 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
         mask = (1 << maskLength) - 1;
         dataSources = new DataSource[1 << maskLength];
 
-        for (Entry<String, String> entry : connectionUrls.entrySet()) {
-            DataSource ds = dataSourceClass.newInstance();
-            for (Entry<String, String> prop : commonDataSourceProperties.entrySet()) {
+        for (final Entry<String, String> entry : connectionUrls.entrySet()) {
+            final DataSource ds = dataSourceClass.newInstance();
+            for (final Entry<String, String> prop : commonDataSourceProperties.entrySet()) {
                 BeanUtils.setProperty(ds, prop.getKey(), prop.getValue());
             }
 
-            String[] parts = entry.getValue().split("\\|");
+            final String[] parts = entry.getValue().split("\\|");
 
             BeanUtils.setProperty(ds, "jdbcUrl", parts[0]);
 
@@ -108,7 +104,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
             }
 
             for (int i = 0; i < dataSources.length; i++) {
-                String binaryString = StringUtils.repeat("0", maskLength) + Integer.toBinaryString(i);
+                final String binaryString = Strings.repeat("0", maskLength) + Integer.toBinaryString(i);
                 if (binaryString.endsWith(entry.getKey())) {
                     LOG.debug("Configured " + entry.getValue() + " at index " + i);
                     if (dataSources[i] != null) {
@@ -130,7 +126,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
         distinctShardIds = Lists.newArrayList();
 
-        Set<DataSource> seenDataSources = Sets.newHashSet();
+        final Set<DataSource> seenDataSources = Sets.newHashSet();
 
         for (int i = 0; i < dataSources.length; i++) {
             if (!seenDataSources.contains(dataSources[i])) {

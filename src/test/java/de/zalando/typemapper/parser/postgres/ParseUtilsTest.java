@@ -7,7 +7,7 @@ import org.junit.Test;
 import de.zalando.typemapper.parser.exception.ArrayParserException;
 import de.zalando.typemapper.parser.exception.RowParserException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * @author  hjacobs
