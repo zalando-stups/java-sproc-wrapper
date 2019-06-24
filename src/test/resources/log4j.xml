@@ -11,12 +11,12 @@
         </layout>
     </appender>
 
-    <logger name="de.zalando.sprocwrapper" additivity="false">
+    <logger name="org.zalando.sprocwrapper" additivity="false">
         <level value="debug"/>
         <appender-ref ref="default"/>
     </logger>
 
-    <logger name="de.zalando.typemapper" additivity="false">
+    <logger name="org.zalando.typemapper" additivity="false">
         <level value="debug"/>
         <appender-ref ref="default"/>
     </logger>
