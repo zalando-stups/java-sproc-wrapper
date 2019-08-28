@@ -71,7 +71,7 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
         final ResultTree tree = new ResultTree();
 
         for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
-            final int typeId = pgSet.getColumnOID(i);
+            final long typeId = pgSet.getColumnOID(i);
             DbResultNode node = null;
 
             final Object obj = pgSet.getObject(i);

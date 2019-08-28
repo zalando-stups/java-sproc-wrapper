@@ -36,7 +36,7 @@ public class DbTypeRegister {
 
     private final Map<String, String> typeFQN;
 
-    private final Map<Integer, String> typeIdToFQN;
+    private final Map<Long, String> typeIdToFQN;
 
     public DbTypeRegister(final Connection connection) throws SQLException {
         PreparedStatement statement = null;
@@ -45,7 +45,7 @@ public class DbTypeRegister {
             searchPath = getSearchPath(connection);
             typeByName = new HashMap<String, DbType>();
 
-            typeIdToFQN = new ConcurrentHashMap<>();
+            typeIdToFQN = new ConcurrentHashMap<Long, String>();
 
             final HashMap<String, List<String>> typeNameToFQN = new HashMap<String, List<String>>();
 
@@ -81,7 +81,7 @@ public class DbTypeRegister {
                 int i = 1;
                 final String typeSchema = resultSet.getString(i++);
                 final String typeName = resultSet.getString(i++);
-                final int typeId = resultSet.getInt(i++);
+                final long typeId = resultSet.getLong(i++);
                 final String typeType = resultSet.getString(i++);
                 final String fieldName = resultSet.getString(i++);
                 final String fieldType = resultSet.getString(i++);
@@ -123,10 +123,10 @@ public class DbTypeRegister {
         return typeByName;
     }
 
-    private void addField(final String typeSchema, final String typeName, final int typeId, final String fieldName,
-            final int fieldPosition, final String fieldType, final String fieldTypeName, final int fieldTypeId,
-            final String typeType, final boolean isArray, final Map<String, List<String>> typeNameToFQN,
-            final int typeElem) {
+    private void addField(final String typeSchema, final String typeName, final long typeId, final String fieldName,
+                          final int fieldPosition, final String fieldType, final String fieldTypeName, final int fieldTypeId,
+                          final String typeType, final boolean isArray, final Map<String, List<String>> typeNameToFQN,
+                          final int typeElem) {
 
         if (isArray) {
 
@@ -210,7 +210,7 @@ public class DbTypeRegister {
         return fqName == null ? null : register.typeByName.get(fqName);
     }
 
-    public static DbType getDbType(final int id, final Connection connection) throws SQLException {
+    public static DbType getDbType(final long id, final Connection connection) throws SQLException {
         final DbTypeRegister register = getRegistry(connection);
         DbType type = null;
 
@@ -241,7 +241,7 @@ public class DbTypeRegister {
                     PreparedStatement ps = null;
                     try {
                         ps = connection.prepareStatement(sql);
-                        ps.setInt(1, id);
+                        ps.setLong(1, id);
                         res = ps.executeQuery();
                         if (res.next()) {
                             typeFQN = getTypeIdentifier(res.getString(1), res.getString(2));
