@@ -86,7 +86,7 @@ public class DbTypeRegister {
                 final String fieldName = resultSet.getString(i++);
                 final String fieldType = resultSet.getString(i++);
                 final String fieldTypeName = resultSet.getString(i++);
-                final int fieldTypeId = resultSet.getInt(i++);
+                final long fieldTypeId = resultSet.getLong(i++);
                 final int fieldPosition = resultSet.getInt(i++);
                 final boolean isArray = resultSet.getBoolean(i++);
                 final int typeElem = resultSet.getInt(i++);
@@ -124,7 +124,7 @@ public class DbTypeRegister {
     }
 
     private void addField(final String typeSchema, final String typeName, final long typeId, final String fieldName,
-                          final int fieldPosition, final String fieldType, final String fieldTypeName, final int fieldTypeId,
+                          final int fieldPosition, final String fieldType, final String fieldTypeName, final long fieldTypeId,
                           final String typeType, final boolean isArray, final Map<String, List<String>> typeNameToFQN,
                           final int typeElem) {
 
