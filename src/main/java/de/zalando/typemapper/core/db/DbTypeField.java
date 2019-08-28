@@ -6,10 +6,10 @@ public class DbTypeField {
     private final int position;
     private final String type;
     private final String typeName;
-    private final int typeId;
+    private final long typeId;
 
     public DbTypeField(final String fieldName, final int fieldPosition, final String fieldType,
-            final String fieldTypeName, final int fieldTypeId) {
+            final String fieldTypeName, final long fieldTypeId) {
         this.name = fieldName;
         this.position = fieldPosition;
         this.type = fieldType;
@@ -33,7 +33,7 @@ public class DbTypeField {
         return typeName;
     }
 
-    public int getTypeId() {
+    public long getTypeId() {
         return typeId;
     }
 

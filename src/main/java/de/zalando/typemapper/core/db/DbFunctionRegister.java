@@ -66,9 +66,9 @@ public class DbFunctionRegister {
                 final int paramPosition = resultSet.getInt(i++);
                 final String paramName = resultSet.getString(i++);
                 final String paramType = resultSet.getString(i++);
-                final int procedureId = resultSet.getInt(i++);
+                final long procedureId = resultSet.getLong(i++);
                 final String paramTypeName = resultSet.getString(i++);
-                final int paramTypeId = resultSet.getInt(i++);
+                final long paramTypeId = resultSet.getLong(i++);
 
                 addFunctionParam(functionSchema, functionName, paramName, paramPosition, paramType, procedureId,
                     paramTypeName, paramTypeId);
@@ -85,8 +85,8 @@ public class DbFunctionRegister {
     }
 
     private void addFunctionParam(final String functionSchema, final String functionName, final String paramName,
-            final int paramPosition, final String paramType, final int procedureId, final String paramTypeName,
-            final int paramTypeId) {
+                                  final int paramPosition, final String paramType, final long procedureId, final String paramTypeName,
+                                  final long paramTypeId) {
 
         final String functionId = getFunctionIdentifier(functionSchema, functionName);
         DbFunction function = functions.get(functionId);
