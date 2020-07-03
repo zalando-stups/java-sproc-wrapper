@@ -22,7 +22,7 @@
         </property>
     </bean>
 
-    <context:component-scan base-package="de.zalando" />
+    <context:component-scan base-package="org.zalando" />
     <context:annotation-config />
 
     <bean id="hikariConfig1" class="com.zaxxer.hikari.HikariConfig">
@@ -89,7 +89,7 @@
         <constructor-arg ref="hikariConfig3" />
     </bean>
 
-    <bean id="testDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
+    <bean id="testDataSourceProvider" class="org.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
         <constructor-arg>
             <list>
                 <ref bean="testDataSource1"/>
@@ -97,7 +97,7 @@
         </constructor-arg>
     </bean>
 
-    <bean id="testShardDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
+    <bean id="testShardDataSourceProvider" class="org.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
         <constructor-arg>
             <list>
                 <ref bean="testDataSource1"/>
@@ -106,7 +106,7 @@
         </constructor-arg>
     </bean>
 
-    <bean id="testDataSourceProviderOtherTimeZone" class="de.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
+    <bean id="testDataSourceProviderOtherTimeZone" class="org.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider">
         <constructor-arg>
             <list>
                 <ref bean="testDataSource3"/>
@@ -177,7 +177,7 @@
         <constructor-arg ref="bitmapConfig3" />
     </bean>
 
-    <bean id="testBitmapShardDataSourceProvider" class="de.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
+    <bean id="testBitmapShardDataSourceProvider" class="org.zalando.sprocwrapper.dsprovider.BitmapShardDataSourceProvider">
         <constructor-arg>
             <map>
                 <entry key="00" value-ref="bitmapPool1" />
