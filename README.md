@@ -2,8 +2,8 @@ SProcWrapper
 ============
 
 [![Build Status](https://travis-ci.org/zalando-stups/java-sproc-wrapper.svg)](https://travis-ci.org/zalando-stups/java-sproc-wrapper) [![Coverage Status](https://coveralls.io/repos/zalando-stups/java-sproc-wrapper/badge.svg)](https://coveralls.io/r/zalando-stups/java-sproc-wrapper)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/de.zalando/zalando-sprocwrapper/badge.svg)](http://www.javadoc.io/doc/de.zalando/zalando-sprocwrapper)
-[![Maven Central](https://img.shields.io/maven-central/v/de.zalando/zalando-sprocwrapper.svg)](https://maven-badges.herokuapp.com/maven-central/de.zalando/zalando-sprocwrapper)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.zalando/zalando-sprocwrapper/badge.svg)](http://www.javadoc.io/doc/org.zalando/zalando-sprocwrapper)
+[![Maven Central](https://img.shields.io/maven-central/v/org.zalando/zalando-sprocwrapper.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/zalando-sprocwrapper)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/zalando/problem-spring-web/master/LICENSE)
 
 
@@ -18,7 +18,7 @@ To use SProcWrapper, add the following lines to your pom.xml:
 
 ```xml
 <dependency>
-    <groupId>de.zalando</groupId>
+    <groupId>org.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
     <version>${zalando-sprocwrapper.version}</version>
 </dependency>
