@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
+- Change base package from `de.zalando` to `org.zalando`
+- Update `postgresql` ([CVE-2020-13692](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-13692))
+- Update `guava` ([CVE-2020-8908](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-8908))
+- Update `spring` ([CVE-2020-5421](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-5421))
+
 ## [2.0.0] - 2017-08-04
 
 ### Added
