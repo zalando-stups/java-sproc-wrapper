@@ -13,11 +13,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+
 import static org.zalando.typemapper.postgres.PgArray.ARRAY;
 import static org.zalando.typemapper.postgres.PgRow.ROW;
+
+
 import static org.cthul.matchers.CthulMatchers.matchesPattern;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Parameterized.class)
 public class PgSerializerTest {

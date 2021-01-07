@@ -12,6 +12,8 @@ import org.zalando.typemapper.namedresult.results.GenderCode;
 import org.zalando.typemapper.namedresult.results.InheritedClassWithPrimitives;
 import org.zalando.typemapper.namedresult.results.InheritedClassWithPrimitivesDeprecated;
 import org.zalando.typemapper.namedresult.transformer.Hans;
+
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,10 +28,13 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
 
+
 import static org.zalando.typemapper.postgres.PgArray.ARRAY;
 import static org.zalando.typemapper.postgres.PgRow.ROW;
+
+
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @RunWith(Parameterized.class)
@@ -68,7 +73,7 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
      * @Parameters.
      */
     public PgSerializerToDatabaseTestIT(final Object objectToSerialize, final String expectedString,
-            final Integer expectedSQLType) {
+                                        final Integer expectedSQLType) {
         this.objectToSerialize = objectToSerialize;
         this.expectedString = expectedString;
         this.expectedSQLType = expectedSQLType;
@@ -89,127 +94,132 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
     @Parameters
     public static Collection<Object[]> generateData() throws SQLException {
         return Arrays.asList(
-                new Object[][] {
-                    /* 23 */
-                        {PgTypeHelper.asPGobject(new InheritedClassWithPrimitivesDeprecated(1L, "1", 12)), "(1,12,1)", Types.OTHER},
+                new Object[][]{
+                        /* 23 */
+                        {PgTypeHelper.asPGobject(
+                                new InheritedClassWithPrimitivesDeprecated(1L, "1", 12)), "(1,12,1)", Types.OTHER},
 
-                    /* 0 */
-                    {1, "1", Types.INTEGER},
+                        /* 0 */
+                        {1, "1", Types.INTEGER},
 
-                    /* 1 */
-                    {69, "69", Types.INTEGER},
+                        /* 1 */
+                        {69, "69", Types.INTEGER},
 
-                    /* 2 */
-                    {true, "true", Types.BOOLEAN},
+                        /* 2 */
+                        {true, "true", Types.BOOLEAN},
 
-                    /* 3 */
-                    {ARRAY(1, 2, 3, 4).asJdbcArray("int4"), "{1,2,3,4}", Types.ARRAY},
+                        /* 3 */
+                        {ARRAY(1, 2, 3, 4).asJdbcArray("int4"), "{1,2,3,4}", Types.ARRAY},
 
-                    /* 4 */
-                    {ARRAY(null, 2, 3, 4).asJdbcArray("int4"), "{NULL,2,3,4}", Types.ARRAY},
+                        /* 4 */
+                        {ARRAY(null, 2, 3, 4).asJdbcArray("int4"), "{NULL,2,3,4}", Types.ARRAY},
 
-                    /* 5 */
-                    {ARRAY("a", "b").asJdbcArray("text"), "{a,b}", Types.ARRAY},
+                        /* 5 */
+                        {ARRAY("a", "b").asJdbcArray("text"), "{a,b}", Types.ARRAY},
 
-                    /* 6 */
-                    {
-                        ARRAY("first element", "second \"quoted\" element").asJdbcArray("text"),
-                        "{\"first element\",\"second \\\"quoted\\\" element\"}", Types.ARRAY
-                    },
+                        /* 6 */
+                        {
+                                ARRAY("first element", "second \"quoted\" element").asJdbcArray("text"),
+                                "{\"first element\",\"second \\\"quoted\\\" element\"}", Types.ARRAY
+                        },
 
-                    /* 7 */
-                    {ROW(1, 2).asPGobject("int_duplet"), "(1,2)", Types.OTHER},
+                        /* 7 */
+                        {ROW(1, 2).asPGobject("int_duplet"), "(1,2)", Types.OTHER},
 
-                    /* 8 */
-                    {
-                        ROW(1, 2, ARRAY("a", "b")).asPGobject("int_duplet_with_text_array"), "(1,2,\"{a,b}\")",
-                        Types.OTHER
-                    },
+                        /* 8 */
+                        {
+                                ROW(1, 2, ARRAY("a", "b")).asPGobject("int_duplet_with_text_array"), "(1,2,\"{a,b}\")",
+                                Types.OTHER
+                        },
 
-                    /* 9 */
-                    {
-                        ROW("a", "b", new int[] {1, 2, 3, 4}).asPGobject("text_duplet_with_int_array"),
-                        "(a,b,\"{1,2,3,4}\")", Types.OTHER
-                    },
+                        /* 9 */
+                        {
+                                ROW("a", "b", new int[]{1, 2, 3, 4}).asPGobject("text_duplet_with_int_array"),
+                                "(a,b,\"{1,2,3,4}\")", Types.OTHER
+                        },
 
-                    /* 10 */
-                    {
-                        ROW("a", null, ARRAY(ROW(1, 10), ROW(2, 20), null)).asPGobject(
-                            "text_duplet_with_int_duplet_array"), "(a,,\"{\"\"(1,10)\"\",\"\"(2,20)\"\",NULL}\")",
-                        Types.OTHER
-                    },
+                        /* 10 */
+                        {
+                                ROW("a", null, ARRAY(ROW(1, 10), ROW(2, 20), null)).asPGobject(
+                                        "text_duplet_with_int_duplet_array"), "(a,,\"{\"\"(1,10)\"\",\"\"(2,20)\"\",NULL}\")",
+                                Types.OTHER
+                        },
 
-                    /* 11 */
-                    {
-                        ROW("a", null, ARRAY(ROW(1, 11), ROW(2, 22), null)).asPGobject(
-                            "text_duplet_with_int_duplet_array"), "(a,,\"{\"\"(1,11)\"\",\"\"(2,22)\"\",NULL}\")",
-                        Types.OTHER
-                    },
+                        /* 11 */
+                        {
+                                ROW("a", null, ARRAY(ROW(1, 11), ROW(2, 22), null)).asPGobject(
+                                        "text_duplet_with_int_duplet_array"), "(a,,\"{\"\"(1,11)\"\",\"\"(2,22)\"\",NULL}\")",
+                                Types.OTHER
+                        },
 
-                    /* 12 */
-                    {
-                        ROW(1, new ClassWithPrimitives(1, 2L, 'c')).asPGobject("int_with_additional_type"),
-                        "(1,\"(c,1,2)\")", Types.OTHER
-                    },
+                        /* 12 */
+                        {
+                                ROW(1, new ClassWithPrimitives(1, 2L, 'c')).asPGobject("int_with_additional_type"),
+                                "(1,\"(c,1,2)\")", Types.OTHER
+                        },
 
-                    /* 13 */
-                    {
-                        ROW(1,
-                            new ClassWithPrimitives[] {
-                                new ClassWithPrimitives(1, 100L, 'a'), new ClassWithPrimitives(2, 200L, 'b')
-                            }).asPGobject("int_with_additional_type_array"),
-                        "(1,\"{\"\"(a,1,100)\"\",\"\"(b,2,200)\"\"}\")", Types.OTHER
-                    },
+                        /* 13 */
+                        {
+                                ROW(1,
+                                        new ClassWithPrimitives[]{
+                                                new ClassWithPrimitives(1, 100L, 'a'), new ClassWithPrimitives(2, 200L,
+                                                'b')
+                                        }).asPGobject("int_with_additional_type_array"),
+                                "(1,\"{\"\"(a,1,100)\"\",\"\"(b,2,200)\"\"}\")", Types.OTHER
+                        },
 
-                    /* 14 */
-                    {PgTypeHelper.asPGobject(new ClassWithPrimitives(1, 100L, 'a')), "(a,1,100)", Types.OTHER},
+                        /* 14 */
+                        {PgTypeHelper.asPGobject(new ClassWithPrimitives(1, 100L, 'a')), "(a,1,100)", Types.OTHER},
 
-                    /* 15 */
-                    {
-                        PgTypeHelper.asPGobject(new ClassWithPrimitivesAndMap(1, 2, 'a', createSimpleMap("b", "c"))),
-                        "(1,2,a,\"\"\"b\"\"=>\"\"c\"\"\")", Types.OTHER
-                    },
+                        /* 15 */
+                        {
+                                PgTypeHelper.asPGobject(
+                                        new ClassWithPrimitivesAndMap(1, 2, 'a', createSimpleMap("b", "c"))),
+                                "(1,2,a,\"\"\"b\"\"=>\"\"c\"\"\")", Types.OTHER
+                        },
 
-                    /* 16 */
-                    {
-                        PgTypeHelper.asPGobject(new ClassWithEnum(Enumeration.VALUE_1, Enumeration.VALUE_2)),
-                        "(VALUE_1,VALUE_2)", Types.OTHER
-                    },
+                        /* 16 */
+                        {
+                                PgTypeHelper.asPGobject(new ClassWithEnum(Enumeration.VALUE_1, Enumeration.VALUE_2)),
+                                "(VALUE_1,VALUE_2)", Types.OTHER
+                        },
 
-                    /* 17 */
-                    {
-                        PgTypeHelper.asPGobject(
-                            new ClassWithSimpleTransformers(GenderCode.MALE, GenderCode.MALE, GenderCode.MALE, "path",
-                                "listElement1", "listElement2", "listElement3")),
-                        "(path,homme,0,MALE,listElement1#listElement2#listElement3)", Types.OTHER
-                    },
+                        /* 17 */
+                        {
+                                PgTypeHelper.asPGobject(
+                                        new ClassWithSimpleTransformers(GenderCode.MALE, GenderCode.MALE,
+                                                GenderCode.MALE, "path",
+                                                "listElement1", "listElement2", "listElement3")),
+                                "(path,homme,0,MALE,listElement1#listElement2#listElement3)", Types.OTHER
+                        },
 
-                    /* 18 */
-                    {
-                        PgTypeHelper.asPGobject(
-                            new ClassWithPredefinedTransformer(
-                                new Hans("This is a complex object using an implicit transformer."))),
-                        "(\"This is a complex object using an implicit transformer.\",{})", Types.OTHER
-                    },
+                        /* 18 */
+                        {
+                                PgTypeHelper.asPGobject(
+                                        new ClassWithPredefinedTransformer(
+                                                new Hans("This is a complex object using an implicit transformer."))),
+                                "(\"This is a complex object using an implicit transformer.\",{})", Types.OTHER
+                        },
 
-                    /* 19 */
-                    {
-                        PgTypeHelper.asPGobject(
-                            new ClassWithPredefinedTransformer(
-                                new Hans("This is a complex object using an implicit transformer."),
-                                new Hans("list element 1"), new Hans("list element 2"))),
-                        "(\"This is a complex object using an implicit transformer.\",\"{\"\"list element 1\"\",\"\"list element 2\"\"}\")",
-                        Types.OTHER
-                    },
+                        /* 19 */
+                        {
+                                PgTypeHelper.asPGobject(
+                                        new ClassWithPredefinedTransformer(
+                                                new Hans("This is a complex object using an implicit transformer."),
+                                                new Hans("list element 1"), new Hans("list element 2"))),
+                                "(\"This is a complex object using an implicit transformer.\",\"{\"\"list element 1\"\",\"\"list element 2\"\"}\")",
+                                Types.OTHER
+                        },
 
-                    /* 20 */
-                    {new Date(1354338366000L), "2012-12-01 06:06:06+01", Types.TIMESTAMP},
+                        /* 20 */
+                        {new Date(1354338366000L), "2012-12-01 06:06:06+01", Types.TIMESTAMP},
 
-                    /* 21 */
-                    {new Date(1349064366000L), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
+                        /* 21 */
+                        {new Date(1349064366000L), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
 
-                    /* 22 */
-                    {PgTypeHelper.asPGobject(new InheritedClassWithPrimitives(1L, "1", 12)), "(1,12,1)", Types.OTHER},
+                        /* 22 */
+                        {PgTypeHelper.asPGobject(
+                                new InheritedClassWithPrimitives(1L, "1", 12)), "(1,12,1)", Types.OTHER},
 
                 });
     }
@@ -235,7 +245,7 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
         // type with gender code
         execute("CREATE TYPE gender_enum_type AS ENUM ('MALE', 'FEMALE');");
         execute(
-            "CREATE TYPE tmp.class_with_simple_transformers AS (file_column text, gender_as_code text, gender_as_int integer, gender_as_name gender_enum_type, string_list_with_separtion_char text);");
+                "CREATE TYPE tmp.class_with_simple_transformers AS (file_column text, gender_as_code text, gender_as_int integer, gender_as_name gender_enum_type, string_list_with_separtion_char text);");
 
         execute("CREATE TYPE tmp.inherited_class_with_primitives AS (l bigint, cc text, i int);");
         execute("CREATE TYPE tmp.inherited_class_with_primitives_deprecated AS (l bigint, cc text, i int);");
@@ -256,8 +266,8 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
 
     @Test
     public void passingParametersToQueryTest() {
-        assertThat(template.queryForObject("SELECT (?)::text", new Object[] {this.objectToSerialize},
-                new int[] {this.expectedSQLType}, String.class), is(this.expectedString));
+        assertThat(template.queryForObject("SELECT (?)::TEXT", new Object[]{this.objectToSerialize},
+                new int[]{this.expectedSQLType}, String.class), is(this.expectedString));
     }
 }
 //J+

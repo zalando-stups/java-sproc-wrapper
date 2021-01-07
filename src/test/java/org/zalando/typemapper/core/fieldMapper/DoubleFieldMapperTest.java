@@ -2,8 +2,7 @@ package org.zalando.typemapper.core.fieldMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
-
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +12,7 @@ public class DoubleFieldMapperTest {
     private DoubleFieldMapper doubleFieldMapper;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         doubleFieldMapper = new DoubleFieldMapper();
     }
 

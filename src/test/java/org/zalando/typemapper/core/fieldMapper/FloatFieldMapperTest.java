@@ -2,8 +2,7 @@ package org.zalando.typemapper.core.fieldMapper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
-
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +17,7 @@ public class FloatFieldMapperTest {
     }
 
     @Test
-    public void testShoulMapNullStringToNull() {
+    public void testShouldMapNullStringToNull() {
         assertThat(floatFieldMapper.mapField(null, Float.class), nullValue());
     }
 
