@@ -1,5 +1,5 @@
 
-package org.zalando.sprocwrapper.example.transformer;
+package de.zalando;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

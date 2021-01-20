@@ -29,20 +29,18 @@ public class GlobalValueTransformerLoader {
     // you need to set the namespace to a valid value like: org.doodlejump
     private static String namespaceToScan = "org.zalando";
 
+    // we need to scan for old namespace to provide backward compatibility
+    private static String oldNamespaceToScan = "de.zalando";
+
     private static final Logger LOG = LoggerFactory.getLogger(GlobalValueTransformerLoader.class);
     private static boolean scannedClasspath = false;
 
     public static synchronized ValueTransformer<?, ?> getValueTransformerForClass(final Class<?> genericType)
-        throws InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException {
 
         // did we already scanned the classpath for global value transformers?
         if (scannedClasspath == false) {
-            final Predicate<String> filter = new Predicate<String>() {
-                @Override
-                public boolean apply(final String input) {
-                    return GlobalValueTransformer.class.getCanonicalName().equals(input);
-                }
-            };
+            final Predicate<String> filter = input -> GlobalValueTransformer.class.getCanonicalName().equals(input);
 
             // last to get the namespace from the system environment
             String myNameSpaceToScan = null;
@@ -59,29 +57,9 @@ public class GlobalValueTransformerLoader {
             }
 
             if (!Strings.isNullOrEmpty(myNameSpaceToScan)) {
-                final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
-                            new FilterBuilder.Include(FilterBuilder.prefix(myNameSpaceToScan))).setUrls(
-                            ClasspathHelper.forPackage(myNameSpaceToScan)).setScanners(new TypeAnnotationsScanner()
-                                .filterResultsBy(filter), new SubTypesScanner()));
-                final Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(
-                        GlobalValueTransformer.class);
-                for (final Class<?> foundGlobalValueTransformer : typesAnnotatedWith) {
-                    final Class<?> valueTransformerReturnType;
-                    try {
-                        valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
-                                foundGlobalValueTransformer);
-                        GlobalValueTransformerRegistry.register(valueTransformerReturnType,
-                            (ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance());
-                    } catch (final RuntimeException e) {
-                        LOG.error("Failed to add global transformer [{}] to global registry.",
-                            foundGlobalValueTransformer, e);
-                        continue;
-                    }
-
-                    LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",
-                        foundGlobalValueTransformer.getSimpleName(), valueTransformerReturnType.getSimpleName());
-                }
+                scanAndRegisterGlobalValueTransformer(filter, myNameSpaceToScan);
             }
+            scanForOldNamespace(filter);
 
             scannedClasspath = true;
         }
@@ -89,10 +67,41 @@ public class GlobalValueTransformerLoader {
         return GlobalValueTransformerRegistry.getValueTransformerForClass(genericType);
     }
 
+    private static void scanForOldNamespace(final Predicate<String> filter) throws IllegalAccessException,
+            InstantiationException {
+        scanAndRegisterGlobalValueTransformer(filter, oldNamespaceToScan);
+    }
+
+    private static void scanAndRegisterGlobalValueTransformer(final Predicate<String> filter,
+            final String myNameSpaceToScan) throws IllegalAccessException, InstantiationException {
+        final Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
+                new FilterBuilder.Include(FilterBuilder.prefix(myNameSpaceToScan))).setUrls(
+                ClasspathHelper.forPackage(myNameSpaceToScan)).setScanners(new TypeAnnotationsScanner()
+                .filterResultsBy(filter), new SubTypesScanner()));
+        final Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(
+                GlobalValueTransformer.class);
+        for (final Class<?> foundGlobalValueTransformer : typesAnnotatedWith) {
+            final Class<?> valueTransformerReturnType;
+            try {
+                valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
+                        foundGlobalValueTransformer);
+                GlobalValueTransformerRegistry.register(valueTransformerReturnType,
+                        (ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance());
+            } catch (final RuntimeException e) {
+                LOG.error("Failed to add global transformer [{}] to global registry.",
+                        foundGlobalValueTransformer, e);
+                continue;
+            }
+
+            LOG.debug("Global Value Transformer [{}] for type [{}] registered. ",
+                    foundGlobalValueTransformer.getSimpleName(), valueTransformerReturnType.getSimpleName());
+        }
+    }
+
     /**
      * Use this static function to set the namespace to scan.
      *
-     * @param  newNamespace  the new namespace to be searched for {@link GlobalValueTransformer}
+     * @param newNamespace the new namespace to be searched for {@link GlobalValueTransformer}
      */
     public static void changeNamespaceToScan(final String newNamespace) {
         namespaceToScan = newNamespace;
