@@ -6,7 +6,7 @@ jdk:
   - openjdk8
 
 addons:
-    postgresql: "9.6.10"
+    postgresql: "13"
 
 cache:
   directories:
