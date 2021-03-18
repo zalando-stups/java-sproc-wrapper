@@ -270,9 +270,7 @@ public class PgTypeHelper {
                 Object value;
                 try {
                     value = getOptionalValue(f.get(obj));
-                } catch (final IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
-                } catch (final IllegalAccessException e) {
+                } catch (final IllegalArgumentException | IllegalAccessException e) {
                     throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
                 }
 
@@ -419,17 +417,7 @@ public class PgTypeHelper {
 
                 // transform the value by the transformer into a database value:
                 value = transformer.marshalToDb(value);
-            } catch (final InstantiationException e) {
-                throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
-            } catch (final IllegalAccessException e) {
-                throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
-            } catch (final InvocationTargetException e) {
-                throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
-            } catch (SecurityException e) {
+            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | NoSuchMethodException | SecurityException e) {
                 throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
             }
         }
@@ -441,17 +429,7 @@ public class PgTypeHelper {
                 ObjectMapper<Object> mapper = (ObjectMapper<Object>) mapperClass.getDeclaredConstructor().newInstance();
 
                 value = mapper.marshalToDb(value);
-            } catch (InstantiationException e) {
-                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
-            } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
-            } catch (InvocationTargetException e) {
-                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
-            } catch (SecurityException e) {
+            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | NoSuchMethodException | SecurityException e) {
                 throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
             }
         }
