@@ -1,5 +1,7 @@
 package org.zalando.typemapper.core.fieldMapper;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.zalando.typemapper.core.ValueTransformer;
 
 public class ValueTransformerFieldMapper implements FieldMapper {
@@ -7,8 +9,8 @@ public class ValueTransformerFieldMapper implements FieldMapper {
     private final ValueTransformer<?, ?> valueTransformer;
 
     public ValueTransformerFieldMapper(final Class<? extends ValueTransformer<?, ?>> valueTransformer)
-        throws InstantiationException, IllegalAccessException {
-        this.valueTransformer = valueTransformer.newInstance();
+        throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        this.valueTransformer = valueTransformer.getDeclaredConstructor().newInstance();
     }
 
     public ValueTransformerFieldMapper(final ValueTransformer<?, ?> valueTransformer) {

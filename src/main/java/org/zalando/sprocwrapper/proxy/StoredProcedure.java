@@ -1,5 +1,6 @@
 package org.zalando.sprocwrapper.proxy;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
 import java.sql.Connection;
@@ -101,7 +102,7 @@ class StoredProcedure {
                            final VirtualShardKeyStrategy sStrategy, final List<ShardKeyParameter> shardKeyParameters, final boolean runOnAllShards, final boolean searchShards,
                            final boolean parallel, final RowMapper<?> resultMapper, final long timeout,
                            final AdvisoryLock advisoryLock, final boolean useValidation, final boolean readOnly,
-                           final WriteTransaction writeTransaction) throws InstantiationException, IllegalAccessException {
+                           final WriteTransaction writeTransaction) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         this.name = name;
         this.params = new ArrayList<>(params);
         this.types = createTypes(params);

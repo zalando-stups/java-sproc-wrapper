@@ -1,5 +1,6 @@
 package org.zalando.sprocwrapper.globalvaluetransformer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import org.reflections.Reflections;
@@ -33,7 +34,7 @@ public class GlobalValueTransformerLoader {
     private static boolean scannedClasspath = false;
 
     public static synchronized ValueTransformer<?, ?> getValueTransformerForClass(final Class<?> genericType)
-        throws InstantiationException, IllegalAccessException {
+        throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InvocationTargetException {
 
         // did we already scanned the classpath for global value transformers?
         if (scannedClasspath == false) {
@@ -71,7 +72,7 @@ public class GlobalValueTransformerLoader {
                         valueTransformerReturnType = ValueTransformerUtils.getUnmarshalFromDbClass(
                                 foundGlobalValueTransformer);
                         GlobalValueTransformerRegistry.register(valueTransformerReturnType,
-                            (ValueTransformer<?, ?>) foundGlobalValueTransformer.newInstance());
+                            (ValueTransformer<?, ?>) foundGlobalValueTransformer.getDeclaredConstructor().newInstance());
                     } catch (final RuntimeException e) {
                         LOG.error("Failed to add global transformer [{}] to global registry.",
                             foundGlobalValueTransformer, e);

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -41,8 +42,8 @@ public class SProcCallHandler {
     private RowMapper getRowMapper(SProcCall scA) {
         if (scA.resultMapper() != Void.class) {
             try {
-                return (RowMapper<?>) scA.resultMapper().newInstance();
-            } catch (final InstantiationException | IllegalAccessException ex) {
+                return (RowMapper<?>) scA.resultMapper().getDeclaredConstructor().newInstance();
+            } catch (final InstantiationException | IllegalAccessException | SecurityException | InvocationTargetException | IllegalArgumentException | NoSuchMethodException ex) {
                 LOG.error("Result mapper for sproc can not be instantiated", ex);
                 throw new IllegalArgumentException("Result mapper for sproc can not be instantiated");
             }
@@ -113,8 +114,8 @@ public class SProcCallHandler {
             VirtualShardKeyStrategy sprocStrategy = handlerResult.getShardKeyStrategy();
             if (scA.shardStrategy() != Void.class) {
                 try {
-                    sprocStrategy = (VirtualShardKeyStrategy) scA.shardStrategy().newInstance();
-                } catch (final InstantiationException | IllegalAccessException ex) {
+                    sprocStrategy = (VirtualShardKeyStrategy) scA.shardStrategy().getDeclaredConstructor().newInstance();
+                } catch (final InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException ex) {
                     LOG.error("Shard strategy for sproc can not be instantiated", ex);
                     throw new IllegalArgumentException("Shard strategy for sproc can not be instantiated");
                 }
@@ -153,7 +154,7 @@ public class SProcCallHandler {
                         try {
                             params.add(StoredProcedureParameter.createParameter(clazz, genericType,
                                     method, dbTypeName, sParam.sqlType(), pos, sParam.sensitive()));
-                        } catch (final InstantiationException | IllegalAccessException e) {
+                        } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | SecurityException | InvocationTargetException e) {
                             LOG.error("Could not instantiate StoredProcedureParameter. ABORTING.", e);
                             throw new IllegalArgumentException("Could not instantiate StoredProcedureParameter. ABORTING.");
                         }
@@ -184,7 +185,7 @@ public class SProcCallHandler {
                     writeTransaction);
 
             return storedProcedure;
-        } catch (final InstantiationException | IllegalAccessException e) {
+        } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | SecurityException | InvocationTargetException e) {
             LOG.error("Could not instantiate StoredProcedure. ABORTING.", e);
             throw new IllegalArgumentException("Could not instantiate StoredProcedure. ABORTING.");
         }
