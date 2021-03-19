@@ -33,7 +33,7 @@ public class SProcServiceAnnotationHandlerTest {
         Assert.assertEquals(SubVirtualShardKeyStrategy.class, result.getShardKeyStrategy().getClass());
     }
 
-    @Test(expected = NoSuchMethodException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void handle_should_throw_exception_when_strategy_is_not_instantiable() {
         @SProcService(shardStrategy = HellVirtualShardKeyStrategy.class)
         class Simple {
