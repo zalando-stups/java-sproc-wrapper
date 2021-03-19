@@ -286,4 +286,7 @@ public interface ExampleSProcService {
     @SProcCall
     PartialObject getPartialObject(@SProcParam NotPartialObject partialObject);
 
+    @SProcCall
+    ExampleEnumDomainObject getExampleEnumDomainObject(@SProcParam Integer id);
+
 }

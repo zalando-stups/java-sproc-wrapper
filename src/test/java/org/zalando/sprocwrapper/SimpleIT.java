@@ -53,6 +53,7 @@ import org.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsOverr
 import org.zalando.sprocwrapper.example.ExampleDomainObjectWithSimpleTransformer;
 import org.zalando.sprocwrapper.example.ExampleDomainObjectWithValidation;
 import org.zalando.sprocwrapper.example.ExampleEnum;
+import org.zalando.sprocwrapper.example.ExampleEnumDomainObject;
 import org.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
 import org.zalando.sprocwrapper.example.ExampleSProcService;
 import org.zalando.sprocwrapper.example.ExampleValidationSProcService;
@@ -1085,5 +1086,11 @@ public class SimpleIT {
     @Test
     public void testNullEnumParam() {
         exampleSProcService.useEnumParam(null);
+    }
+
+    @Test
+    public void testEnumList() {
+        ExampleEnumDomainObject result = exampleSProcService.getExampleEnumDomainObject(1);
+        assertEquals(Lists.newArrayList(ExampleEnum.ENUM_CONST_1, ExampleEnum.ENUM_CONST_2), result.getEnumArray());
     }
 }

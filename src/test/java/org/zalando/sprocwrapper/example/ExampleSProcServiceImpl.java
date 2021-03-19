@@ -454,4 +454,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public PartialObject getPartialObject(final NotPartialObject notPartialObject) {
         return sproc.getPartialObject(notPartialObject);
     }
+
+    @Override
+    public ExampleEnumDomainObject getExampleEnumDomainObject(Integer id) {
+        return sproc.getExampleEnumDomainObject(id);
+    }
 }
