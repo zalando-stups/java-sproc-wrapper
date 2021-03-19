@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -59,10 +60,10 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
                 }
             } else {
                 final ResultTree resultTree = extractResultTree(set);
-                result = resultClass.newInstance();
+                result = resultClass.getDeclaredConstructor().newInstance();
                 fillObject(result, resultTree);
             }
-        } catch (final InstantiationException | IllegalAccessException e) {
+        } catch (final InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | SecurityException | InvocationTargetException e) {
             throw new SQLException(getResultClass() + " has no public nullary constructor: ", e);
         }
 

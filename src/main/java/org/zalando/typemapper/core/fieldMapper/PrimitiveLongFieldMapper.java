@@ -10,7 +10,7 @@ public class PrimitiveLongFieldMapper implements FieldMapper {
     @Override
     public Object mapField(final String string, final Class clazz) {
         if (string == null) {
-            return new Long(0);
+            return Long.valueOf(0);
         }
 
         try {
@@ -19,7 +19,7 @@ public class PrimitiveLongFieldMapper implements FieldMapper {
             LOG.error("Could not convert {} to long.", string, e);
         }
 
-        return new Long(0);
+        return Long.valueOf(0);
     }
 
 }

@@ -36,14 +36,14 @@ public class ObjectFieldMapper {
 
     public static final Object mapFromDbObjectNode(final Class classz, final ObjectResultNode node,
             final Mapping mapping) throws InstantiationException, IllegalAccessException, IllegalArgumentException,
-        InvocationTargetException, NotsupportedTypeException {
+        InvocationTargetException, NotsupportedTypeException, NoSuchMethodException, SecurityException {
         final DatabaseFieldDescriptor descriptor = getDatabaseFieldDescriptor(mapping.getField());
         final Object value;
 
         if (mapping.isOptionalField() && isRowWithAllFieldsNull(node)) {
             value = null;
         } else if (descriptor.getMapper() != DefaultObjectMapper.class) {
-            ObjectMapper mapper = descriptor.getMapper().newInstance();
+            ObjectMapper mapper = descriptor.getMapper().getDeclaredConstructor().newInstance();
             value = mapper.unmarshalFromDbNode(node);
         } else {
             value = mapField(mapping.getFieldClass(), node);
@@ -55,7 +55,7 @@ public class ObjectFieldMapper {
     @SuppressWarnings("unchecked")
     public static final Object mapField(@SuppressWarnings("rawtypes") final Class clazz, final ObjectResultNode node)
         throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            NotsupportedTypeException {
+            NotsupportedTypeException, SecurityException, NoSuchMethodException {
         if (node.getChildren() == null) {
             return null;
         }
@@ -67,7 +67,7 @@ public class ObjectFieldMapper {
             final DbResultNode currentNode = node.getChildByName(node.getType());
             result = Enum.valueOf(clazz, currentNode.getValue());
         } else {
-            result = clazz.newInstance();
+            result = clazz.getDeclaredConstructor().newInstance();
 
             final List<Mapping> mappings = Mapping.getMappingsForClass(clazz);
 

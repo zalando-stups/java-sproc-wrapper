@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -415,7 +417,8 @@ public class SimpleIT {
     @Test
     public void testReturnDate() {
         final Date d = exampleSProcService.getFixedTestDate();
-        assertEquals(1328266821000L, d.getTime()); // extract(epoch from '2012-02-03 12:00:21'::timestamp)*1000
+        final LocalDateTime targetDateTime = LocalDateTime.parse("2012-02-03T12:00:21");
+        assertEquals(targetDateTime, LocalDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault()));
     }
 
     @Test

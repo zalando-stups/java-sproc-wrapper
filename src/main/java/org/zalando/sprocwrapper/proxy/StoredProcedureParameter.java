@@ -1,5 +1,6 @@
 package org.zalando.sprocwrapper.proxy;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
@@ -54,7 +55,7 @@ class StoredProcedureParameter {
 
     public static StoredProcedureParameter createParameter(final Class<?> clazz, final Type genericType, final Method m,
             final String typeName, final int sqlType, final int javaPosition, final boolean sensitive)
-        throws InstantiationException, IllegalAccessException {
+        throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, SecurityException, IllegalArgumentException {
 
         // first check if this is a globally mapped class
         ValueTransformer<?, ?> valueTransformerForClass = null;
