@@ -34,7 +34,7 @@ public class GlobalObjectTransformerLoader {
     private static volatile ImmutableMap<Class<?>, ObjectMapper<?>> register;
 
     public static <T> ObjectMapper<T> getObjectMapperForClass(final Class<T> genericType) throws InstantiationException,
-        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException, InvocationTargetException {
+        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException {
         Preconditions.checkNotNull(genericType, "genericType");
 
         // performance improvement. Volatile field is read only once in the commons scenario.
@@ -56,7 +56,7 @@ public class GlobalObjectTransformerLoader {
     }
 
     private static ImmutableMap<Class<?>, ObjectMapper<?>> buildMappers() throws InstantiationException,
-        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException, InvocationTargetException {
+        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException {
 
         final Map<Class<?>, ObjectMapper<?>> mappers = new HashMap<>();
 

@@ -34,7 +34,7 @@ public class GlobalValueTransformerLoader {
     private static boolean scannedClasspath = false;
 
     public static synchronized ValueTransformer<?, ?> getValueTransformerForClass(final Class<?> genericType)
-        throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InvocationTargetException {
+        throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 
         // did we already scanned the classpath for global value transformers?
         if (scannedClasspath == false) {
