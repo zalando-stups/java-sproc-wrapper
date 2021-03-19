@@ -1,6 +1,9 @@
 package org.zalando.sprocwrapper.proxy;
 import org.zalando.sprocwrapper.SProcService;
 import org.zalando.sprocwrapper.sharding.VirtualShardKeyStrategy;
+
+import java.lang.reflect.InvocationTargetException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +61,8 @@ class SProcServiceAnnotationHandler {
         VirtualShardKeyStrategy keyStrategy;
 
         try {
-            keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().newInstance();
-        } catch (final InstantiationException | IllegalAccessException ex) {
+            keyStrategy = (VirtualShardKeyStrategy) serviceAnnotation.shardStrategy().getDeclaredConstructor().newInstance();
+        } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException | InvocationTargetException ex) {
             LOG.error("ShardKey strategy for service can not be instantiated", ex);
             throw new IllegalArgumentException("ShardKey strategy for service can not be instantiated");
         }

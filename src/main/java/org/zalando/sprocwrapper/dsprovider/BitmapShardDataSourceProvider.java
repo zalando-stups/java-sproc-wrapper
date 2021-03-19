@@ -75,7 +75,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
     public BitmapShardDataSourceProvider(final Class<? extends DataSource> dataSourceClass,
             final Map<String, String> commonDataSourceProperties, final Map<String, String> connectionUrls)
-        throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        throws InstantiationException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
 
         int maskLength = 0;
         for (final Entry<String, String> entry : connectionUrls.entrySet()) {
@@ -88,7 +88,7 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
         dataSources = new DataSource[1 << maskLength];
 
         for (final Entry<String, String> entry : connectionUrls.entrySet()) {
-            final DataSource ds = dataSourceClass.newInstance();
+            final DataSource ds = dataSourceClass.getDeclaredConstructor().newInstance();
             for (final Entry<String, String> prop : commonDataSourceProperties.entrySet()) {
                 BeanUtils.setProperty(ds, prop.getKey(), prop.getValue());
             }

@@ -2,8 +2,14 @@
 *.iml
 .idea/
 
+# vscoode
+.project
+.settings/
+
 ### Maven ###
 target/
 /.mvn/wrapper/*.jar
 
 *.log
+.classpath
+

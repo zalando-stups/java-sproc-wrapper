@@ -2,7 +2,7 @@ package org.zalando.typemapper.postgres;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -265,16 +265,12 @@ public class PgTypeHelper {
         for (final Field f : fields) {
             final DatabaseFieldDescriptor databaseFieldDescriptor = getDatabaseFieldDescriptor(f);
             if (databaseFieldDescriptor != null) {
-                if (!f.isAccessible()) {
-                    f.setAccessible(true);
-                }
+                f.trySetAccessible();
 
                 Object value;
                 try {
                     value = getOptionalValue(f.get(obj));
-                } catch (final IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
-                } catch (final IllegalAccessException e) {
+                } catch (final IllegalArgumentException | IllegalAccessException e) {
                     throw new IllegalArgumentException("Could not read value of field " + f.getName(), e);
                 }
 
@@ -417,13 +413,11 @@ public class PgTypeHelper {
             try {
                 @SuppressWarnings("unchecked")
                 final ValueTransformer<Object, Object> transformer = (ValueTransformer<Object, Object>)
-                    databaseFieldDescriptor.getTransformer().newInstance();
+                    databaseFieldDescriptor.getTransformer().getDeclaredConstructor().newInstance();
 
                 // transform the value by the transformer into a database value:
                 value = transformer.marshalToDb(value);
-            } catch (final InstantiationException e) {
-                throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
-            } catch (final IllegalAccessException e) {
+            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | NoSuchMethodException | SecurityException e) {
                 throw new IllegalArgumentException("Could not instantiate transformer of field " + f.getName(), e);
             }
         }
@@ -432,12 +426,10 @@ public class PgTypeHelper {
         if (mapperClass != null && mapperClass != DefaultObjectMapper.class) {
             try {
                 @SuppressWarnings("unchecked")
-                ObjectMapper<Object> mapper = (ObjectMapper<Object>) mapperClass.newInstance();
+                ObjectMapper<Object> mapper = (ObjectMapper<Object>) mapperClass.getDeclaredConstructor().newInstance();
 
                 value = mapper.marshalToDb(value);
-            } catch (InstantiationException e) {
-                throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
-            } catch (IllegalAccessException e) {
+            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | NoSuchMethodException | SecurityException e) {
                 throw new IllegalArgumentException("Could not instantiate mapper of field " + f.getName(), e);
             }
         }

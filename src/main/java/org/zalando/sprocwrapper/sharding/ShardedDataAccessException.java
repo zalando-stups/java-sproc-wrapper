@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableMap;
  */
 public class ShardedDataAccessException extends DataAccessException {
 
+    private static final long serialVersionUID = 1L;
+
     private final Map<Integer, Throwable> causes;
 
     /**

@@ -183,7 +183,7 @@ public class Mapping {
     }
 
     public FieldMapper getFieldMapper() throws NotsupportedTypeException, InstantiationException,
-        IllegalAccessException {
+        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException {
         if (fieldMapper == null) {
             final DatabaseFieldDescriptor databaseFieldDescriptor = getDatabaseFieldDescriptor(field);
             if ((databaseFieldDescriptor != null) && (databaseFieldDescriptor.getTransformer() != null)) {
@@ -200,7 +200,7 @@ public class Mapping {
     }
 
     public void map(final Object target, Object value) throws IllegalArgumentException, IllegalAccessException,
-        InvocationTargetException, InstantiationException {
+        InvocationTargetException, InstantiationException, SecurityException, IllegalArgumentException, NoSuchMethodException {
         if (isOptionalField()) {
             value = Optional.fromNullable(value);
         }
@@ -230,10 +230,10 @@ public class Mapping {
     }
 
     private Object initEmbed(final Object target) throws InstantiationException, IllegalAccessException,
-        IllegalArgumentException, InvocationTargetException {
+        IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
 
         final Method setter = getSetter(embedField);
-        final Object value = embedField.getType().newInstance();
+        final Object value = embedField.getType().getDeclaredConstructor().newInstance();
         if (setter != null) {
             setter.invoke(target, value);
         } else {

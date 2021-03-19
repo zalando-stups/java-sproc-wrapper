@@ -11,6 +11,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import java.lang.reflect.InvocationTargetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class GlobalObjectTransformerLoader {
     private static volatile ImmutableMap<Class<?>, ObjectMapper<?>> register;
 
     public static <T> ObjectMapper<T> getObjectMapperForClass(final Class<T> genericType) throws InstantiationException,
-        IllegalAccessException {
+        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException {
         Preconditions.checkNotNull(genericType, "genericType");
 
         // performance improvement. Volatile field is read only once in the commons scenario.
@@ -55,7 +56,7 @@ public class GlobalObjectTransformerLoader {
     }
 
     private static ImmutableMap<Class<?>, ObjectMapper<?>> buildMappers() throws InstantiationException,
-        IllegalAccessException {
+        IllegalAccessException, InvocationTargetException, SecurityException, IllegalArgumentException, NoSuchMethodException {
 
         final Map<Class<?>, ObjectMapper<?>> mappers = new HashMap<>();
 
@@ -63,7 +64,7 @@ public class GlobalObjectTransformerLoader {
 
             if (ObjectMapper.class.isAssignableFrom(foundGlobalObjectTransformer)) {
 
-                final ObjectMapper<?> mapper = (ObjectMapper<?>) foundGlobalObjectTransformer.newInstance();
+                final ObjectMapper<?> mapper = (ObjectMapper<?>) foundGlobalObjectTransformer.getDeclaredConstructor().newInstance();
                 final Class<?> valueTransformerReturnType = mapper.getType();
 
                 final ObjectMapper<?> previousMapper = mappers.put(valueTransformerReturnType, mapper);

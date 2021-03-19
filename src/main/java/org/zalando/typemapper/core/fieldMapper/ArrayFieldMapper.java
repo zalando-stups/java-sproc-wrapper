@@ -22,7 +22,7 @@ public class ArrayFieldMapper {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Object mapField(final Field field, final ArrayResultNode node) throws InstantiationException,
-        IllegalAccessException, IllegalArgumentException, InvocationTargetException, NotsupportedTypeException {
+        IllegalAccessException, IllegalArgumentException, InvocationTargetException, NotsupportedTypeException, NoSuchMethodException, SecurityException {
         Collection result = null;
         if (field.getType().isAssignableFrom(List.class)) {
             result = new ArrayList();
