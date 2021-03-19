@@ -1089,8 +1089,26 @@ public class SimpleIT {
     }
 
     @Test
-    public void testEnumList() {
+    public void testEnumListNoEntry() {
         ExampleEnumDomainObject result = exampleSProcService.getExampleEnumDomainObject(1);
+        assertEquals(Lists.newArrayList(), result.getEnumArray());
+    }
+
+    @Test
+    public void testEnumListNullEntry() {
+        ExampleEnumDomainObject result = exampleSProcService.getExampleEnumDomainObject(2);
+        assertNull(result.getEnumArray());
+    }
+
+    @Test
+    public void testEnumListOneEntry() {
+        ExampleEnumDomainObject result = exampleSProcService.getExampleEnumDomainObject(3);
+        assertEquals(Lists.newArrayList(ExampleEnum.ENUM_CONST_2), result.getEnumArray());
+    }
+
+    @Test
+    public void testEnumListTwoEntries() {
+        ExampleEnumDomainObject result = exampleSProcService.getExampleEnumDomainObject(4);
         assertEquals(Lists.newArrayList(ExampleEnum.ENUM_CONST_1, ExampleEnum.ENUM_CONST_2), result.getEnumArray());
     }
 }
