@@ -9,9 +9,15 @@ import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
+import static org.junit.Assert.assertNotNull;
+
+
+import org.zalando.sprocwrapper.example.ExampleSProcService;
 import org.zalando.typemapper.AbstractTest;
 import org.zalando.typemapper.namedresult.results.ClassWithEmbedEnumClass;
 import org.zalando.typemapper.core.TypeMapper;
@@ -20,7 +26,11 @@ import org.zalando.typemapper.namedresult.results.ClassWithEnum;
 import org.zalando.typemapper.namedresult.results.Enumeration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:backendContextTest.xml"})
 public class EnumTestIT extends AbstractTest {
+
+    @Autowired
+    private ExampleSProcService exampleSProcService;
 
     @Test
     public void testEnumMappings() throws SQLException {
@@ -64,5 +74,10 @@ public class EnumTestIT extends AbstractTest {
             Assert.assertEquals(Enumeration.VALUE_1, result.getEmbeddedEnum().getValue1());
             Assert.assertEquals(Enumeration.VALUE_2, result.getEmbeddedEnum().getValue2());
         }
+    }
+
+    @Test
+    public void testReturnEnumValue() {
+        assertNotNull(exampleSProcService.returnEnumFromFunction());
     }
 }
