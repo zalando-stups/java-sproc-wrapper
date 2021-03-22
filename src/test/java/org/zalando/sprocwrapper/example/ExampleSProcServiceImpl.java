@@ -459,4 +459,9 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     public ExampleEnumDomainObject getExampleEnumDomainObject(Integer id) {
         return sproc.getExampleEnumDomainObject(id);
     }
+
+    @Override
+    public List<ExampleEnumDomainObject> listExampleEnumDomainObjects() {
+        return sproc.listExampleEnumDomainObjects();
+    }
 }

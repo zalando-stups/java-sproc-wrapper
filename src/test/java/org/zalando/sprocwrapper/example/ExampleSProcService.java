@@ -289,4 +289,7 @@ public interface ExampleSProcService {
     @SProcCall
     ExampleEnumDomainObject getExampleEnumDomainObject(@SProcParam Integer id);
 
+    @SProcCall
+    List<ExampleEnumDomainObject> listExampleEnumDomainObjects();
+
 }

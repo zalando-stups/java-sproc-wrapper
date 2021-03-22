@@ -1114,4 +1114,10 @@ public class SimpleIT {
         ExampleEnumDomainObject result = exampleSProcService.getExampleEnumDomainObject(4);
         assertEquals(Lists.newArrayList(ExampleEnum.ENUM_CONST_1, ExampleEnum.ENUM_CONST_2), result.getEnumArray());
     }
+
+    @Test
+    public void testEnumListSet() {
+        List<ExampleEnumDomainObject> result = exampleSProcService.listExampleEnumDomainObjects();
+        System.out.println(result);
+    }
 }
