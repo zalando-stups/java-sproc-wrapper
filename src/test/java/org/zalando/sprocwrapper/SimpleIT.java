@@ -849,9 +849,14 @@ public class SimpleIT {
         assertEquals("a", result.getA());
 
         ExampleDomainObject b = result.getB();
-        assertNotNull(b);
-        assertNull(b.getA());
-        assertNull(b.getB());
+        // With PG 13 and PGJDBC 42.2.12+ behavior has changed on what returns
+        // previously:
+        // assertNotNull(b);
+        // assertNull(b.getA());
+        // assertNull(b.getB());
+
+        // pg13+
+        assertNull(b);
 
         assertNull(result.getC());
     }
