@@ -68,7 +68,7 @@ public abstract class AbstractTest {
 
         execute("CREATE TABLE tmp.test_time(lt timestamp without time zone, gt timestamp with time zone, zone text);");
         execute(
-            "INSERT INTO tmp.test_time(lt, gt, zone) VALUES ('2012-07-30 16:00:00+0' AT TIME ZONE 'UTC', '2012-07-30 16:00:00+0', 'utc'), ('2012-07-30 16:00:00+2' AT TIME ZONE 'UTC', '2012-07-30 18:00:00+2', 'cest'), ('2012-07-30 19:00:00+2' AT TIME ZONE 'UTC', '2012-08-01 04:00:00+09', 'japan');");
+            "INSERT INTO tmp.test_time(lt, gt, zone) VALUES ('2012-07-25 16:00:00+0' AT TIME ZONE 'UTC', '2012-07-25 16:00:00+0', 'utc'), ('2012-07-26 16:00:00+0' AT TIME ZONE 'UTC', '2012-07-26 18:00:00+2', 'cest'), ('2012-07-29 19:00:00+0' AT TIME ZONE 'UTC', '2012-07-30 04:00:00+09', 'japan');");
 
         final String test_time_sproc =
             "CREATE OR REPLACE FUNCTION tmp.test_time_function(OUT id smallint, OUT msg text) " + "RETURNS record AS "
