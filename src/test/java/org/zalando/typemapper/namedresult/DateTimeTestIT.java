@@ -22,7 +22,7 @@ public class DateTimeTestIT extends AbstractTest {
 
     @Test
     public void testDateTimeMappings() throws SQLException {
-        final PreparedStatement ps = connection.prepareStatement("SELECT lt, gt, zone from tmp.test_time");
+        final PreparedStatement ps = connection.prepareStatement("SELECT (lt AT TIME ZONE 'UTC')::timestamp lt, gt, zone from tmp.test_time");
         final ResultSet rs = ps.executeQuery();
         final TypeMapper<?> mapper = TypeMapperFactory.createTypeMapper(ClassWithDateTime.class);
         int i = 0;
