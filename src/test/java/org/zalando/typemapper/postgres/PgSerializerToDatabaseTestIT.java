@@ -42,6 +42,7 @@ import static org.zalando.typemapper.postgres.PgRow.ROW;
 @RunWith(Parameterized.class)
 public class PgSerializerToDatabaseTestIT extends AbstractTest {
 
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ssx");
     private final Object objectToSerialize;
     private final String expectedString;
     private final int expectedSQLType;
@@ -198,10 +199,12 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                         /* 20 */
                         {new Date(1354338366000L), OffsetDateTime.parse("2012-12-01T06:06:06+01:00")
                                 .atZoneSameInstant(ZoneId.systemDefault())
-                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ssx")), Types.TIMESTAMP},
+                                .format(TIMESTAMP_FORMATTER), Types.TIMESTAMP},
 
                         /* 21 */
-                        {new Date(1349064366000L), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
+                        {new Date(1349064366000L), OffsetDateTime.parse("2012-10-01T06:06:06+02:00")
+                                .atZoneSameInstant(ZoneId.systemDefault())
+                                .format(TIMESTAMP_FORMATTER), Types.TIMESTAMP},
 
                         /* 22 */
                         {PgTypeHelper.asPGobject(
