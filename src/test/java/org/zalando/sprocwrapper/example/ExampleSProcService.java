@@ -292,4 +292,6 @@ public interface ExampleSProcService {
     @SProcCall
     List<ExampleEnumDomainObject> listExampleEnumDomainObjects();
 
+    @SProcCall
+    ExampleEnum returnEnumFromFunction();
 }
