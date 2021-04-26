@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import javax.sql.DataSource;
 import javax.validation.ConstraintViolationException;
 
@@ -37,38 +38,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 
-import org.zalando.sprocwrapper.example.AddressPojo;
-import org.zalando.sprocwrapper.example.Example1DomainObject1;
-import org.zalando.sprocwrapper.example.Example1DomainObject2;
-import org.zalando.sprocwrapper.example.Example2DomainObject1;
-import org.zalando.sprocwrapper.example.Example2DomainObject2;
-import org.zalando.sprocwrapper.example.ExampleDomainObject;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithDate;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithEmbed;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithEnum;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithGlobalTransformer;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithInnerObject;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithMap;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFields;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsInner;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithRandomFieldsOverride;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithSimpleTransformer;
-import org.zalando.sprocwrapper.example.ExampleDomainObjectWithValidation;
-import org.zalando.sprocwrapper.example.ExampleEnum;
-import org.zalando.sprocwrapper.example.ExampleEnumDomainObject;
-import org.zalando.sprocwrapper.example.ExampleNamespacedSProcService;
-import org.zalando.sprocwrapper.example.ExampleSProcService;
-import org.zalando.sprocwrapper.example.ExampleValidationSProcService;
-import org.zalando.sprocwrapper.example.GlobalTransformedObject;
-import org.zalando.sprocwrapper.example.LookupType;
-import org.zalando.sprocwrapper.example.LookupTypeSchema;
-import org.zalando.sprocwrapper.example.OptionalLookupType;
-import org.zalando.sprocwrapper.example.Order;
-import org.zalando.sprocwrapper.example.OrderMonetaryAmountImpl;
-import org.zalando.sprocwrapper.example.OrderPosition;
-import org.zalando.sprocwrapper.example.TestInheritanceChild;
-import org.zalando.sprocwrapper.example.WrapperLookupSchema;
-import org.zalando.sprocwrapper.example.WrapperOptionalLookupType;
+import org.zalando.sprocwrapper.example.*;
 import org.zalando.typemapper.parser.DateTimeUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -1123,6 +1093,28 @@ public class SimpleIT {
     @Test
     public void testEnumListSet() {
         List<ExampleEnumDomainObject> result = exampleSProcService.listExampleEnumDomainObjects();
-        System.out.println(result);
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    public void testMapEnumFromSchemaNotInSearchPath() {
+        List<Car> cars = exampleSProcService.getCars();
+        System.out.println(cars);
+        final Optional<Car> toyotaOpt = cars.stream().filter(car -> car.getId() == 1).findFirst();
+        assertTrue(toyotaOpt.isPresent());
+        Car toyota = toyotaOpt.get();
+        assertEquals(toyota.getBrand(), "Toyota");
+        assertEquals(toyota.getColor(), Color.RED);
+    }
+
+    @Test
+    public void mapCustomObjectFromSchemaNotInSearchPath() {
+        final List<Customer> customers = exampleSProcService.getCustomersFromExternalSchema();
+        assertEquals(1, customers.size());
+        final Customer customer = customers.get(0);
+        // FROM (VALUES (1::BIGINT, 'John'::TEXT, ROW('First street', 15)::ztest_schema3.CUSTOMER_ADDRESS))
+        assertEquals(1, customer.getId());
+        assertEquals("John", customer.getName());
+        assertEquals(new CustomerAddress().setStreet("First street").setHouseNumber(15), customer.getAddress());
     }
 }

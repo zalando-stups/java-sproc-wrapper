@@ -1,38 +1,36 @@
 package org.zalando.typemapper.core.result;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.zalando.typemapper.core.db.DbType;
 import org.zalando.typemapper.core.db.DbTypeField;
 import org.zalando.typemapper.core.db.DbTypeRegister;
 import org.zalando.typemapper.parser.exception.RowParserException;
 import org.zalando.typemapper.parser.postgres.ParseUtils;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ObjectResultNode implements DbResultNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectResultNode.class);
 
-    private String name;
-    private String type;
-    private int typeId;
+    private final String name;
+    private final String type;
+    private final int typeId;
     private List<DbResultNode> children;
-    private Map<String, DbResultNode> nodeMap = new HashMap<>();
+    private final Map<String, DbResultNode> nodeMap = new HashMap<>();
 
     public ObjectResultNode(final String value, final String name, final String typeName, final int typeId,
-            final Connection connection) throws SQLException {
+                            final Connection connection) throws SQLException {
         super();
         this.type = typeName;
         this.typeId = typeId;
-        this.children = new ArrayList<DbResultNode>();
+        this.children = new ArrayList<>();
         this.name = name;
 
         List<String> values;
@@ -57,9 +55,9 @@ public class ObjectResultNode implements DbResultNode {
             }
 
             final DbTypeField fieldDef = dbType.getFieldByPos(i);
-            DbResultNode node = null;
+            DbResultNode node;
             if (fieldDef == null) {
-                LOG.error("Could not find field in {} for pos ", dbType, i);
+                LOG.error("Could not find field in {} for pos {}", dbType, i);
                 continue;
             }
 
@@ -110,6 +108,11 @@ public class ObjectResultNode implements DbResultNode {
 
     @Override
     public DbResultNode getChildByName(final String name) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Lookup the property value of name {} in the object of the name: {} and type: {}", name,
+                    this.name,
+                    this.type);
+        }
         DbResultNode resultNode = nodeMap.get(name);
         if (resultNode == null) {
             for (final DbResultNode node : getChildren()) {
@@ -127,7 +130,7 @@ public class ObjectResultNode implements DbResultNode {
     @Override
     public String toString() {
         return "ObjectResultNode [name=" + name + ", type=" + type + ", typeId=" + typeId + ", children=" + children
-                + "]";
+               + "]";
     }
 
 }

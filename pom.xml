@@ -59,8 +59,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <spring.version>5.2.12.RELEASE</spring.version>
         <postgresql.version>42.2.14</postgresql.version>
     </properties>
@@ -434,6 +434,7 @@
                                         CREATE EXTENSION hstore;
                                         DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_schema2 CASCADE;
+                                        DROP SCHEMA IF EXISTS ztest_schema3 CASCADE;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>
