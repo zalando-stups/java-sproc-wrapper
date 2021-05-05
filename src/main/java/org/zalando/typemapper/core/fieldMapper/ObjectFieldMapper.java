@@ -62,7 +62,7 @@ public class ObjectFieldMapper {
 
         // instantiate enums by string value
         if (clazz.isEnum()) {
-            final DbResultNode currentNode = node.getChildByName(node.getName());
+            final DbResultNode currentNode = node.getChildByName(node.getType());
             if (currentNode == null) {
                 final String error =
                         String.format(
