@@ -73,6 +73,13 @@ public class ObjectResultNode implements DbResultNode {
             } else if (fieldDef.getType().equals("ARRAY")) {
                 node = new ArrayResultNode(fieldDef.getName(), fieldValue, fieldDef.getTypeName().substring(1),
                         fieldDef.getTypeId(), connection);
+            } else if (fieldDef.getType().equals("enum")) {
+                /*
+                    This is a special case when JDBC driver returns enum as an object.
+                    This happens when the enum class is not in the search path. Otherwise it will be handled as a
+                    regular field by org.zalando.typemapper.core.fieldMapper.EnumerationFieldMapper
+                 */
+                node = new SimpleResultNode(fieldValue, this.type);
             } else {
                 node = new SimpleResultNode(fieldValue, fieldDef.getName());
             }
