@@ -30,10 +30,10 @@ public class CollectionWithEnumsTestIT extends AbstractTest {
         final TypeMapper<ClassWithListOfEnums> mapper = TypeMapperFactory.createTypeMapper(ClassWithListOfEnums.class);
         int i = 0;
         while (rs.next()) {
-            final ClassWithListOfEnums result = (ClassWithListOfEnums) mapper.mapRow(rs, i++);
+            final ClassWithListOfEnums result = mapper.mapRow(rs, i++);
             Assert.assertNotNull(result);
             Assert.assertNotNull(result.getEnumList());
-            Assert.assertTrue(result.getEnumList().size() == 2);
+            Assert.assertEquals(2, result.getEnumList().size());
             Assert.assertNotNull(result.getEnumList().get(0));
             Assert.assertNotNull(result.getEnumList().get(1));
 

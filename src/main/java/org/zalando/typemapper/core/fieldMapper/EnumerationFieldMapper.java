@@ -3,9 +3,9 @@ package org.zalando.typemapper.core.fieldMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnumrationFieldMapper implements FieldMapper {
+public class EnumerationFieldMapper implements FieldMapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EnumrationFieldMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EnumerationFieldMapper.class);
 
     @SuppressWarnings("rawtypes")
     @Override

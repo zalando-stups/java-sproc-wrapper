@@ -56,7 +56,7 @@ public class FieldMapperRegister {
         FieldMapperRegister.register(Boolean.class, booleanMapper);
         FieldMapperRegister.register(boolean.class, booleanMapper);
 
-        final FieldMapper enumMapper = new EnumrationFieldMapper();
+        final FieldMapper enumMapper = new EnumerationFieldMapper();
         FieldMapperRegister.register(Enum.class, enumMapper);
 
         final FieldMapper bigDecimalMapper = new BigDecimalFieldMappper();

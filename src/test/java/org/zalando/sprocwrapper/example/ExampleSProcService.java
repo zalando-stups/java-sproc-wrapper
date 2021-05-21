@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 
+
 import org.zalando.sprocwrapper.SProcCall;
 import org.zalando.sprocwrapper.SProcCall.Validate;
 import org.zalando.sprocwrapper.SProcParam;
@@ -13,7 +14,7 @@ import org.zalando.sprocwrapper.SProcService;
 import org.zalando.sprocwrapper.sharding.ShardKey;
 
 /**
- * @author  jmussler
+ * @author jmussler
  */
 @SProcService
 public interface ExampleSProcService {
@@ -25,10 +26,10 @@ public interface ExampleSProcService {
 
     @SProcCall(name = "create_article_simple_items")
     String createArticleSimpleItems(@SProcParam(name = "sku")
-            @ShardKey String sku, @SProcParam int stockId,
-            @SProcParam(name = "quantity") int quantity,
-            @SProcParam(name = "price") int purchasePrice,
-            @SProcParam(name = "referencenumber") String referenceNumber);
+                                    @ShardKey String sku, @SProcParam int stockId,
+                                    @SProcParam(name = "quantity") int quantity,
+                                    @SProcParam(name = "price") int purchasePrice,
+                                    @SProcParam(name = "referencenumber") String referenceNumber);
 
     @SProcCall
     Integer getSimpleInt();
@@ -68,7 +69,7 @@ public interface ExampleSProcService {
 
     @SProcCall
     boolean login(@SProcParam String userName,
-            @SProcParam(sensitive = true) String password);
+                  @SProcParam(sensitive = true) String password);
 
     @SProcCall(sql = "SELECT 'a' AS a, 'b' AS b UNION ALL SELECT 'c', 'd'")
     List<ExampleDomainObject> getResult();
@@ -171,7 +172,7 @@ public interface ExampleSProcService {
 
     @SProcCall
     GlobalTransformedObject testGlobalTransformer3(@SProcParam GlobalTransformedObject globalTransformedObject,
-            @SProcParam ExampleDomainObject object);
+                                                   @SProcParam ExampleDomainObject object);
 
     @SProcCall
     List<GlobalTransformedObject> testGlobalTransformer4(
@@ -236,13 +237,16 @@ public interface ExampleSProcService {
 
     @SProcCall
     int createOrder(@SProcParam String orderNumber, @SProcParam OrderMonetaryAmount amount,
-            @SProcParam AddressPojo address);
+                    @SProcParam AddressPojo address);
 
     @SProcCall
     int createOrder(@SProcParam Order order);
 
     @SProcCall(sql = "SELECT 'ENUM_CONST_2'::example_enum;")
     ExampleEnum getExampleEnum();
+
+    @SProcCall(sql = "SELECT 'ENUM_CONST_2'::ztest_schema2.schema2_enum;")
+    ExampleEnum getExampleEnum2();
 
     @SProcCall(sql = "SELECT NULL::example_enum;")
     ExampleEnum getNullExampleEnum();
@@ -254,8 +258,8 @@ public interface ExampleSProcService {
     List<LookupType> getValueForTypeLookupList();
 
     @SProcCall(
-        sql =
-            "SELECT 3 AS count, ARRAY[ROW(4)]::ztest_schema1.lookup_type_schema[] AS schema_1, ARRAY[(1,2)]::ztest_schema2.lookup_type_schema[] AS schema_2"
+            sql =
+                    "SELECT 3 AS count, ARRAY[ROW(4)]::ztest_schema1.lookup_type_schema[] AS schema_1, ARRAY[(1,2)]::ztest_schema2.lookup_type_schema[] AS schema_2"
     )
     WrapperLookupSchema getValueForTypeLookupSchema();
 
@@ -294,4 +298,12 @@ public interface ExampleSProcService {
 
     @SProcCall
     ExampleEnum returnEnumFromFunction();
+
+    @SProcCall(sql = "SELECT * from ztest_schema3.get_all_cars()")
+    List<Car> getCars();
+
+    @SProcCall(sql = "SELECT * from ztest_schema3.get_all_customers()")
+    List<Customer> getCustomersFromExternalSchema();
+
+
 }

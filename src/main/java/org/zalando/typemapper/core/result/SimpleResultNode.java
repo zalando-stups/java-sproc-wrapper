@@ -30,7 +30,7 @@ public class SimpleResultNode implements DbResultNode {
 
     @Override
     public List<DbResultNode> getChildren() {
-        return new ArrayList<DbResultNode>();
+        return new ArrayList<>();
     }
 
     @Override

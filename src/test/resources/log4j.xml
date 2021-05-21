@@ -22,7 +22,7 @@
     </logger>
 
     <root>
-        <priority value="error"/>
+        <priority value="ERROR"/>
         <appender-ref ref="default"/>
     </root>
 
