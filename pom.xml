@@ -61,7 +61,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <spring.version>5.2.12.RELEASE</spring.version>
+        <spring.version>5.2.16.RELEASE</spring.version>
         <postgresql.version>42.2.14</postgresql.version>
     </properties>
 
@@ -198,7 +198,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>6.1.6</version>
+                <version>6.2.2</version>
                 <executions>
                     <execution>
                         <goals>
