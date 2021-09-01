@@ -48,11 +48,7 @@ public class GlobalValueTransformerLoader {
                 myNameSpaceToScan = namespaceToScan;
             }
 
-            final Set<String> namespaces =
-                    Arrays.stream(myNameSpaceToScan.split(NAMESPACE_SEPARATOR))
-                          .map(String::trim)
-                          .filter(Strings::isNullOrEmpty)
-                          .collect(Collectors.toSet());
+            final Set<String> namespaces = parseNamespaces(myNameSpaceToScan);
 
             namespaces.add(namespaceToScan);
             LOG.debug("Scan the following packages for {}: {}", GlobalValueTransformer.class.getSimpleName(),
@@ -102,10 +98,18 @@ public class GlobalValueTransformerLoader {
     /**
      * Use this static function to set the namespace to scan.
      *
-     * @param newNamespace the new namespace to be searched for {@link org.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer}
+     * @param newNamespace the new namespace to be searched for
+     *                     {@link org.zalando.sprocwrapper.globalvaluetransformer.annotation.GlobalValueTransformer}
      */
     public static void changeNamespaceToScan(final String newNamespace) {
         namespaceToScan = newNamespace;
         scannedClasspath = false;
+    }
+
+    static Set<String> parseNamespaces(String inputString) {
+        return Arrays.stream(inputString.split(NAMESPACE_SEPARATOR))
+                     .map(String::trim)
+                     .filter(ns -> !Strings.isNullOrEmpty(ns))
+                     .collect(Collectors.toSet());
     }
 }
