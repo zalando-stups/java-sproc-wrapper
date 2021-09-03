@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>3.1.1-SNAPSHOT</version>
+    <version>3.1.1</version>
 
     <name>Stored Procedure Wrapper</name>
     <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces
@@ -55,7 +53,8 @@
         <url>https://github.com/zalando-stups/java-sproc-wrapper.git</url>
         <connection>scm:git:git://github.com/zalando-stups/java-sproc-wrapper.git</connection>
         <developerConnection>scm:git:git@github.com:zalando-stups/java-sproc-wrapper.git</developerConnection>
-    </scm>
+      <tag>zalando-sprocwrapper-3.1.1</tag>
+  </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
