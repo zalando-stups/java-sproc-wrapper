@@ -21,11 +21,11 @@ public class ObjectResultNode implements DbResultNode {
 
     private final String name;
     private final String type;
-    private final int typeId;
+    private final long typeId;
     private List<DbResultNode> children;
     private final Map<String, DbResultNode> nodeMap = new HashMap<>();
 
-    public ObjectResultNode(final String value, final String name, final String typeName, final int typeId,
+    public ObjectResultNode(final String value, final String name, final String typeName, final long typeId,
                             final Connection connection) throws SQLException {
         super();
         this.type = typeName;

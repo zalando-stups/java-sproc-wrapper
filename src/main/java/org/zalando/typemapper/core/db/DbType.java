@@ -8,10 +8,10 @@ public class DbType {
 
     private final String schema;
     private final String name;
-    private final int id;
+    private final long id;
     private Map<Integer, DbTypeField> fields = new HashMap<Integer, DbTypeField>();
 
-    public DbType(final String schema, final String name, final int id) {
+    public DbType(final String schema, final String name, final long id) {
         this.schema = schema;
         this.name = name;
         this.id = id;
@@ -25,7 +25,7 @@ public class DbType {
         return name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
