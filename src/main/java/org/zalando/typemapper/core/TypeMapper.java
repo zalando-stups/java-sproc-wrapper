@@ -71,7 +71,6 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
     }
 
     private ResultTree extractResultTree(final ResultSet set) throws SQLException {
-        LOG.trace("Extracting result tree");
 
         // cast to obtain more information from the result set.
         final PgResultSet pgSet = set.unwrap(PgResultSet.class);
@@ -80,7 +79,7 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
         final ResultTree tree = new ResultTree();
 
         for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
-            final int typeId = pgSet.getColumnOID(i);
+            final long typeId = pgSet.getColumnOID(i);
             DbResultNode node = null;
 
             final Object obj = pgSet.getObject(i);
@@ -100,7 +99,7 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
                 int j = 1;
                 for (final String fieldValue : fieldValues) {
                     final DbTypeField fieldDef = function.getFieldByPos(j);
-                    DbResultNode currentNode = null;
+                    DbResultNode currentNode;
                     if (fieldDef.getType().equals("USER-DEFINED")) {
                         currentNode = new ObjectResultNode(fieldValue, fieldDef.getName(), fieldDef.getTypeName(),
                                 fieldDef.getTypeId(), pgSet.getStatement().getConnection());
@@ -141,7 +140,7 @@ public class TypeMapper<ITEM> implements RowMapper<ITEM> {
             tree.addChild(node);
         }
 
-        LOG.trace("Extracted ResultTree: {}", tree);
+        LOG.debug("Extracted ResultTree: {}", tree);
 
         return tree;
     }

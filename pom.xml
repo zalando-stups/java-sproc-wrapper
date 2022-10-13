@@ -6,7 +6,7 @@
 
     <groupId>org.zalando</groupId>
     <artifactId>zalando-sprocwrapper</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.1.2-SNAPSHOT</version>
 
     <name>Stored Procedure Wrapper</name>
     <description>Library to make PostgreSQL stored procedures available through simple Java "*SProcService" interfaces
@@ -59,10 +59,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <spring.version>5.2.12.RELEASE</spring.version>
-        <postgresql.version>42.2.14</postgresql.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <spring.version>5.3.23</spring.version>
+        <postgresql.version>42.5.0</postgresql.version>
+        <dependency-check-maven.version>7.2.1</dependency-check-maven.version>
     </properties>
 
     <dependencies>
@@ -100,7 +101,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.1.0.Final</version>
+            <version>6.1.5.Final</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -110,7 +111,7 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
+            <version>0.9.12</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -198,7 +199,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>6.0.5</version>
+                <version>${dependency-check-maven.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -434,6 +435,7 @@
                                         CREATE EXTENSION hstore;
                                         DROP SCHEMA IF EXISTS ztest_schema1 CASCADE;
                                         DROP SCHEMA IF EXISTS ztest_schema2 CASCADE;
+                                        DROP SCHEMA IF EXISTS ztest_schema3 CASCADE;
                                     </sqlCommand>
                                     <onError>continue</onError>
                                 </configuration>

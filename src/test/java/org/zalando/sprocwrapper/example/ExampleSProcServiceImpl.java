@@ -2,29 +2,26 @@
 package org.zalando.sprocwrapper.example;
 
 import java.sql.Timestamp;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import org.springframework.stereotype.Repository;
 
 
-import org.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 import org.zalando.sprocwrapper.AbstractSProcService;
 import org.zalando.sprocwrapper.SProcParam;
+import org.zalando.sprocwrapper.dsprovider.ArrayDataSourceProvider;
 
 /**
- * @author  jmussler
+ * @author jmussler
  */
 @Repository
 public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcService, ArrayDataSourceProvider>
-    implements ExampleSProcService {
+        implements ExampleSProcService {
 
     @Override
     public ExampleEnum getExampleEnum() {
@@ -48,7 +45,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
 
     @Override
     public String createArticleSimpleItems(final String sku, final int stockId, final int quantity,
-            final int purchasePrice, final String referenceNumber) {
+                                           final int purchasePrice, final String referenceNumber) {
         if (sku == null) {
             throw new IllegalArgumentException("SKU");
         }
@@ -309,7 +306,7 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
 
     @Override
     public GlobalTransformedObject testGlobalTransformer3(final GlobalTransformedObject globalTransformedObject,
-            final ExampleDomainObject object) {
+                                                          final ExampleDomainObject object) {
         return sproc.testGlobalTransformer3(globalTransformedObject, object);
     }
 
@@ -463,5 +460,25 @@ public class ExampleSProcServiceImpl extends AbstractSProcService<ExampleSProcSe
     @Override
     public List<ExampleEnumDomainObject> listExampleEnumDomainObjects() {
         return sproc.listExampleEnumDomainObjects();
+    }
+
+    @Override
+    public ExampleEnum returnEnumFromFunction() {
+        return sproc.returnEnumFromFunction();
+    }
+
+    @Override
+    public ExampleEnum getExampleEnum2() {
+        return sproc.getExampleEnum2();
+    }
+
+    @Override
+    public List<Car> getCars() {
+        return sproc.getCars();
+    }
+
+    @Override
+    public List<Customer> getCustomersFromExternalSchema() {
+        return sproc.getCustomersFromExternalSchema();
     }
 }

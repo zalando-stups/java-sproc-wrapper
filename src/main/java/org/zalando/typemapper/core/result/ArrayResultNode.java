@@ -15,11 +15,11 @@ public class ArrayResultNode implements DbResultNode {
 
     private String name;
     private String type;
-    private int typeId;
+    private long typeId;
     private List<DbResultNode> children;
     private DbType typeDef;
 
-    public ArrayResultNode(final String name, final String value, final String typeName, final int typeId,
+    public ArrayResultNode(final String name, final String value, final String typeName, final long typeId,
             final Connection connection) throws SQLException {
         this.name = name;
         this.type = typeName;

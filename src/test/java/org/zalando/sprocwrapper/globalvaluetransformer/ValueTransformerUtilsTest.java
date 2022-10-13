@@ -1,16 +1,45 @@
 package org.zalando.sprocwrapper.globalvaluetransformer;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.Test;
-
-
 import org.zalando.typemapper.core.ValueTransformer;
 
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
+
 public class ValueTransformerUtilsTest {
+
+    @Test
+    public void resolvesParametrizedUnmarshalReturnType() {
+        assertThat(ValueTransformerUtils.getUnmarshalFromDbClass(ConcreteTransformer.class),
+                is(sameInstance((Object) CustomBound.class)));
+    }
+
+    @Test
+    public void resolvesParametrizedMarshalReturnType() {
+        assertThat(ValueTransformerUtils.getMarshalToDbClass(new ConcreteTransformer()),
+                is(sameInstance((Object) CustomValue.class)));
+    }
+
+    @Test
+    public void parseNamespaces() {
+        Set<String> namespaces = GlobalValueTransformerLoader.parseNamespaces("a.b.c;d;e ; f");
+        assertThat(namespaces.size(), is(4));
+        assertThat(namespaces, hasItems("a.b.c", "d", "e", "f"));
+    }
+
+    @Test
+    public void parseEmptyNamespace() {
+        Set<String> namespaces = GlobalValueTransformerLoader.parseNamespaces("");
+        assertThat(namespaces.isEmpty(), is(true));
+    }
+
+    @Test
+    public void parseBlankNamespace() {
+        Set<String> namespaces = GlobalValueTransformerLoader.parseNamespaces(" ");
+        assertThat(namespaces.isEmpty(), is(true));
+    }
 
     /**
      * A custom value that shall be transformed using a {@link ValueTransformer}.
@@ -62,17 +91,5 @@ public class ValueTransformerUtilsTest {
         protected CustomValue delegatedMarshalling(final CustomBound preprocessed) {
             return null; // doesn't do anything meaningful, just an example
         }
-    }
-
-    @Test
-    public void resolvesParamterizedUnmarshalReturnType() {
-        assertThat(ValueTransformerUtils.getUnmarshalFromDbClass(ConcreteTransformer.class),
-            is(sameInstance((Object) CustomBound.class)));
-    }
-
-    @Test
-    public void resolvesParamterizedMarshalReturnType() {
-        assertThat(ValueTransformerUtils.getMarshalToDbClass(new ConcreteTransformer()),
-            is(sameInstance((Object) CustomValue.class)));
     }
 }

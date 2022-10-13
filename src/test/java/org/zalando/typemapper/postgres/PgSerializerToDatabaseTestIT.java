@@ -1,6 +1,15 @@
 //J-
 package org.zalando.typemapper.postgres;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.context.TestContextManager;
 import org.zalando.typemapper.AbstractTest;
 import org.zalando.typemapper.namedresult.results.ClassWithEnum;
 import org.zalando.typemapper.namedresult.results.ClassWithPredefinedTransformer;
@@ -13,58 +22,33 @@ import org.zalando.typemapper.namedresult.results.InheritedClassWithPrimitives;
 import org.zalando.typemapper.namedresult.results.InheritedClassWithPrimitivesDeprecated;
 import org.zalando.typemapper.namedresult.transformer.Hans;
 
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.test.context.TestContextManager;
-
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
-
-
-import static org.zalando.typemapper.postgres.PgArray.ARRAY;
-import static org.zalando.typemapper.postgres.PgRow.ROW;
-
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.zalando.typemapper.postgres.PgArray.ARRAY;
+import static org.zalando.typemapper.postgres.PgRow.ROW;
 
 
 @RunWith(Parameterized.class)
 public class PgSerializerToDatabaseTestIT extends AbstractTest {
 
-    private TestContextManager testContextManager;
-
-    @Override
-    protected void prepareContext() throws Exception {
-        testContextManager = new TestContextManager(getClass());
-        testContextManager.prepareTestInstance(this);
-    }
-
-    @Before
-    public void createJdbcTemplate() {
-        // BasicConfigurator.configure();
-        // Logger.getRootLogger().setLevel(Level.INFO);
-        // Logger.getLogger(org.springframework.jdbc.datasource.DataSourceUtils.class).setLevel(Level.INFO);
-        // Logger.getLogger("org.springframework.jdbc.core.JdbcTemplate").setLevel(Level.WARN);
-        // Logger.getLogger("org.springframework.beans").setLevel(Level.WARN);
-        // Logger.getLogger("org.springframework.jdbc.support").setLevel(Level.WARN);
-
-        this.template = new JdbcTemplate(new SingleConnectionDataSource(this.connection, false));
-    }
-
-    // Fields
-    private JdbcTemplate template;
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ssx");
     private final Object objectToSerialize;
     private final String expectedString;
     private final int expectedSQLType;
+    private TestContextManager testContextManager;
+    // Fields
+    private JdbcTemplate template;
 
     /*
      * Constructor. The JUnit test runner will instantiate this class once for
@@ -161,10 +145,10 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                         /* 13 */
                         {
                                 ROW(1,
-                                        new ClassWithPrimitives[]{
-                                                new ClassWithPrimitives(1, 100L, 'a'), new ClassWithPrimitives(2, 200L,
-                                                'b')
-                                        }).asPGobject("int_with_additional_type_array"),
+                                    new ClassWithPrimitives[]{
+                                            new ClassWithPrimitives(1, 100L, 'a'), new ClassWithPrimitives(2, 200L,
+                                                                                                           'b')
+                                    }).asPGobject("int_with_additional_type_array"),
                                 "(1,\"{\"\"(a,1,100)\"\",\"\"(b,2,200)\"\"}\")", Types.OTHER
                         },
 
@@ -188,8 +172,9 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                         {
                                 PgTypeHelper.asPGobject(
                                         new ClassWithSimpleTransformers(GenderCode.MALE, GenderCode.MALE,
-                                                GenderCode.MALE, "path",
-                                                "listElement1", "listElement2", "listElement3")),
+                                                                        GenderCode.MALE, "path",
+                                                                        "listElement1", "listElement2",
+                                                                        "listElement3")),
                                 "(path,homme,0,MALE,listElement1#listElement2#listElement3)", Types.OTHER
                         },
 
@@ -212,16 +197,38 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
                         },
 
                         /* 20 */
-                        {new Date(1354338366000L), "2012-12-01 06:06:06+01", Types.TIMESTAMP},
+                        {new Date(1354338366000L), OffsetDateTime.parse("2012-12-01T06:06:06+01:00")
+                                .atZoneSameInstant(ZoneId.systemDefault())
+                                .format(TIMESTAMP_FORMATTER), Types.TIMESTAMP},
 
                         /* 21 */
-                        {new Date(1349064366000L), "2012-10-01 06:06:06+02", Types.TIMESTAMP},
+                        {new Date(1349064366000L), OffsetDateTime.parse("2012-10-01T06:06:06+02:00")
+                                .atZoneSameInstant(ZoneId.systemDefault())
+                                .format(TIMESTAMP_FORMATTER), Types.TIMESTAMP},
 
                         /* 22 */
                         {PgTypeHelper.asPGobject(
                                 new InheritedClassWithPrimitives(1L, "1", 12)), "(1,12,1)", Types.OTHER},
 
                 });
+    }
+
+    @Override
+    protected void prepareContext() throws Exception {
+        testContextManager = new TestContextManager(getClass());
+        testContextManager.prepareTestInstance(this);
+    }
+
+    @Before
+    public void createJdbcTemplate() {
+        // BasicConfigurator.configure();
+        // Logger.getRootLogger().setLevel(Level.INFO);
+        // Logger.getLogger(org.springframework.jdbc.datasource.DataSourceUtils.class).setLevel(Level.INFO);
+        // Logger.getLogger("org.springframework.jdbc.core.JdbcTemplate").setLevel(Level.WARN);
+        // Logger.getLogger("org.springframework.beans").setLevel(Level.WARN);
+        // Logger.getLogger("org.springframework.jdbc.support").setLevel(Level.WARN);
+
+        this.template = new JdbcTemplate(new SingleConnectionDataSource(this.connection, false));
     }
 
     @Before
@@ -267,7 +274,7 @@ public class PgSerializerToDatabaseTestIT extends AbstractTest {
     @Test
     public void passingParametersToQueryTest() {
         assertThat(template.queryForObject("SELECT (?)::TEXT", new Object[]{this.objectToSerialize},
-                new int[]{this.expectedSQLType}, String.class), is(this.expectedString));
+                                           new int[]{this.expectedSQLType}, String.class), is(this.expectedString));
     }
 }
 //J+

@@ -1,15 +1,7 @@
 package org.zalando.typemapper.core.fieldMapper;
 
-import static org.zalando.typemapper.postgres.PgTypeHelper.getDatabaseFieldDescriptor;
-
-import java.lang.reflect.InvocationTargetException;
-
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 import org.zalando.typemapper.core.DatabaseFieldDescriptor;
 import org.zalando.typemapper.core.Mapping;
 import org.zalando.typemapper.core.result.ArrayResultNode;
@@ -17,6 +9,11 @@ import org.zalando.typemapper.core.result.DbResultNode;
 import org.zalando.typemapper.core.result.DbResultNodeType;
 import org.zalando.typemapper.core.result.ObjectResultNode;
 import org.zalando.typemapper.exception.NotsupportedTypeException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+import static org.zalando.typemapper.postgres.PgTypeHelper.*;
 
 public class ObjectFieldMapper {
 
@@ -34,9 +31,10 @@ public class ObjectFieldMapper {
         return true;
     }
 
-    public static final Object mapFromDbObjectNode(final Class classz, final ObjectResultNode node,
-            final Mapping mapping) throws InstantiationException, IllegalAccessException, IllegalArgumentException,
-        InvocationTargetException, NotsupportedTypeException, NoSuchMethodException, SecurityException {
+    public static Object mapFromDbObjectNode(final Class classz, final ObjectResultNode node,
+                                                   final Mapping mapping) throws InstantiationException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NotsupportedTypeException, NoSuchMethodException, SecurityException {
         final DatabaseFieldDescriptor descriptor = getDatabaseFieldDescriptor(mapping.getField());
         final Object value;
 
@@ -53,18 +51,26 @@ public class ObjectFieldMapper {
     }
 
     @SuppressWarnings("unchecked")
-    public static final Object mapField(@SuppressWarnings("rawtypes") final Class clazz, final ObjectResultNode node)
-        throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+    public static Object mapField(@SuppressWarnings("rawtypes") final Class clazz, final ObjectResultNode node)
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
             NotsupportedTypeException, SecurityException, NoSuchMethodException {
         if (node.getChildren() == null) {
             return null;
         }
 
-        Object result = null;
+        Object result;
 
         // instantiate enums by string value
         if (clazz.isEnum()) {
             final DbResultNode currentNode = node.getChildByName(node.getType());
+            if (currentNode == null) {
+                final String error =
+                        String.format(
+                                "Can not map the enum class \"%s\" to the database field \"%s\" of type \"%s\". Enum value is not found.",
+                                clazz.getName(),
+                                node.getName(), node.getType());
+                throw new IllegalStateException(error);
+            }
             result = Enum.valueOf(clazz, currentNode.getValue());
         } else {
             result = clazz.getDeclaredConstructor().newInstance();
@@ -87,16 +93,15 @@ public class ObjectFieldMapper {
                 try {
                     if (DbResultNodeType.SIMPLE.equals(currentNode.getNodeType())) {
                         mapping.map(result,
-                            mapping.getFieldMapper().mapField(currentNode.getValue(), mapping.getFieldClass()));
+                                mapping.getFieldMapper().mapField(currentNode.getValue(), mapping.getFieldClass()));
                     } else if (DbResultNodeType.OBJECT.equals(currentNode.getNodeType())) {
                         mapping.map(result, mapFromDbObjectNode(clazz, (ObjectResultNode) currentNode, mapping));
                     } else if (DbResultNodeType.ARRAY.equals(currentNode.getNodeType())) {
                         mapping.map(result,
-                            ArrayFieldMapper.mapField(mapping.getField(), (ArrayResultNode) currentNode));
+                                ArrayFieldMapper.mapField(mapping.getField(), (ArrayResultNode) currentNode));
                     }
                 } catch (final Exception e) {
-                    LOG.error("Failed to map property {} of class {}",
-                        new Object[] {mapping.getName(), clazz.getSimpleName(), e});
+                    LOG.error("Failed to map property {} of class {}", mapping.getName(), clazz.getSimpleName(), e);
                 }
             }
         }

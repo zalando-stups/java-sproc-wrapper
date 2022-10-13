@@ -1,12 +1,11 @@
 package org.zalando.typemapper.postgres;
 
+import org.postgresql.util.PGobject;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import java.util.Arrays;
 import java.util.Collection;
-
-import org.postgresql.util.PGobject;
 
 public final class PgRow extends PGobject {
 
@@ -57,12 +56,12 @@ public final class PgRow extends PGobject {
     }
 
     public static PgRow ROW(final Object... array) throws SQLException {
-        return new PgRow(null, array == null ? null : Arrays.asList(array));
+        return new PgRow("unknownType", array == null ? null : Arrays.asList(array));
     }
 
     @SuppressWarnings("unchecked")
     public static PgRow ROW(final Collection<?> collection) throws SQLException {
-        return new PgRow(null, (Collection<Object>) collection);
+        return new PgRow("unknownType", (Collection<Object>) collection);
     }
 
     @Override
