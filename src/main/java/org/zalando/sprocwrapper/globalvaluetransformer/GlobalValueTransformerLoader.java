@@ -1,5 +1,6 @@
 package org.zalando.sprocwrapper.globalvaluetransformer;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -17,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class GlobalValueTransformerLoader {
