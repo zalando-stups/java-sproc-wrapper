@@ -111,7 +111,8 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.12</version>
+            <!-- 0.9.12 has a known bug https://github.com/ronmamo/reflections/issues/279 -->
+            <version>0.9.11</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
