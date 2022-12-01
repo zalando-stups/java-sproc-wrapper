@@ -62,7 +62,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <spring.version>5.3.23</spring.version>
-        <postgresql.version>42.5.0</postgresql.version>
+        <postgresql.version>42.5.1</postgresql.version>
         <dependency-check-maven.version>7.2.1</dependency-check-maven.version>
     </properties>
 
