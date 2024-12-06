@@ -1,6 +1,6 @@
 package org.zalando.sprocwrapper.example;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.zalando.sprocwrapper.SProcCall;
 import org.zalando.sprocwrapper.SProcCall.Validate;

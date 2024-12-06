@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

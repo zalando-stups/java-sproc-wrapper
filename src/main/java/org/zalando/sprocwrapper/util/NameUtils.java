@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.Locale;
 
-import static org.apache.commons.lang.StringUtils.splitByCharacterTypeCamelCase;
+import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
 
 /**
  * Static utility methods for naming conventions.

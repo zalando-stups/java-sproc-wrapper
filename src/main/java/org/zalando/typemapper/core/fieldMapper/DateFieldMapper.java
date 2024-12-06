@@ -1,5 +1,6 @@
 package org.zalando.typemapper.core.fieldMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -24,7 +25,8 @@ public class DateFieldMapper implements FieldMapper {
 
         Timestamp date = null;
         try {
-            date = postgresJDBCDriverReusedTimestampUtils.toTimestamp(null, string);
+            date = postgresJDBCDriverReusedTimestampUtils.toTimestamp(null, string.getBytes(
+                StandardCharsets.UTF_8));
         } catch (final SQLException e) {
             LOG.error("Invalid date/time string: {}", string, e);
         }

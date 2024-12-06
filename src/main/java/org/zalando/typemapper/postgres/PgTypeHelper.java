@@ -3,7 +3,6 @@ package org.zalando.typemapper.postgres;
 import javax.persistence.Column;
 
 import com.google.common.base.Optional;
-import org.postgresql.core.BaseConnection;
 import org.postgresql.jdbc.PostgresJDBCDriverReusedTimestampUtils;
 import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
@@ -268,7 +267,7 @@ public class PgTypeHelper {
         for (final Field f : fields) {
             final DatabaseFieldDescriptor databaseFieldDescriptor = getDatabaseFieldDescriptor(f);
             if (databaseFieldDescriptor != null) {
-                if (!f.isAccessible()) {
+                if (!f.canAccess(obj)) {
                     f.setAccessible(true);
                 }
 
@@ -501,17 +500,7 @@ public class PgTypeHelper {
             } else {
                 tmpd = new Timestamp(((Date) o).getTime());
             }
-
-            if (connection instanceof BaseConnection) {
-
-                // if we do have a valid postgresql connection use this one:
-                final BaseConnection postgresBaseConnection = (BaseConnection) connection;
-                sb.append(postgresBaseConnection.getTimestampUtils().toString(null, tmpd));
-            } else {
-
-                // no valid postgresql connection - use that one:
-                sb.append(postgresJDBCDriverReusedTimestampUtils.toString(null, tmpd));
-            }
+            sb.append(postgresJDBCDriverReusedTimestampUtils.toString(null, tmpd));
         } else if (o instanceof Map) {
             final Map<?, ?> map = (Map<?, ?>) o;
             sb.append(HStore.serialize(map));
