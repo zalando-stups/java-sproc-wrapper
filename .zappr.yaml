@@ -7,3 +7,4 @@ approvals:
       - zalando-stups
     collaborators: true
 X-Zalando-Team: acid
+X-Zalando-Type: code
