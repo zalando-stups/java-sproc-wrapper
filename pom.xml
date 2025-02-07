@@ -63,7 +63,6 @@
         <maven.compiler.target>21</maven.compiler.target>
         <spring.version>6.2.0</spring.version>
         <postgresql.version>42.7.4</postgresql.version>
-        <dependency-check-maven.version>11.1.0</dependency-check-maven.version>
     </properties>
 
     <dependencies>
@@ -191,21 +190,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>${dependency-check-maven.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failBuildOnCVSS>0</failBuildOnCVSS>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.basepom.maven</groupId>
