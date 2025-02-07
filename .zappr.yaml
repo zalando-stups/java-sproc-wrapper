@@ -1,10 +1,10 @@
 approvals:
-  pattern: "^(:\\+1:|👍|\\+1|:thumbsup:|[Ll][Gg][Tt][Mm])$"
-  minimum: 1
-  from:
-    orgs:
-      - zalando
-      - zalando-stups
-    collaborators: true
-X-Zalando-Team: acid
+  groups:
+    zalando:
+      minimum: 1
+      from:
+        orgs:
+          - "zalando"
+          - "zalando-stups"
 X-Zalando-Type: code
+X-Zalando-Team: acid
