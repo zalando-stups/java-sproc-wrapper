@@ -145,7 +145,7 @@ EXPORT global.value.transformer.search.namespace="my.package;another.package;thi
 Prerequisites
 -------------
 
-* Java 11
+* Java 17
 * To compile, one should use [Maven](http://maven.apache.org/) 3.0.0 or above
 
 Dependencies
