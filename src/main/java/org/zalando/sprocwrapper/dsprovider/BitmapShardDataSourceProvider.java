@@ -3,7 +3,7 @@ package org.zalando.sprocwrapper.dsprovider;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.BeanWrapperImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,18 +89,19 @@ public class BitmapShardDataSourceProvider implements DataSourceProvider {
 
         for (final Entry<String, String> entry : connectionUrls.entrySet()) {
             final DataSource ds = dataSourceClass.getDeclaredConstructor().newInstance();
+            var dsBeanWrapper = new BeanWrapperImpl(ds);
             for (final Entry<String, String> prop : commonDataSourceProperties.entrySet()) {
-                BeanUtils.setProperty(ds, prop.getKey(), prop.getValue());
+                dsBeanWrapper.setPropertyValue(prop.getKey(), prop.getValue());
             }
 
             final String[] parts = entry.getValue().split("\\|");
 
-            BeanUtils.setProperty(ds, "jdbcUrl", parts[0]);
+            dsBeanWrapper.setPropertyValue("jdbcUrl", parts[0]);
 
             if (parts.length > 1) {
 
                 // a little bit hacky, because "initSQL" is boneCP-specific
-                BeanUtils.setProperty(ds, "initSQL", parts[1]);
+                dsBeanWrapper.setPropertyValue("initSQL", parts[1]);
             }
 
             for (int i = 0; i < dataSources.length; i++) {
